@@ -8,6 +8,21 @@ def default_memory_root() -> Path:
     return Path(__file__).resolve().parents[2] / "meta" / "context-spine"
 
 
+def infer_collection_root(memory_root: Path) -> Path:
+    if memory_root.name == "context-spine" and memory_root.parent.name == "meta":
+        return memory_root.parent
+    return memory_root
+
+
+def infer_repo_root(memory_root: Path) -> Path:
+    if not (memory_root.name == "context-spine" and memory_root.parent.name == "meta"):
+        return memory_root
+    parents = memory_root.parents
+    if len(parents) > 2:
+        return parents[2]
+    return memory_root
+
+
 def main():
     parser = argparse.ArgumentParser(description="Generate a hot-memory index from recent file mtimes.")
     parser.add_argument("--days", type=int, default=7, help="Lookback window in days")
@@ -16,8 +31,8 @@ def main():
     args = parser.parse_args()
 
     memory_root = Path(args.root).expanduser() if args.root else default_memory_root()
-    collection_root = memory_root.parent
-    repo_root = memory_root.parents[2]
+    collection_root = infer_collection_root(memory_root)
+    repo_root = infer_repo_root(memory_root)
     cutoff = dt.datetime.now() - dt.timedelta(days=args.days)
 
     exclude = {"README.md", "hot-memory-index.md", "memory-scorecard.md"}
