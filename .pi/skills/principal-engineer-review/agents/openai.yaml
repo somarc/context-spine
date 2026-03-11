@@ -1,0 +1,4 @@
+interface:
+  display_name: "Principal Engineer Review"
+  short_description: "Judge project shape and architectural rigor"
+  default_prompt: "Use $principal-engineer-review to assess the emerging project shape, architectural drift, and durable memory updates required."

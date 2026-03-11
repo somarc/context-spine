@@ -9,7 +9,7 @@ This repository is a boilerplate intelligence layer for future projects.
 - open `meta/context-spine/spine-notes-context-spine.md` first for the current baseline
 - create a session note for meaningful work with `npm run context:session`
 - if retrieval is newly initialized and results are sparse, run `npm run context:update` and then `npm run context:embed`
-- if you change `.pi/skills/context-spine/`, run `npm run context:skill:install`
+- if you change `.pi/skills/`, run `npm run context:skill:install`
 
 ## Mission
 

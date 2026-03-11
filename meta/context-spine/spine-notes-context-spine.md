@@ -29,6 +29,7 @@ As of 2026-03-11, this repository is the reusable boilerplate for bootstrapping 
 - Preferred local entrypoints are `npm run context:init`, `npm run context:bootstrap`, `npm run context:session`, `npm run context:score`, `npm run context:update`, and `npm run context:embed`.
 - QMD collections should at minimum include `context-spine-meta` for `meta/` and `project-docs` for `docs/`.
 - The bootstrap flow should surface this note, the latest session note, recent visual explainers, and a quick QMD retrieval pass.
+- Repo-local Codex skill sources live under `.pi/skills/`, including `context-spine` and `principal-engineer-review`.
 
 ## Decisions
 
@@ -36,6 +37,7 @@ As of 2026-03-11, this repository is the reusable boilerplate for bootstrapping 
 - Treat `qmd` as the preferred retrieval layer, but keep bootstrap usable when `qmd` is absent or not yet initialized.
 - Ship a canonical baseline durable note so agents have one high-signal artifact to open immediately.
 - Prefer `npm run context:*` wrappers so bootstrap commands still work when executable bits are lost outside a normal git checkout.
+- Keep principal-engineer oversight as an additive review skill under `.pi/skills/` instead of making it a hard dependency of the core loop.
 
 ## Open Questions
 

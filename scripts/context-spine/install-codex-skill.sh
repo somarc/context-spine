@@ -2,9 +2,11 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-SOURCE_DIR="${CONTEXT_SPINE_SKILL_SOURCE:-$ROOT/.pi/skills/context-spine}"
+SOURCE_DIR="${CONTEXT_SPINE_SKILL_SOURCE:-}"
+SKILLS_ROOT="${CONTEXT_SPINE_SKILLS_SOURCE:-$ROOT/.pi/skills}"
 CODEX_HOME_DIR="${CODEX_HOME:-$HOME/.codex}"
-TARGET_DIR="${CONTEXT_SPINE_SKILL_TARGET:-$CODEX_HOME_DIR/skills/context-spine}"
+TARGET_ROOT="${CONTEXT_SPINE_SKILLS_TARGET:-$CODEX_HOME_DIR/skills}"
+TARGET_DIR_OVERRIDE="${CONTEXT_SPINE_SKILL_TARGET:-}"
 VALIDATOR="${CONTEXT_SPINE_SKILL_VALIDATOR:-$ROOT/scripts/context-spine/validate-codex-skill.py}"
 VALIDATE_ONLY=0
 
@@ -21,33 +23,91 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [[ ! -d "$SOURCE_DIR" ]]; then
-  echo "Skill source not found: $SOURCE_DIR" >&2
+collect_skill_dirs() {
+  if [[ -n "$SOURCE_DIR" ]]; then
+    if [[ ! -d "$SOURCE_DIR" || ! -f "$SOURCE_DIR/SKILL.md" ]]; then
+      echo "Skill source not found or invalid: $SOURCE_DIR" >&2
+      exit 1
+    fi
+    printf '%s\n' "$SOURCE_DIR"
+    return
+  fi
+
+  if [[ ! -d "$SKILLS_ROOT" ]]; then
+    echo "Skills root not found: $SKILLS_ROOT" >&2
+    exit 1
+  fi
+
+  while IFS= read -r dir; do
+    [[ -f "$dir/SKILL.md" ]] || continue
+    printf '%s\n' "$dir"
+  done < <(find "$SKILLS_ROOT" -mindepth 1 -maxdepth 1 -type d | sort)
+}
+
+validate_skill_dir() {
+  local skill_dir="$1"
+  if [[ -f "$VALIDATOR" ]]; then
+    python3 "$VALIDATOR" "$skill_dir"
+  else
+    echo "Validator not found at $VALIDATOR; skipping source validation."
+  fi
+}
+
+sync_skill_dir() {
+  local source_dir="$1"
+  local target_dir="$2"
+
+  mkdir -p "$(dirname "$target_dir")"
+  if command -v rsync >/dev/null 2>&1; then
+    rsync -a --delete "$source_dir/" "$target_dir/"
+  else
+    rm -rf "$target_dir"
+    mkdir -p "$(dirname "$target_dir")"
+    cp -R "$source_dir" "$target_dir"
+  fi
+}
+
+mapfile -t SKILL_DIRS < <(collect_skill_dirs)
+
+if [[ "${#SKILL_DIRS[@]}" -eq 0 ]]; then
+  echo "No skill directories found under $SKILLS_ROOT" >&2
   exit 1
 fi
 
-if [[ -f "$VALIDATOR" ]]; then
-  python3 "$VALIDATOR" "$SOURCE_DIR"
-else
-  echo "Validator not found at $VALIDATOR; skipping source validation."
+if [[ -n "$TARGET_DIR_OVERRIDE" && "${#SKILL_DIRS[@]}" -ne 1 ]]; then
+  echo "CONTEXT_SPINE_SKILL_TARGET can only be used when syncing a single skill." >&2
+  exit 1
 fi
 
+for skill_dir in "${SKILL_DIRS[@]}"; do
+  validate_skill_dir "$skill_dir"
+done
+
 if [[ "$VALIDATE_ONLY" -eq 1 ]]; then
-  echo "Validated skill source: $SOURCE_DIR"
+  echo "Validated skill sources:"
+  for skill_dir in "${SKILL_DIRS[@]}"; do
+    echo " - $skill_dir"
+  done
   exit 0
 fi
 
-mkdir -p "$(dirname "$TARGET_DIR")"
-if command -v rsync >/dev/null 2>&1; then
-  rsync -a --delete "$SOURCE_DIR/" "$TARGET_DIR/"
-else
-  rm -rf "$TARGET_DIR"
-  mkdir -p "$(dirname "$TARGET_DIR")"
-  cp -R "$SOURCE_DIR" "$TARGET_DIR"
-fi
+mkdir -p "$TARGET_ROOT"
+declare -a INSTALLED_TARGETS=()
 
-if [[ -f "$VALIDATOR" ]]; then
-  python3 "$VALIDATOR" "$TARGET_DIR"
-fi
+for skill_dir in "${SKILL_DIRS[@]}"; do
+  skill_name="$(basename "$skill_dir")"
+  if [[ -n "$TARGET_DIR_OVERRIDE" ]]; then
+    target_dir="$TARGET_DIR_OVERRIDE"
+  else
+    target_dir="$TARGET_ROOT/$skill_name"
+  fi
 
-echo "Installed Codex skill to $TARGET_DIR"
+  sync_skill_dir "$skill_dir" "$target_dir"
+  validate_skill_dir "$target_dir"
+  INSTALLED_TARGETS+=("$target_dir")
+done
+
+echo "Installed Codex skills:"
+for target_dir in "${INSTALLED_TARGETS[@]}"; do
+  echo " - $target_dir"
+done

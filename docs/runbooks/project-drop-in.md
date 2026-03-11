@@ -15,7 +15,7 @@ Copy or vendor these paths into the target repository:
 - `scripts/context-spine/`
 - `scripts/delegation/`
 - optional `.pi/`
-- optional `.pi/skills/context-spine/` if you want the repo to ship the Codex skill source too
+- optional `.pi/skills/` if you want the repo to ship project-owned Codex skill sources too
 
 ## Retrieval Wiring
 

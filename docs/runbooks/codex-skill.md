@@ -1,20 +1,20 @@
-# Codex Skill Runbook
+# Codex Skills Runbook
 
 ## Goal
 
-Treat `context-spine` as a maintained Codex skill, not just a repo convention.
+Treat repo-local skills as maintained Codex skills, not just repo conventions.
 
-This runbook is optional and only matters if your team wants the workflow available as `$context-spine` inside Codex. The project itself should remain usable without it.
+This runbook is optional and only matters if your team wants the bundled workflows available inside Codex. The project itself should remain usable without them.
 
 ## Source Of Truth
 
-- repo source: `.pi/skills/context-spine/`
-- installed target: `${CODEX_HOME:-$HOME/.codex}/skills/context-spine`
+- repo source: `.pi/skills/`
+- installed target: `${CODEX_HOME:-$HOME/.codex}/skills/`
 
 ## Commands
 
-- validate the source: `npm run context:skill:validate`
-- install or sync the skill: `npm run context:skill:install`
+- validate the sources: `npm run context:skill:validate`
+- install or sync the skills: `npm run context:skill:install`
 
 Direct shell equivalent:
 
@@ -24,14 +24,14 @@ bash ./scripts/context-spine/install-codex-skill.sh
 
 ## When To Run It
 
-- after changing any file under `.pi/skills/context-spine/`
+- after changing any file under `.pi/skills/`
 - after cloning the repo onto a new machine
-- before relying on `$context-spine` in Codex
+- before relying on a bundled skill in Codex
 
 ## Verification
 
 After installation:
 
-1. confirm the target folder exists under `$CODEX_HOME/skills/context-spine`
+1. confirm the target folders exist under `$CODEX_HOME/skills/`
 2. run the bundled inspector if needed: `python3 ~/.codex/skills/context-spine/scripts/inspect_repo.py --root <repo>`
-3. invoke the skill explicitly with `$context-spine` in Codex when testing
+3. invoke the skill explicitly with `$context-spine` or `$principal-engineer-review` in Codex when testing

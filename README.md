@@ -1,8 +1,38 @@
-# Context Spine
+<p align="center">
+  <img src="./docs/assets/context-spine-logo.jpg" alt="Context Spine logo" width="420">
+</p>
 
-`Context Spine` is a reusable memory bootstrap for software projects that want durable project understanding.
+<h1 align="center">Context Spine</h1>
 
-It is not a product scaffold. It is an operating layer for keeping code, docs, notes, and evidence connected so people can restart, hand off, and search a project without relying on memory alone.
+<p align="center"><strong>Durable repo-local memory and retrieval bootstrap for software projects.</strong></p>
+
+<p align="center">
+  <img alt="status" src="https://img.shields.io/badge/status-active-0f766e?style=for-the-badge">
+  <img alt="memory" src="https://img.shields.io/badge/memory-repo--local-1d4ed8?style=for-the-badge">
+  <img alt="retrieval" src="https://img.shields.io/badge/retrieval-QMD--first-7c3aed?style=for-the-badge">
+  <img alt="skills" src="https://img.shields.io/badge/skills-context--spine_%7C_principal--engineer--review-374151?style=for-the-badge">
+</p>
+
+`Context Spine` is a reusable operating layer for keeping code, docs, notes, and evidence connected so people can restart, hand off, and search a project without relying on memory alone.
+
+It is not a product scaffold. It is the working memory spine that sits next to the code and makes the project legible under growth, handoff, and context resets.
+
+## At A Glance
+
+| Signal | What it means |
+| --- | --- |
+| `Status` | Active reusable boilerplate for repo-local project memory |
+| `Fit` | Existing repos, new repos, and agent-assisted workflows |
+| `Core loop` | `bootstrap -> retrieve -> work -> synthesize -> re-index` |
+| `Project stance` | Evidence-backed understanding over chat-history recall |
+
+## How Teams Use It
+
+| Scenario | What they add | What they get |
+| --- | --- | --- |
+| Existing repo cleanup | `meta/context-spine/`, `scripts/context-spine/`, one baseline note | Faster restarts and cleaner handoffs |
+| Agent-heavy repo | `.pi/skills/`, evidence packs, bounded delegation | Better retrieval and less prompt soup |
+| Deep technical system | ADRs, runbooks, diagrams, durable notes | Architectural shape that stays legible |
 
 The goal is simple:
 
@@ -32,7 +62,7 @@ Read the plain-language guide in [docs/runbooks/how-to-use-context-spine.md](./d
 - a generic agent constitution in [AGENTS.md](./AGENTS.md)
 - a visual explainer surface under `.agent/diagrams/`
 - starter ADRs, runbooks, and durable-note templates
-- a bundled Codex skill source under [`.pi/skills/context-spine/`](./.pi/skills/context-spine/)
+- bundled Codex skill sources under [`.pi/skills/`](./.pi/skills/), including `context-spine` and `principal-engineer-review`
 - optional extension points under `.pi/`
 
 ## Core Model
@@ -84,7 +114,7 @@ The numbered commands below use the `npm run context:*` wrappers. If you do not 
 7. Read or create a visual explainer when a subsystem is easier to absorb visually.
 8. Keep one durable external note per major deep dive, audit, or execution baseline.
 9. Refresh retrieval with `npm run context:update` and `npm run context:embed` when notes or docs change.
-10. Optionally install or sync the Codex skill with `npm run context:skill:install` if you want `$context-spine` available globally.
+10. Optionally install or sync the bundled Codex skills with `npm run context:skill:install` if you want `$context-spine` or `$principal-engineer-review` available globally.
 
 Direct-script equivalents remain available:
 
@@ -196,14 +226,14 @@ Recommended extension points:
 
 The rule is: extend by adding adapters and conventions, not by replacing the memory loop.
 
-## Codex Skill
+## Codex Skills
 
-This repo ships `context-spine` as a project-owned Codex skill source under [`.pi/skills/context-spine/`](./.pi/skills/context-spine/).
+This repo ships project-owned Codex skill sources under [`.pi/skills/`](./.pi/skills/), including `context-spine` for memory bootstrap and `principal-engineer-review` for architectural oversight.
 
-That skill is optional. Context Spine should still make sense and provide value to people even if no agent is involved.
+These skills are optional. Context Spine should still make sense and provide value to people even if no agent is involved.
 
-- validate it with `npm run context:skill:validate`
-- install or sync it into Codex with `npm run context:skill:install`
+- validate them with `npm run context:skill:validate`
+- install or sync them into Codex with `npm run context:skill:install`
 - see [docs/runbooks/codex-skill.md](./docs/runbooks/codex-skill.md) for the maintenance loop
 
 ## Repository Status
