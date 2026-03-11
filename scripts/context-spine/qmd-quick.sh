@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 MEM_ROOT="${CONTEXT_SPINE_ROOT:-$ROOT/meta/context-spine}"
 COLLECTION="${CONTEXT_SPINE_COLLECTION:-context-spine-meta}"
+QMD_QUERY_BOOTSTRAP="${CONTEXT_SPINE_QMD_QUERY_BOOTSTRAP:-spine notes baseline bootstrap memory}"
 QMD_QUERY="${CONTEXT_SPINE_QMD_QUERY:-priority todo decision action}"
 QMD_QUERY_EXTRA="${CONTEXT_SPINE_QMD_QUERY_EXTRA:-evidence open questions source_of_truth}"
 QMD_COLLECTIONS="${CONTEXT_SPINE_QMD_COLLECTIONS:-$COLLECTION}"
@@ -136,7 +137,7 @@ if [[ -n "$LATEST_SESSION" && -f "$LATEST_SESSION" ]] && grep -q "qmd://" "$LATE
   session_has_qmd_link=1
 fi
 
-for query in "$QMD_QUERY" "$QMD_QUERY_EXTRA"; do
+for query in "$QMD_QUERY_BOOTSTRAP" "$QMD_QUERY" "$QMD_QUERY_EXTRA"; do
   if [[ -z "$query" ]]; then
     continue
   fi

@@ -3,4 +3,6 @@
 __pycache__/
 *.pyc
 meta/context-spine/.qmd/
+meta/context-spine/hot-memory-index.md
+meta/context-spine/memory-scorecard.md
 node_modules/

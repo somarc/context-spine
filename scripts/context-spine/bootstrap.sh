@@ -110,6 +110,7 @@ for starter in \
   "$ROOT/README.md" \
   "$BASELINE_NOTE" \
   "$ROOT/docs/runbooks/session-start.md" \
+  "$ROOT/.agent/diagrams/context-spine-human-review-2026-03-11.html" \
   "$ROOT/.agent/diagrams/context-spine-overview-2026-03-11.html"; do
   if [[ -f "$starter" ]]; then
     echo "- $starter"
@@ -230,11 +231,15 @@ if [[ -f "$PACKAGE_JSON" ]]; then
   echo "  npm run context:score"
   echo "  npm run context:update"
   echo "  npm run context:embed"
+  echo "  npm run context:skill:validate"
+  echo "  npm run context:skill:install"
 else
   echo "  bash ./scripts/context-spine/init-qmd.sh"
   echo "  bash ./scripts/context-spine/bootstrap.sh"
   echo "  python3 scripts/context-spine/mem-session.py --project context-spine"
   echo "  python3 scripts/context-spine/mem-score.py --root ./meta/context-spine"
   echo "  bash ./scripts/context-spine/qmd-refresh.sh --embed"
+  echo "  bash ./scripts/context-spine/install-codex-skill.sh --validate-only"
+  echo "  bash ./scripts/context-spine/install-codex-skill.sh"
 fi
 echo "  python3 scripts/context-spine/mem-log.py --summary \"<what changed>\""

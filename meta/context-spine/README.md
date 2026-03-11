@@ -9,14 +9,20 @@ This directory is the repo-local memory layer.
 
 It exists for short-horizon continuity and evidence capture close to the codebase.
 
+Use three lifecycles here:
+
+- durable: baseline `spine-notes-*.md` and curated evidence
+- rolling: sessions and observations
+- generated/local: hot-memory indexes, scorecards, and `.qmd/`
+
 ## Layout
 
-- `spine-notes-context-spine.md` — current workspace baseline note
-- `observations/` — timestamped observations, decisions, and questions
-- `sessions/` — one session summary per working session
-- `evidence-packs/` — distilled outputs from delegated jobs or investigations
-- `hot-memory-index.md` — recently touched memory artifacts
-- `memory-scorecard.md` — memory quality metrics
+- `spine-notes-context-spine.md` — durable current workspace baseline note
+- `observations/` — rolling observations, decisions, and questions
+- `sessions/` — rolling session summaries for active continuity
+- `evidence-packs/` — curated outputs from delegated jobs or investigations
+- `hot-memory-index.md` — generated local reading aid
+- `memory-scorecard.md` — generated local health metric
 
 ## Usage
 
@@ -54,3 +60,9 @@ Run a bootstrap pass:
 npm run context:init
 npm run context:bootstrap
 ```
+
+Retention policy:
+
+- architecture and boundaries should be promoted into `spine-notes-*.md`, ADRs, or runbooks
+- sessions and observations should be rolled up and pruned over time
+- generated local artifacts can be regenerated and should not be treated as long-lived history

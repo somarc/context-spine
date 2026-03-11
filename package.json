@@ -9,6 +9,8 @@
     "context:session": "python3 ./scripts/context-spine/mem-session.py --project context-spine",
     "context:score": "python3 ./scripts/context-spine/mem-score.py --root ./meta/context-spine",
     "context:update": "bash ./scripts/context-spine/qmd-refresh.sh",
-    "context:embed": "bash ./scripts/context-spine/qmd-refresh.sh --embed"
+    "context:embed": "bash ./scripts/context-spine/qmd-refresh.sh --embed",
+    "context:skill:validate": "bash ./scripts/context-spine/install-codex-skill.sh --validate-only",
+    "context:skill:install": "bash ./scripts/context-spine/install-codex-skill.sh"
   }
 }

@@ -9,6 +9,7 @@ This repository is a boilerplate intelligence layer for future projects.
 - open `meta/context-spine/spine-notes-context-spine.md` first for the current baseline
 - create a session note for meaningful work with `npm run context:session`
 - if retrieval is newly initialized and results are sparse, run `npm run context:update` and then `npm run context:embed`
+- if you change `.pi/skills/context-spine/`, run `npm run context:skill:install`
 
 ## Mission
 
@@ -113,6 +114,13 @@ When memory freshness matters:
 
 - regenerate hot memory
 - create a fresh session note if the latest summary is stale
+
+## Retention Discipline
+
+- keep architecture, boundaries, baseline notes, ADRs, and runbooks durable
+- treat sessions and observations as rolling working memory, not permanent literature
+- roll stable conclusions into durable notes or evidence packs
+- keep generated retrieval artifacts local and regenerable
 
 ## Extensibility Rules
 
