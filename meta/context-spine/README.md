@@ -11,6 +11,7 @@ It exists for short-horizon continuity and evidence capture close to the codebas
 
 ## Layout
 
+- `spine-notes-context-spine.md` — current workspace baseline note
 - `observations/` — timestamped observations, decisions, and questions
 - `sessions/` — one session summary per working session
 - `evidence-packs/` — distilled outputs from delegated jobs or investigations
@@ -22,7 +23,7 @@ It exists for short-horizon continuity and evidence capture close to the codebas
 Create a session summary:
 
 ```bash
-python3 scripts/context-spine/mem-session.py
+npm run context:session
 ```
 
 Append an observation:
@@ -50,6 +51,6 @@ python3 scripts/context-spine/mem-score.py
 Run a bootstrap pass:
 
 ```bash
-scripts/context-spine/init-qmd.sh
-scripts/context-spine/bootstrap.sh
+npm run context:init
+npm run context:bootstrap
 ```

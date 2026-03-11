@@ -10,6 +10,7 @@ QMD_COLLECTIONS="${CONTEXT_SPINE_QMD_COLLECTIONS:-$COLLECTION}"
 QMD_APPEND="${CONTEXT_SPINE_QMD_APPEND:-1}"
 QMD_RETRIES="${CONTEXT_SPINE_QMD_RETRIES:-4}"
 QMD_RETRY_SLEEP_SEC="${CONTEXT_SPINE_QMD_RETRY_SLEEP_SEC:-1}"
+PACKAGE_JSON="$ROOT/package.json"
 
 SESSIONS_DIR="$MEM_ROOT/sessions"
 LATEST_SESSION=""
@@ -21,6 +22,19 @@ if ! command -v qmd >/dev/null 2>&1; then
   echo "(qmd not found in PATH)"
   exit 0
 fi
+
+preferred_init_cmd() {
+  if [[ -f "$PACKAGE_JSON" ]]; then
+    echo "npm run context:init"
+  else
+    echo "bash ./scripts/context-spine/init-qmd.sh"
+  fi
+}
+
+collection_exists() {
+  local name="$1"
+  qmd collection list | grep -Eq "^${name} \\(qmd://"
+}
 
 LOCAL_INDEX_DIR="$MEM_ROOT/.qmd"
 LOCAL_INDEX_PATH="$LOCAL_INDEX_DIR/index.sqlite"
@@ -60,7 +74,7 @@ qmd_search_with_retry() {
       continue
     fi
     if printf '%s' "$output" | grep -q "Collection not found"; then
-      echo "HINT: run scripts/context-spine/init-qmd.sh to register the collection." >&2
+      echo "HINT: run $(preferred_init_cmd) to register the collection." >&2
     fi
     printf '%s\n' "$output"
     return "$status"
@@ -102,6 +116,21 @@ append_block() {
 
 echo "===== QMD QUICK SEARCH ====="
 IFS=',' read -r -a collections <<< "$QMD_COLLECTIONS"
+missing_collection=0
+for collection in "${collections[@]}"; do
+  trimmed="$(echo "$collection" | sed 's/^ *//;s/ *$//')"
+  if [[ -z "$trimmed" ]]; then
+    continue
+  fi
+  if ! collection_exists "$trimmed"; then
+    missing_collection=1
+    break
+  fi
+done
+if [[ "$missing_collection" -eq 1 ]]; then
+  echo "INFO: missing QMD collection detected. Running $(preferred_init_cmd)"
+  bash "$ROOT/scripts/context-spine/init-qmd.sh" >/dev/null || true
+fi
 session_has_qmd_link=0
 if [[ -n "$LATEST_SESSION" && -f "$LATEST_SESSION" ]] && grep -q "qmd://" "$LATEST_SESSION"; then
   session_has_qmd_link=1

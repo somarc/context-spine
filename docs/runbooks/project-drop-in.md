@@ -30,7 +30,7 @@ qmd collection add /path/to/project/docs --name project-docs --mask "**/*.md"
 qmd collection add /path/to/external-vault --name project-vault --mask "**/*.md"
 ```
 
-Use `qmd update` and `qmd embed` whenever durable notes or docs are added.
+Use `bash ./scripts/context-spine/qmd-refresh.sh --embed` whenever durable notes or docs are added.
 
 ## Durable Knowledge
 

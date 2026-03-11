@@ -59,13 +59,22 @@ The system works when two loops exist at the same time:
 ## Quick Start
 
 1. Read the prerequisites in [docs/runbooks/prerequisites.md](./docs/runbooks/prerequisites.md).
-2. Initialize collections with [scripts/context-spine/init-qmd.sh](./scripts/context-spine/init-qmd.sh).
-3. Run [scripts/context-spine/bootstrap.sh](./scripts/context-spine/bootstrap.sh).
-4. Create a session note with [scripts/context-spine/mem-session.py](./scripts/context-spine/mem-session.py).
-5. Record observations with [scripts/context-spine/mem-log.py](./scripts/context-spine/mem-log.py).
-6. Read or create a visual explainer when a subsystem is easier to absorb visually.
-7. Keep one durable external note per major deep dive, audit, or execution baseline.
-8. Refresh retrieval with `qmd update` and `qmd embed`.
+2. Run `npm run context:init`.
+3. Run `npm run context:bootstrap`.
+4. Open [meta/context-spine/spine-notes-context-spine.md](./meta/context-spine/spine-notes-context-spine.md).
+5. Create a session note with `npm run context:session`.
+6. Record observations with [scripts/context-spine/mem-log.py](./scripts/context-spine/mem-log.py).
+7. Read or create a visual explainer when a subsystem is easier to absorb visually.
+8. Keep one durable external note per major deep dive, audit, or execution baseline.
+9. Refresh retrieval with `npm run context:update` and `npm run context:embed` when notes or docs change.
+
+Direct-script equivalents remain available:
+
+- `bash ./scripts/context-spine/init-qmd.sh`
+- `bash ./scripts/context-spine/bootstrap.sh`
+- `python3 ./scripts/context-spine/mem-session.py --project context-spine`
+- `python3 ./scripts/context-spine/mem-score.py --root ./meta/context-spine`
+- `bash ./scripts/context-spine/qmd-refresh.sh --embed`
 
 ## Drop Into An Existing Project
 
@@ -83,6 +92,7 @@ The short version:
 
 Default recommendation:
 
+- `spine-notes-context-spine.md` for the current repo baseline
 - `spine-notes-<topic>.md` for curated synthesis
 - explicit `as_of` dates
 - explicit `source_of_truth`

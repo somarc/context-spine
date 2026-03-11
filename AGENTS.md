@@ -2,6 +2,14 @@
 
 This repository is a boilerplate intelligence layer for future projects.
 
+## This Repo First
+
+- run `npm run context:init` on first setup to register repo-local QMD collections
+- run `npm run context:bootstrap` before broad repo-wide searching
+- open `meta/context-spine/spine-notes-context-spine.md` first for the current baseline
+- create a session note for meaningful work with `npm run context:session`
+- if retrieval is newly initialized and results are sparse, run `npm run context:update` and then `npm run context:embed`
+
 ## Mission
 
 - bootstrap working memory quickly
@@ -98,8 +106,8 @@ Delegated output should prefer this contract:
 
 When retrieval quality matters:
 
-- run `qmd update`
-- run `qmd embed` when new documents need embeddings
+- run `npm run context:update`
+- run `npm run context:embed` when new documents need embeddings
 
 When memory freshness matters:
 
