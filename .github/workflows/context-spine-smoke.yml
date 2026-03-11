@@ -1,0 +1,33 @@
+name: Context Spine Smoke
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile Python scripts
+        run: python3 -m compileall scripts/context-spine
+
+      - name: Mark shell scripts executable
+        run: chmod +x scripts/context-spine/*.sh scripts/delegation/*.sh
+
+      - name: Session and observation smoke
+        run: |
+          tmp_root="$(mktemp -d)"
+          python3 scripts/context-spine/mem-session.py --root "$tmp_root" --project smoke
+          python3 scripts/context-spine/mem-log.py --root "$tmp_root" --project smoke --summary "smoke observation" --qmd "qmd://smoke/doc"
+          python3 scripts/context-spine/hot-memory.py --root "$tmp_root" --collection smoke-meta
+          python3 scripts/context-spine/mem-score.py --root "$tmp_root"
+
+      - name: Bootstrap smoke
+        run: scripts/context-spine/bootstrap.sh

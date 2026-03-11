@@ -1,0 +1,6 @@
+.DS_Store
+.logs/
+__pycache__/
+*.pyc
+meta/context-spine/.qmd/
+node_modules/
