@@ -45,6 +45,7 @@ When these disagree, reconcile them explicitly. Do not treat them as interchange
 - `scripts/context-spine/` for bootstrap and retrieval helpers
 - `docs/adr/` for architecture decisions
 - `docs/runbooks/` for repeatable operations
+- `.agent/diagrams/` for visual explainers
 - external durable notes for long-horizon project understanding
 
 ## Durable Note Rules
@@ -62,6 +63,16 @@ Required sections:
 - `Sources`
 
 Prefer explicit `as_of` timestamps and `source_of_truth` fields in frontmatter.
+
+## Visual Explainers
+
+For complex systems, plans, audits, or retrieved context that is easier to understand visually:
+
+- create or update a self-contained explainer under `.agent/diagrams/`
+- pair it with a durable note or evidence source
+- treat the explainer as a reading surface, not just presentation polish
+
+If a user prefers to read context visually, the explainer path should be part of the normal workflow.
 
 ## Delegation Rules
 

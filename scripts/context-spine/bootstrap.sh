@@ -35,6 +35,24 @@ echo "Memory root: $MEM_ROOT"
 echo "Collection: $COLLECTION"
 echo
 
+echo "===== PREREQUISITES ====="
+if command -v git >/dev/null 2>&1; then
+  echo "Git: available"
+else
+  echo "Git: not found"
+fi
+if command -v python3 >/dev/null 2>&1; then
+  echo "Python3: available"
+else
+  echo "Python3: not found"
+fi
+if command -v qmd >/dev/null 2>&1; then
+  echo "QMD: available"
+else
+  echo "QMD: not found"
+fi
+echo
+
 if [[ -f "$HOT_INDEX" ]]; then
   echo "===== HOT MEMORY ====="
   cat "$HOT_INDEX"
@@ -44,6 +62,22 @@ else
   echo "(no hot-memory index found at $HOT_INDEX)"
   echo
 fi
+
+echo "===== RECENT VISUAL EXPLAINERS ====="
+recent_explainers="$(find "$ROOT/.agent/diagrams" -maxdepth 1 -type f \( -name '*.html' -o -name '*.svg' -o -name '*.png' \) ! -name 'README.md' -print0 2>/dev/null | xargs -0 ls -1t 2>/dev/null | head -n 5 || true)"
+if [[ -n "$recent_explainers" ]]; then
+  while IFS= read -r explainer; do
+    [[ -n "$explainer" ]] || continue
+    if stat_output="$(stat -f '%Sm' -t '%Y-%m-%d %H:%M' "$explainer" 2>/dev/null)"; then
+      echo "- $stat_output - $explainer"
+    else
+      echo "- $explainer"
+    fi
+  done <<< "$recent_explainers"
+else
+  echo "- No visual explainers found in $ROOT/.agent/diagrams"
+fi
+echo
 
 LATEST_SESSION=""
 if [[ -d "$SESSIONS_DIR" ]]; then
@@ -116,6 +150,7 @@ fi
 
 echo
 echo "Quick start:"
+echo "  scripts/context-spine/init-qmd.sh"
 echo "  python3 scripts/context-spine/mem-session.py"
 echo "  python3 scripts/context-spine/mem-log.py --summary \"<what changed>\""
 echo "  python3 scripts/context-spine/mem-score.py"

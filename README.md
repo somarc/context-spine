@@ -16,6 +16,7 @@ The goal is simple:
 - bootstrap and retrieval scripts under `scripts/context-spine/`
 - evidence-pack discipline for delegated work under `scripts/delegation/`
 - a generic agent constitution in [AGENTS.md](./AGENTS.md)
+- a visual explainer surface under `.agent/diagrams/`
 - starter ADRs, runbooks, and durable-note templates
 - optional extension points under `.pi/`
 
@@ -57,13 +58,14 @@ The system works when two loops exist at the same time:
 
 ## Quick Start
 
-1. Install `qmd` if you want cross-surface retrieval.
+1. Read the prerequisites in [docs/runbooks/prerequisites.md](./docs/runbooks/prerequisites.md).
 2. Initialize collections with [scripts/context-spine/init-qmd.sh](./scripts/context-spine/init-qmd.sh).
 3. Run [scripts/context-spine/bootstrap.sh](./scripts/context-spine/bootstrap.sh).
 4. Create a session note with [scripts/context-spine/mem-session.py](./scripts/context-spine/mem-session.py).
 5. Record observations with [scripts/context-spine/mem-log.py](./scripts/context-spine/mem-log.py).
-6. Keep one durable external note per major deep dive, audit, or execution baseline.
-7. Refresh retrieval with `qmd update` and `qmd embed`.
+6. Read or create a visual explainer when a subsystem is easier to absorb visually.
+7. Keep one durable external note per major deep dive, audit, or execution baseline.
+8. Refresh retrieval with `qmd update` and `qmd embed`.
 
 ## Drop Into An Existing Project
 
@@ -87,6 +89,37 @@ Default recommendation:
 - a `Sources` section with direct paths or `qmd://` links
 
 If a project already has a naming convention, keep it. The loop matters more than the prefix.
+
+## Prerequisites
+
+Context Spine stands on top of other tools instead of re-implementing them.
+
+Required or strongly recommended:
+
+- Git
+- a POSIX shell
+- Python 3
+- `qmd` for retrieval
+- an external durable note layer
+
+Optional but high-value:
+
+- local agent runtime extensions under `.pi/`
+- Ollama or another local model backend
+- tmux for bounded parallel work
+- visual explainers as a normal reading surface
+
+Read the fuller list in [docs/runbooks/prerequisites.md](./docs/runbooks/prerequisites.md).
+
+## Visual Reading Surface
+
+Visual explainers are first-class in Context Spine, not decoration.
+
+- store them under `.agent/diagrams/`
+- pair them with durable notes or evidence
+- let bootstrap surface recent explainers alongside hot memory
+
+Read the workflow in [docs/runbooks/visual-explainers.md](./docs/runbooks/visual-explainers.md).
 
 ## Extensibility
 
