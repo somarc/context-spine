@@ -15,7 +15,7 @@ The goal is simple:
 - repo-local working memory under `meta/context-spine/`
 - bootstrap and retrieval scripts under `scripts/context-spine/`
 - evidence-pack discipline for delegated work under `scripts/delegation/`
-- a generic agent constitution in [AGENTS.md](/Users/mhess/aem/aem-code/context-spine/AGENTS.md)
+- a generic agent constitution in [AGENTS.md](./AGENTS.md)
 - starter ADRs, runbooks, and durable-note templates
 - optional extension points under `.pi/`
 
@@ -58,16 +58,16 @@ The system works when two loops exist at the same time:
 ## Quick Start
 
 1. Install `qmd` if you want cross-surface retrieval.
-2. Initialize collections with [scripts/context-spine/init-qmd.sh](/Users/mhess/aem/aem-code/context-spine/scripts/context-spine/init-qmd.sh).
-3. Run [scripts/context-spine/bootstrap.sh](/Users/mhess/aem/aem-code/context-spine/scripts/context-spine/bootstrap.sh).
-4. Create a session note with [scripts/context-spine/mem-session.py](/Users/mhess/aem/aem-code/context-spine/scripts/context-spine/mem-session.py).
-5. Record observations with [scripts/context-spine/mem-log.py](/Users/mhess/aem/aem-code/context-spine/scripts/context-spine/mem-log.py).
+2. Initialize collections with [scripts/context-spine/init-qmd.sh](./scripts/context-spine/init-qmd.sh).
+3. Run [scripts/context-spine/bootstrap.sh](./scripts/context-spine/bootstrap.sh).
+4. Create a session note with [scripts/context-spine/mem-session.py](./scripts/context-spine/mem-session.py).
+5. Record observations with [scripts/context-spine/mem-log.py](./scripts/context-spine/mem-log.py).
 6. Keep one durable external note per major deep dive, audit, or execution baseline.
 7. Refresh retrieval with `qmd update` and `qmd embed`.
 
 ## Drop Into An Existing Project
 
-Read [docs/runbooks/project-drop-in.md](/Users/mhess/aem/aem-code/context-spine/docs/runbooks/project-drop-in.md).
+Read [docs/runbooks/project-drop-in.md](./docs/runbooks/project-drop-in.md).
 
 The short version:
 
