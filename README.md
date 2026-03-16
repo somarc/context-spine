@@ -1,10 +1,11 @@
 <p align="center">
-  <img src="./docs/assets/context-spine-logo.jpg" alt="Context Spine logo" width="420">
+  <img src="./docs/assets/context-spine-logo.jpg" alt="Context Spine logo" width="340">
 </p>
 
-<h1 align="center">Context Spine</h1>
-
-<p align="center"><strong>Durable repo-local memory and retrieval bootstrap for software projects.</strong></p>
+<p align="center">
+  <strong>Context Spine</strong><br>
+  Durable repo-local memory and retrieval bootstrap for software projects.
+</p>
 
 <p align="center">
   <img alt="status" src="https://img.shields.io/badge/status-active-0f766e?style=for-the-badge">
