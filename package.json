@@ -7,6 +7,7 @@
     "context:init": "bash ./scripts/context-spine/init-qmd.sh",
     "context:bootstrap": "bash ./scripts/context-spine/bootstrap.sh",
     "context:doctor": "python3 ./scripts/context-spine/doctor.py",
+    "context:gitignore": "python3 ./scripts/context-spine/configure-gitignore.py",
     "context:rollout": "python3 ./scripts/context-spine/rollout.py",
     "context:upgrade": "python3 ./scripts/context-spine/upgrade.py",
     "context:session": "python3 ./scripts/context-spine/mem-session.py --project context-spine",

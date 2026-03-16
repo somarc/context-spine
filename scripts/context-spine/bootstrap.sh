@@ -8,7 +8,17 @@ DOCS_COLLECTION="${CONTEXT_SPINE_DOCS_COLLECTION:-project-docs}"
 HOT_INDEX="$MEM_ROOT/hot-memory-index.md"
 SESSIONS_DIR="$MEM_ROOT/sessions"
 PACKAGE_JSON="$ROOT/package.json"
-BASELINE_NOTE="$MEM_ROOT/spine-notes-context-spine.md"
+
+find_baseline_note() {
+  local preferred="$MEM_ROOT/spine-notes-context-spine.md"
+  if [[ -f "$preferred" ]]; then
+    echo "$preferred"
+    return
+  fi
+  find "$MEM_ROOT" -maxdepth 1 -type f -name 'spine-notes-*.md' | sort | tail -n 1 || true
+}
+
+BASELINE_NOTE="$(find_baseline_note)"
 
 preferred_init_cmd() {
   if [[ -f "$PACKAGE_JSON" ]]; then
@@ -24,11 +34,6 @@ preferred_session_cmd() {
   else
     echo "python3 scripts/context-spine/mem-session.py --project context-spine"
   fi
-}
-
-collection_exists() {
-  local name="$1"
-  qmd collection list | grep -Eq "^${name} \\(qmd://"
 }
 
 LOCAL_INDEX_DIR="$MEM_ROOT/.qmd"
@@ -72,33 +77,14 @@ else
 fi
 if command -v qmd >/dev/null 2>&1; then
   echo "QMD: available"
-  docs_collection_missing=0
-  if [[ -d "$ROOT/docs" ]] && ! collection_exists "$DOCS_COLLECTION"; then
-    docs_collection_missing=1
-  fi
-  if ! collection_exists "$COLLECTION" || [[ "$docs_collection_missing" -eq 1 ]]; then
-    echo "QMD collections: missing required repo-local entries"
-    echo "Action: running $(preferred_init_cmd)"
-    bash "$ROOT/scripts/context-spine/init-qmd.sh" >/dev/null
-    if collection_exists "$COLLECTION"; then
-      echo "Result: registered $COLLECTION"
-    else
-      echo "Result: unable to confirm $COLLECTION registration"
-    fi
-    if [[ -d "$ROOT/docs" ]]; then
-      if collection_exists "$DOCS_COLLECTION"; then
-        echo "Result: registered $DOCS_COLLECTION"
-      else
-        echo "Result: unable to confirm $DOCS_COLLECTION registration"
-      fi
-    fi
-    if [[ -f "$PACKAGE_JSON" ]]; then
-      echo "Next: run npm run context:update and npm run context:embed if this is the first setup."
-    else
-      echo "Next: run bash ./scripts/context-spine/qmd-refresh.sh --embed if this is the first setup."
-    fi
+  echo "QMD collections: ensuring repo-local entries"
+  echo "Action: running $(preferred_init_cmd)"
+  bash "$ROOT/scripts/context-spine/init-qmd.sh" >/dev/null
+  echo "Result: ready"
+  if [[ -f "$PACKAGE_JSON" ]]; then
+    echo "Next: run npm run context:update and npm run context:embed if this is the first setup."
   else
-    echo "QMD collections: ready"
+    echo "Next: run bash ./scripts/context-spine/qmd-refresh.sh --embed if this is the first setup."
   fi
 else
   echo "QMD: not found"

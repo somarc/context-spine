@@ -7,7 +7,7 @@ Start a working session from retrieval and recent evidence instead of raw recall
 ## Steps
 
 1. Run `npm run context:bootstrap`.
-2. Open `meta/context-spine/spine-notes-context-spine.md`.
+2. Open the repo baseline `meta/context-spine/spine-notes-*.md`.
 3. Use `meta/context-spine/hot-memory-index.md` as a working set, not just a recent-files list.
 4. If the latest session is stale, create a new one with `npm run context:session`.
 5. Run retrieval before broad file searches.

@@ -21,6 +21,13 @@ The repository does not need to preserve every step of how the team arrived ther
 
 Split Context Spine artifacts into three classes:
 
+Git tracking for repo-local memory is a repo policy:
+
+- `tracked` mode
+  durable and rolling memory may live in git
+- `local` mode
+  `meta/context-spine/` is kept out of git and anything worth sharing must be promoted into committed project surfaces
+
 ### 1. Durable
 
 Keep these in git as the long-lived shared project map:
@@ -58,4 +65,5 @@ These are local retrieval or health artifacts and can be regenerated.
 - architecture and boundaries remain easy to find
 - session and observation churn does not become permanent literature by default
 - retrieval and score artifacts can be regenerated locally without polluting repo history
+- repos can choose whether `meta/context-spine/` is tracked or purely local without changing the underlying lifecycle model
 - teams must periodically condense rolling memory into durable structure

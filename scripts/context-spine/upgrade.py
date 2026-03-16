@@ -3,6 +3,7 @@ import argparse
 import datetime as dt
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 from dataclasses import dataclass, field
@@ -13,18 +14,40 @@ SAFE_ADDITIVE_FILES = [
     "docs/README.md",
     "docs/archive/README.md",
     "docs/drafts/README.md",
+    "docs/runbooks/codex-skill.md",
     "docs/runbooks/doctor.md",
+    "docs/runbooks/elon-doctrine.md",
+    "docs/runbooks/how-to-use-context-spine.md",
+    "docs/runbooks/multi-repo-rollout.md",
+    "docs/runbooks/pi-extension-points.md",
+    "docs/runbooks/project-drop-in.md",
+    "docs/runbooks/upgrade-existing-project.md",
+    "scripts/context-spine/codex-wrap.sh",
+    "scripts/context-spine/configure-gitignore.py",
+    "scripts/context-spine/doctor.py",
+    "scripts/context-spine/hot-memory.py",
+    "scripts/context-spine/install-codex-skill.sh",
+    "scripts/context-spine/mem-log.py",
+    "scripts/context-spine/mem-search.py",
+    "scripts/context-spine/qmd-quick.sh",
+    "scripts/context-spine/rollout.py",
+    "scripts/context-spine/upgrade.py",
+    "scripts/context-spine/validate-codex-skill.py",
 ]
 
 MERGE_REVIEW_FILES = [
-    ".gitignore",
     "package.json",
     "scripts/context-spine/bootstrap.sh",
+    "scripts/context-spine/init-qmd.sh",
+    "scripts/context-spine/mem-score.py",
+    "scripts/context-spine/mem-session.py",
+    "scripts/context-spine/qmd-refresh.sh",
     "docs/runbooks/session-start.md",
-    "docs/runbooks/how-to-use-context-spine.md",
-    "docs/runbooks/project-drop-in.md",
-    "meta/context-spine/spine-notes-context-spine.md",
 ]
+
+PREFERRED_BASELINE_FILE = "meta/context-spine/spine-notes-context-spine.md"
+GITIGNORE_BEGIN = "# >>> context-spine gitignore "
+GITIGNORE_END = "# <<< context-spine gitignore <<<"
 
 
 @dataclass
@@ -37,6 +60,8 @@ class UpgradeResult:
     merge_missing: list[str] = field(default_factory=list)
     merge_different: list[str] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
+    gitignore_mode: str = ""
+    gitignore_applied: bool = False
 
 
 def sha256(path: Path) -> str:
@@ -97,8 +122,56 @@ def dirty_paths(repo_root: Path) -> list[str]:
     return [line[3:] for line in result.stdout.splitlines() if len(line) > 3]
 
 
-def evaluate(target_root: Path, source_root: Path, apply_safe: bool) -> UpgradeResult:
+def baseline_notes(repo_root: Path) -> list[Path]:
+    memory_root = repo_root / "meta" / "context-spine"
+    if not memory_root.is_dir():
+        return []
+    return sorted(memory_root.glob("spine-notes-*.md"))
+
+
+def tracked_paths(repo_root: Path, pathspec: str) -> list[str]:
+    if not git_available(repo_root):
+        return []
+    result = subprocess.run(
+        ["git", "ls-files", pathspec],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        return []
+    return [line.strip() for line in result.stdout.splitlines() if line.strip()]
+
+
+def detect_gitignore_mode(repo_root: Path) -> str:
+    gitignore = repo_root / ".gitignore"
+    if not gitignore.exists():
+        return ""
+    for line in gitignore.read_text(encoding="utf-8", errors="ignore").splitlines():
+        if line.startswith(GITIGNORE_BEGIN) and line.endswith(">>>"):
+            return line[len(GITIGNORE_BEGIN): -3].strip("() ").replace("mode: ", "", 1).strip()
+    return ""
+
+
+def apply_gitignore_mode(source_root: Path, target_root: Path, mode: str) -> tuple[bool, str]:
+    script = source_root / "scripts" / "context-spine" / "configure-gitignore.py"
+    if not script.exists():
+        return False, f"Missing configure-gitignore.py in source repo: {script}"
+    result = subprocess.run(
+        ["python3", str(script), "--repo-root", str(target_root), "--mode", mode],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        return False, result.stderr.strip() or result.stdout.strip() or f"configure-gitignore failed for mode {mode}"
+    return True, result.stdout.strip()
+
+
+def evaluate(target_root: Path, source_root: Path, apply_safe: bool, gitignore_mode: str) -> UpgradeResult:
     result = UpgradeResult(repo_root=target_root, source_root=source_root, mode=detect_mode(target_root))
+    result.gitignore_mode = gitignore_mode
 
     for relative_path in SAFE_ADDITIVE_FILES:
         source = source_root / relative_path
@@ -123,8 +196,34 @@ def evaluate(target_root: Path, source_root: Path, apply_safe: bool) -> UpgradeR
         elif not file_exists_and_same(target, source):
             result.merge_different.append(relative_path)
 
+    preferred_baseline = target_root / PREFERRED_BASELINE_FILE
+    current_baselines = baseline_notes(target_root)
+    if preferred_baseline.exists():
+        source = source_root / PREFERRED_BASELINE_FILE
+        if source.exists() and not file_exists_and_same(preferred_baseline, source):
+            result.merge_different.append(PREFERRED_BASELINE_FILE)
+    elif current_baselines:
+        result.notes.append(
+            "Custom baseline note detected; keep the existing `spine-notes-*.md` file instead of renaming it."
+        )
+    else:
+        result.merge_missing.append(PREFERRED_BASELINE_FILE)
+
     if (target_root / "docs").is_dir() and not (target_root / "docs" / "README.md").exists():
         result.notes.append("Target repo has docs but no docs/README.md authority map.")
+
+    current_gitignore_mode = detect_gitignore_mode(target_root)
+    if gitignore_mode:
+        applied, message = apply_gitignore_mode(source_root, target_root, gitignore_mode)
+        result.gitignore_applied = applied
+        result.notes.append(message)
+        if gitignore_mode == "local" and tracked_paths(target_root, "meta/context-spine"):
+            result.notes.append("Local mode does not untrack existing files; run `git rm -r --cached meta/context-spine` once if needed.")
+    elif current_gitignore_mode:
+        result.notes.append(f"Managed Context Spine gitignore mode is already set to `{current_gitignore_mode}`.")
+    else:
+        result.notes.append("Use `--gitignore-mode tracked|local` to manage the Context Spine block in `.gitignore`.")
+
     if dirty := dirty_paths(target_root):
         result.notes.append(f"Target repo currently has {len(dirty)} dirty worktree paths.")
     return result
@@ -144,6 +243,8 @@ def render_report(result: UpgradeResult, generated_at: dt.datetime) -> str:
         f"- Safe additive files applied: {len(result.safe_applied)}",
         f"- Merge-review files missing: {len(result.merge_missing)}",
         f"- Merge-review files different: {len(result.merge_different)}",
+        f"- Gitignore mode requested: {result.gitignore_mode or 'none'}",
+        f"- Gitignore updated: {'yes' if result.gitignore_applied else 'no'}",
         "",
         "## Safe Additive Files",
     ]
@@ -192,6 +293,7 @@ def render_terminal(result: UpgradeResult, out_path: Path) -> str:
         "===== CONTEXT UPGRADE =====",
         f"mode={result.mode}",
         f"safe_missing={len(result.safe_missing)} safe_applied={len(result.safe_applied)} merge_missing={len(result.merge_missing)} merge_different={len(result.merge_different)}",
+        f"gitignore_mode={result.gitignore_mode or 'none'} gitignore_applied={'yes' if result.gitignore_applied else 'no'}",
         "",
     ]
     if result.safe_missing:
@@ -218,6 +320,12 @@ def main() -> int:
     parser.add_argument("--target", required=True, help="Target repository to upgrade")
     parser.add_argument("--source-root", default="", help="Boilerplate source root; defaults to this repo")
     parser.add_argument("--apply-safe", action="store_true", help="Copy missing safe additive files into the target")
+    parser.add_argument(
+        "--gitignore-mode",
+        default=os.environ.get("CONTEXT_SPINE_GITIGNORE_MODE", ""),
+        choices=["", "tracked", "local", "none"],
+        help="Manage the Context Spine block in the target repo's .gitignore",
+    )
     parser.add_argument("--out", default="", help="Output path for the markdown report")
     parser.add_argument("--json-out", default="", help="Output path for machine-readable JSON")
     args = parser.parse_args()
@@ -226,7 +334,7 @@ def main() -> int:
     target_root = Path(args.target).expanduser()
     generated_at = dt.datetime.now()
 
-    result = evaluate(target_root, source_root, args.apply_safe)
+    result = evaluate(target_root, source_root, args.apply_safe, args.gitignore_mode)
 
     out_path = Path(args.out).expanduser() if args.out else target_root / "meta" / "context-spine" / "upgrade-report.md"
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -246,6 +354,8 @@ def main() -> int:
                     "safe_applied": result.safe_applied,
                     "merge_missing": result.merge_missing,
                     "merge_different": result.merge_different,
+                    "gitignore_mode": result.gitignore_mode,
+                    "gitignore_applied": result.gitignore_applied,
                     "notes": result.notes,
                 },
                 indent=2,

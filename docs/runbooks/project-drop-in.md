@@ -25,6 +25,22 @@ If the target repo already has a `docs/` directory, add these authority surfaces
 - `docs/archive/`
 - `docs/drafts/`
 
+## Git Tracking Mode
+
+Choose the repo policy immediately after the drop-in:
+
+- `tracked`
+  Commit durable and rolling Context Spine memory. Use:
+  `python3 ./scripts/context-spine/configure-gitignore.py --mode tracked`
+- `local`
+  Keep `meta/context-spine/` out of git and treat it as private repo-local working memory. Use:
+  `python3 ./scripts/context-spine/configure-gitignore.py --mode local`
+
+This only controls the managed Context Spine block in `.gitignore`.
+It does not overwrite the rest of the repo's ignore rules.
+If Context Spine files are already tracked, untrack them once with:
+`git rm -r --cached meta/context-spine`
+
 ## Retrieval Wiring
 
 Recommended QMD collections:
@@ -66,6 +82,8 @@ After the drop-in, classify memory immediately:
 - durable: baseline notes, ADRs, runbooks, curated evidence, selected diagrams
 - rolling: sessions and observations
 - generated/local: `.qmd/`, hot-memory indexes, scorecards
+
+If the repo is in `local` gitignore mode, treat `meta/context-spine/` as private working memory and promote anything that must be shared into committed docs or other durable surfaces.
 
 Do not let the initial install imply that every future session artifact belongs in long-lived git history.
 

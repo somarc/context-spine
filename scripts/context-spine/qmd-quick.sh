@@ -32,11 +32,6 @@ preferred_init_cmd() {
   fi
 }
 
-collection_exists() {
-  local name="$1"
-  qmd collection list | grep -Eq "^${name} \\(qmd://"
-}
-
 LOCAL_INDEX_DIR="$MEM_ROOT/.qmd"
 LOCAL_INDEX_PATH="$LOCAL_INDEX_DIR/index.sqlite"
 if [[ -z "${INDEX_PATH:-}" ]]; then
@@ -53,6 +48,10 @@ if [[ -z "${INDEX_PATH:-}" ]]; then
     fi
   fi
   export INDEX_PATH="$LOCAL_INDEX_PATH"
+fi
+
+if [[ -x "$ROOT/scripts/context-spine/init-qmd.sh" ]]; then
+  bash "$ROOT/scripts/context-spine/init-qmd.sh" >/dev/null || true
 fi
 
 qmd_search_with_retry() {
@@ -117,21 +116,6 @@ append_block() {
 
 echo "===== QMD QUICK SEARCH ====="
 IFS=',' read -r -a collections <<< "$QMD_COLLECTIONS"
-missing_collection=0
-for collection in "${collections[@]}"; do
-  trimmed="$(echo "$collection" | sed 's/^ *//;s/ *$//')"
-  if [[ -z "$trimmed" ]]; then
-    continue
-  fi
-  if ! collection_exists "$trimmed"; then
-    missing_collection=1
-    break
-  fi
-done
-if [[ "$missing_collection" -eq 1 ]]; then
-  echo "INFO: missing QMD collection detected. Running $(preferred_init_cmd)"
-  bash "$ROOT/scripts/context-spine/init-qmd.sh" >/dev/null || true
-fi
 session_has_qmd_link=0
 if [[ -n "$LATEST_SESSION" && -f "$LATEST_SESSION" ]] && grep -q "qmd://" "$LATEST_SESSION"; then
   session_has_qmd_link=1

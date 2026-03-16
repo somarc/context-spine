@@ -25,15 +25,51 @@ collection_exists() {
   qmd collection list | grep -Eq "^${name} \\(qmd://"
 }
 
+collection_info() {
+  python3 - "$LOCAL_INDEX_PATH" "$1" <<'PY'
+import sqlite3
+import sys
+from pathlib import Path
+
+db_path = Path(sys.argv[1])
+name = sys.argv[2]
+if not db_path.exists():
+    raise SystemExit(0)
+conn = sqlite3.connect(db_path)
+try:
+    row = conn.execute(
+        "SELECT path, pattern FROM store_collections WHERE name = ?",
+        (name,),
+    ).fetchone()
+finally:
+    conn.close()
+if row:
+    print(f"{row[0]}\t{row[1]}")
+PY
+}
+
 ensure_collection() {
   local path="$1"
   local name="$2"
   local mask="$3"
+  local info=""
+  local actual_path=""
+  local actual_pattern=""
   if collection_exists "$name"; then
-    echo "Collection already present: $name"
-    return 0
+    info="$(collection_info "$name")"
+    if [[ -n "$info" ]]; then
+      actual_path="${info%%$'\t'*}"
+      actual_pattern="${info#*$'\t'}"
+      if [[ "$actual_path" == "$path" && "$actual_pattern" == "$mask" ]]; then
+        echo "Collection already present: $name"
+        return 0
+      fi
+    fi
+    echo "Rebinding collection: $name -> $path ($mask)"
+    qmd collection remove "$name" >/dev/null
+  else
+    echo "Adding collection: $name -> $path ($mask)"
   fi
-  echo "Adding collection: $name -> $path ($mask)"
   qmd collection add "$path" --name "$name" --mask "$mask"
 }
 

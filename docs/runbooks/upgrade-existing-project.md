@@ -8,8 +8,15 @@ The upgrade path is intentionally split:
 
 - `safe additive`
   Files that can be added if missing without taking authority away from the target project.
+  In practice this includes new standalone runtime helpers and canonical docs.
 - `merge review`
   Files that often need a human decision because the target repo may already have legitimate customizations.
+  In practice this is the shared entrypoint layer: bootstrap, QMD wiring, session/score scripts, wrappers, and repo-specific runbooks.
+
+Custom baseline names are valid.
+
+If the target repo already has a project-owned `meta/context-spine/spine-notes-*.md` baseline, keep it.
+Do not rename it to `spine-notes-context-spine.md` just to match the boilerplate repo.
 
 ## Fast Path
 
@@ -35,10 +42,9 @@ python3 ./scripts/context-spine/upgrade.py --target /path/to/project --apply-saf
 
 The script will only create missing files from this set:
 
-- `docs/README.md`
-- `docs/archive/README.md`
-- `docs/drafts/README.md`
-- `docs/runbooks/doctor.md`
+- authority docs such as `docs/README.md`, `docs/archive/README.md`, and `docs/drafts/README.md`
+- canonical runbooks such as `doctor.md`, `how-to-use-context-spine.md`, `project-drop-in.md`, `upgrade-existing-project.md`, `elon-doctrine.md`, and related docs
+- standalone runtime helpers such as `doctor.py`, `upgrade.py`, `hot-memory.py`, `rollout.py`, `qmd-quick.sh`, `mem-log.py`, `mem-search.py`, and Codex skill install helpers
 
 It will not overwrite existing files.
 
@@ -49,20 +55,42 @@ These surfaces are called out for merge review rather than blind replacement:
 - `.gitignore`
 - `package.json`
 - `scripts/context-spine/bootstrap.sh`
+- `scripts/context-spine/init-qmd.sh`
+- `scripts/context-spine/qmd-refresh.sh`
+- `scripts/context-spine/mem-session.py`
+- `scripts/context-spine/mem-score.py`
 - `docs/runbooks/session-start.md`
-- `docs/runbooks/how-to-use-context-spine.md`
-- `docs/runbooks/project-drop-in.md`
-- `meta/context-spine/spine-notes-context-spine.md`
 
 Those files often carry repo-specific truth, commands, or reading paths.
 
 ## Recommended Upgrade Order
 
 1. Run the upgrade report.
-2. Apply the safe additive files if they are missing.
-3. Review the merge-worthy files one by one.
-4. Add any new wrapper commands manually if the target repo uses `npm run context:*`.
-5. Run `context:doctor` in the target repo after the merge.
+2. Pick the git tracking policy with `--gitignore-mode tracked` or `--gitignore-mode local`.
+3. Apply the safe additive files if they are missing.
+4. Review the shared entrypoint files one by one instead of overwriting project-owned behavior.
+5. Add any new wrapper commands manually if the target repo uses `npm run context:*`.
+6. If the repo uses a custom baseline file name, keep it and merge the generic baseline detection changes into bootstrap and related docs.
+7. Run `context:doctor` and `context:score` in the target repo after the merge.
+
+## Gitignore Mode
+
+The upgrade path supports a managed Context Spine block in `.gitignore`.
+
+- `tracked`
+  Commit durable and rolling memory. Ignore only generated/local Context Spine aids.
+- `local`
+  Ignore `meta/context-spine/` entirely and treat it as repo-local private memory.
+
+Example:
+
+```bash
+python3 ./scripts/context-spine/upgrade.py --target /path/to/project --gitignore-mode local
+```
+
+This updates only the managed Context Spine block and leaves the rest of `.gitignore` alone.
+If the repo already tracks `meta/context-spine/`, untrack it once with:
+`git rm -r --cached meta/context-spine`
 
 ## Why This Is Safer
 
@@ -70,6 +98,9 @@ Older Context Spine installs usually fail in one of two ways:
 
 - they are missing newer hygiene surfaces entirely
 - they have project-owned customizations that should not be clobbered by a boilerplate sync
+
+The common trap is treating a runtime upgrade like a full boilerplate replacement.
+That works badly for repos that already have a legitimate baseline note name, project-specific session-start guidance, or wrapper commands tuned to local workflows.
 
 This upgrade path keeps those two concerns separate.
 

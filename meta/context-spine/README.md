@@ -9,6 +9,11 @@ This directory is the repo-local memory layer.
 
 It exists for short-horizon continuity and evidence capture close to the codebase.
 
+Git tracking policy is configured separately:
+
+- `tracked` mode commits durable and rolling memory here
+- `local` mode ignores this directory from git and treats it as private repo-local context
+
 Use three lifecycles here:
 
 - durable: baseline `spine-notes-*.md` and curated evidence
@@ -59,6 +64,14 @@ Run a bootstrap pass:
 ```bash
 npm run context:init
 npm run context:bootstrap
+```
+
+Set the managed `.gitignore` mode:
+
+```bash
+npm run context:gitignore -- --mode tracked
+# or
+npm run context:gitignore -- --mode local
 ```
 
 Retention policy:

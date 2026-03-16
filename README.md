@@ -120,7 +120,7 @@ The numbered commands below use the `npm run context:*` wrappers. If you do not 
 1. Read the prerequisites in [docs/runbooks/prerequisites.md](./docs/runbooks/prerequisites.md).
 2. Run `npm run context:init`.
 3. Run `npm run context:bootstrap`.
-4. Open [meta/context-spine/spine-notes-context-spine.md](./meta/context-spine/spine-notes-context-spine.md).
+4. Open the repo baseline `meta/context-spine/spine-notes-*.md` file.
 5. Use [meta/context-spine/hot-memory-index.md](./meta/context-spine/hot-memory-index.md) as the current working set.
 6. Create a session note with `npm run context:session`.
 7. Record observations with [scripts/context-spine/mem-log.py](./scripts/context-spine/mem-log.py).
@@ -128,13 +128,15 @@ The numbered commands below use the `npm run context:*` wrappers. If you do not 
 9. Keep one durable external note per major deep dive, audit, or execution baseline.
 10. Refresh retrieval with `npm run context:update` and `npm run context:embed` when notes or docs change.
 11. Optionally install or sync the bundled Codex skills with `npm run context:skill:install` if you want `$context-spine` or `$principal-engineer-review` available globally.
-12. If you are updating an older install in another repo, run `python3 ./scripts/context-spine/upgrade.py --target /path/to/project`.
+12. Pick a git tracking policy with `npm run context:gitignore -- --mode tracked` or `npm run context:gitignore -- --mode local`.
+13. If you are updating an older install in another repo, run `python3 ./scripts/context-spine/upgrade.py --target /path/to/project`.
 
 Direct-script equivalents remain available:
 
 - `bash ./scripts/context-spine/init-qmd.sh`
 - `bash ./scripts/context-spine/bootstrap.sh`
 - `python3 ./scripts/context-spine/doctor.py`
+- `python3 ./scripts/context-spine/configure-gitignore.py --mode tracked`
 - `python3 ./scripts/context-spine/rollout.py --repos /path/to/repo-a /path/to/repo-b`
 - `python3 ./scripts/context-spine/upgrade.py --target /path/to/project`
 - `python3 ./scripts/context-spine/mem-session.py --project context-spine`
@@ -146,7 +148,7 @@ Direct-script equivalents remain available:
 
 Read [docs/runbooks/project-drop-in.md](./docs/runbooks/project-drop-in.md).
 
-If the project already has an older Context Spine install, use [docs/runbooks/upgrade-existing-project.md](./docs/runbooks/upgrade-existing-project.md) instead of treating it like a first install.
+If the project already has an older Context Spine install, use [docs/runbooks/upgrade-existing-project.md](./docs/runbooks/upgrade-existing-project.md) instead of treating it like a first install. The upgrade path is additive-first: it can copy missing standalone runtime/doc surfaces, but it should keep project-owned baseline names and merge shared entrypoints deliberately.
 
 The short version:
 
@@ -167,6 +169,13 @@ The intended split is:
 - durable: architecture, boundaries, baseline notes, ADRs, runbooks, curated evidence, selected diagrams
 - rolling: active session notes and observations
 - generated/local: retrieval indexes, hot-memory indexes, scorecards
+
+Git tracking is still a repo policy decision:
+
+- `tracked`
+  Commit durable and rolling Context Spine memory. Ignore only generated/local aids.
+- `local`
+  Keep `meta/context-spine/` out of git and promote anything worth sharing into committed docs, ADRs, or other project-owned surfaces.
 
 Read the formal policy in [docs/adr/0003-memory-retention-model.md](./docs/adr/0003-memory-retention-model.md) and the operating rule in [docs/runbooks/memory-retention.md](./docs/runbooks/memory-retention.md).
 

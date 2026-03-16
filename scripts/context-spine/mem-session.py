@@ -39,7 +39,7 @@ def main():
     title = args.title or f"{date_str} - Session Summary"
 
     memory_root = Path(args.root).expanduser() if args.root else default_memory_root()
-    repo_root = memory_root.parents[2] if memory_root.name == "context-spine" and memory_root.parent.name == "meta" else memory_root
+    repo_root = memory_root.parents[1] if memory_root.name == "context-spine" and memory_root.parent.name == "meta" else memory_root
     sessions_dir = memory_root / "sessions"
     sessions_dir.mkdir(parents=True, exist_ok=True)
 

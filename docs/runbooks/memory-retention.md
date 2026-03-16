@@ -14,9 +14,16 @@ Context Spine stores three kinds of things:
 
 Treat them differently.
 
+Git tracking is a repo policy choice, not a hidden default.
+
+- `tracked` mode
+  Commit durable and rolling Context Spine memory.
+- `local` mode
+  Keep `meta/context-spine/` out of git and promote anything that matters into committed docs, ADRs, runbooks, or other durable project surfaces.
+
 ## Durable Structure
 
-Keep these committed as the long-lived shared understanding of the project:
+In `tracked` mode, keep these committed as the long-lived shared understanding of the project:
 
 - `docs/adr/`
 - `docs/runbooks/`
@@ -28,7 +35,7 @@ This is where architecture, boundaries, contracts, invariants, and operating sha
 
 ## Rolling Working Memory
 
-Keep these while they are still useful for active continuity:
+In `tracked` mode, keep these while they are still useful for active continuity:
 
 - `meta/context-spine/sessions/`
 - `meta/context-spine/observations/`
@@ -52,6 +59,8 @@ Treat these as local and regenerable:
 - `meta/context-spine/memory-scorecard.md`
 
 They support retrieval and maintenance, but they are not durable project memory.
+
+In `local` mode, the whole `meta/context-spine/` tree is local by policy.
 
 ## Review Cadence
 

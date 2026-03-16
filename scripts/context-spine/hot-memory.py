@@ -63,7 +63,7 @@ def latest_file(paths: list[Path]) -> Path | None:
     return ranked[0][1]
 
 
-def parse_source_of_truth(note_path: Path) -> list[Path]:
+def parse_source_of_truth(note_path: Path, repo_root: Path) -> list[Path]:
     text = note_path.read_text(encoding="utf-8")
     if "---" not in text:
         return []
@@ -81,8 +81,10 @@ def parse_source_of_truth(note_path: Path) -> list[Path]:
         if not stripped.startswith("- "):
             continue
         candidate = Path(stripped[2:].strip())
-        if candidate.exists():
-            paths.append(candidate)
+        resolved = candidate if candidate.is_absolute() else (repo_root / candidate)
+        resolved = resolved.resolve()
+        if resolved.exists():
+            paths.append(resolved)
     return paths
 
 
@@ -128,7 +130,7 @@ def build_working_set(memory_root: Path, repo_root: Path, days: int) -> list[Wor
         )
 
     if baseline_note is not None:
-        for path in parse_source_of_truth(baseline_note)[:8]:
+        for path in parse_source_of_truth(baseline_note, repo_root)[:8]:
             add_item(
                 items,
                 seen,
@@ -222,7 +224,10 @@ def build_working_set(memory_root: Path, repo_root: Path, days: int) -> list[Wor
 
 
 def render_link(path: Path, repo_root: Path, collection_root: Path, collection_name: str) -> str:
-    rel_repo = path.relative_to(repo_root).as_posix()
+    try:
+        rel_repo = path.relative_to(repo_root).as_posix()
+    except ValueError:
+        return f"`{path}`"
     try:
         rel_collection = path.relative_to(collection_root).as_posix()
     except ValueError:
