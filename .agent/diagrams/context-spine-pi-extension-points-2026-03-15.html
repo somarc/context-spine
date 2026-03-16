@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PI Extension Points | Context Spine</title>
+    <style>
+      :root {
+        --bg: #f5f7fb;
+        --surface: rgba(255, 255, 255, 0.82);
+        --ink: #142033;
+        --muted: #627187;
+        --line: rgba(20, 32, 51, 0.1);
+        --accent: #20486b;
+        --accent-soft: rgba(32, 72, 107, 0.1);
+        --good: #1d6b57;
+        --good-soft: rgba(29, 107, 87, 0.11);
+        --warn: #8f5f1e;
+        --warn-soft: rgba(143, 95, 30, 0.12);
+        --shadow: 0 24px 70px rgba(28, 42, 61, 0.12);
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        color: var(--ink);
+        font-family: "Iowan Old Style", "Palatino Linotype", serif;
+        background:
+          radial-gradient(circle at top left, rgba(32,72,107,0.08), transparent 30%),
+          linear-gradient(180deg, #fbfcff 0%, var(--bg) 100%);
+      }
+      main {
+        width: min(1220px, calc(100vw - 40px));
+        margin: 28px auto 80px;
+      }
+      .hero, .panel, .tile {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(12px);
+      }
+      .hero { padding: 38px; display: grid; gap: 22px; }
+      .eyebrow, .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        font-size: 12px;
+        color: var(--accent);
+      }
+      h1, h2, h3 { margin: 0; font-weight: 500; }
+      h1 { font-size: clamp(3rem, 6vw, 5.4rem); line-height: 0.96; max-width: 9.5ch; }
+      .lede { color: var(--muted); font-size: 1.2rem; line-height: 1.65; max-width: 70ch; }
+      .hero-grid, .grid-2, .grid-3, .grid-4 { display: grid; gap: 22px; }
+      .hero-grid { grid-template-columns: 1.1fr 0.9fr; }
+      .panel { padding: 28px; margin-top: 24px; }
+      .tile { padding: 22px; }
+      .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .stack { display: grid; gap: 16px; }
+      .ladder {
+        position: relative;
+        margin-top: 12px;
+        padding-left: 28px;
+      }
+      .ladder::before {
+        content: "";
+        position: absolute;
+        left: 5px;
+        top: 8px;
+        bottom: 8px;
+        width: 2px;
+        background: linear-gradient(180deg, var(--accent), rgba(32,72,107,0.15));
+      }
+      .step {
+        position: relative;
+        padding: 0 0 20px 18px;
+      }
+      .step::before {
+        content: "";
+        position: absolute;
+        left: -1px;
+        top: 4px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 0 8px var(--accent-soft);
+      }
+      p, li { color: var(--muted); line-height: 1.65; }
+      ul { margin: 0; padding-left: 18px; }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        background: rgba(32,72,107,0.08);
+        padding: 0.16em 0.4em;
+        border-radius: 0.45em;
+      }
+      .good { background: var(--good-soft); }
+      .warn { background: var(--warn-soft); }
+      @media (max-width: 980px) {
+        main { width: min(100vw - 20px, 100%); margin: 16px auto 44px; }
+        .hero, .panel { padding: 22px; }
+        .hero-grid, .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <div class="eyebrow">Context Spine · PI Extension Points</div>
+        <div class="hero-grid">
+          <div>
+            <h1>`.pi/` is the optional agent layer, not the project’s memory core.</h1>
+            <p class="lede">
+              Use <code>.pi/</code> when a repo needs project-owned agent workflows that travel with the code.
+              Keep architecture, status, runbooks, and continuity out of it. The point is to extend the memory system,
+              not replace it.
+            </p>
+          </div>
+          <div class="tile">
+            <div class="mono">Current stance</div>
+            <p><code>.pi/skills/</code> for named workflows. <code>.pi/prompts/</code> for reusable scaffolds. Everything else stays in the normal code, docs, and memory surfaces.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="eyebrow">Where it fits</div>
+        <div class="grid-4">
+          <div class="tile">
+            <h3>Code</h3>
+            <p>Delivered behavior and scripts that actually execute.</p>
+          </div>
+          <div class="tile">
+            <h3>Docs</h3>
+            <p>ADRs, runbooks, and durable explanations.</p>
+          </div>
+          <div class="tile">
+            <h3>Memory</h3>
+            <p>Baseline notes, sessions, observations, and evidence.</p>
+          </div>
+          <div class="tile good">
+            <h3>`.pi/`</h3>
+            <p>Optional project-owned agent extensions that point back into the real truth surfaces.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="eyebrow">What belongs there</div>
+        <div class="grid-2">
+          <div class="tile good">
+            <h3>Skills</h3>
+            <ul>
+              <li>named workflows</li>
+              <li>review lenses</li>
+              <li>bounded investigations</li>
+              <li>domain-specific procedures</li>
+            </ul>
+          </div>
+          <div class="tile good">
+            <h3>Prompts</h3>
+            <ul>
+              <li>reusable scaffolds</li>
+              <li>handoff starters</li>
+              <li>brief templates</li>
+              <li>delegation output contracts</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="eyebrow">What does not belong there</div>
+        <div class="grid-3">
+          <div class="tile warn">
+            <h3>Architecture truth</h3>
+            <p>Use <code>docs/adr/</code>, not agent-only files, for system decisions.</p>
+          </div>
+          <div class="tile warn">
+            <h3>Current status</h3>
+            <p>Use <code>meta/context-spine/</code> for continuity instead of hiding status in prompts.</p>
+          </div>
+          <div class="tile warn">
+            <h3>Runtime logic</h3>
+            <p>Put real behavior in normal scripts or product code, not in prompt scaffolding.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="eyebrow">Decision rule</div>
+        <div class="ladder">
+          <div class="step">
+            <h2>Use `.pi/skills/` when the workflow deserves a name</h2>
+            <p>It recurs, benefits from a stable procedure, and should be installable into an agent runtime.</p>
+          </div>
+          <div class="step">
+            <h2>Use `.pi/prompts/` when the framing matters more than automation</h2>
+            <p>The work needs a repeatable prompt shape, but not a full skill or script.</p>
+          </div>
+          <div class="step">
+            <h2>Use normal docs or scripts for everything else</h2>
+            <p>If it is project truth, operational procedure, or executable logic, it should live outside <code>.pi/</code>.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

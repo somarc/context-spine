@@ -115,11 +115,14 @@ The numbered commands below use the `npm run context:*` wrappers. If you do not 
 8. Keep one durable external note per major deep dive, audit, or execution baseline.
 9. Refresh retrieval with `npm run context:update` and `npm run context:embed` when notes or docs change.
 10. Optionally install or sync the bundled Codex skills with `npm run context:skill:install` if you want `$context-spine` or `$principal-engineer-review` available globally.
+11. If you are updating an older install in another repo, run `python3 ./scripts/context-spine/upgrade.py --target /path/to/project`.
 
 Direct-script equivalents remain available:
 
 - `bash ./scripts/context-spine/init-qmd.sh`
 - `bash ./scripts/context-spine/bootstrap.sh`
+- `python3 ./scripts/context-spine/doctor.py`
+- `python3 ./scripts/context-spine/upgrade.py --target /path/to/project`
 - `python3 ./scripts/context-spine/mem-session.py --project context-spine`
 - `python3 ./scripts/context-spine/mem-score.py --root ./meta/context-spine`
 - `bash ./scripts/context-spine/qmd-refresh.sh --embed`
@@ -128,6 +131,8 @@ Direct-script equivalents remain available:
 ## Drop Into An Existing Project
 
 Read [docs/runbooks/project-drop-in.md](./docs/runbooks/project-drop-in.md).
+
+If the project already has an older Context Spine install, use [docs/runbooks/upgrade-existing-project.md](./docs/runbooks/upgrade-existing-project.md) instead of treating it like a first install.
 
 The short version:
 
@@ -225,6 +230,8 @@ Recommended extension points:
 - `.agent/diagrams/` for visual explainers
 
 The rule is: extend by adding adapters and conventions, not by replacing the memory loop.
+
+For the detailed `.pi/` model, read [docs/runbooks/pi-extension-points.md](./docs/runbooks/pi-extension-points.md).
 
 ## Codex Skills
 
