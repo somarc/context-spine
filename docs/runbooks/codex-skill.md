@@ -3,6 +3,7 @@
 ## Goal
 
 Treat repo-local skills as maintained Codex skills, not just repo conventions.
+Keep the spine lean: it should behave like the thinnest possible operating layer for current truth, not like a note-accumulation ceremony.
 
 This runbook is optional and only matters if your team wants the bundled workflows available inside Codex. The project itself should remain usable without them.
 
@@ -14,13 +15,13 @@ This runbook is optional and only matters if your team wants the bundled workflo
 ## Bundled Skills
 
 - `context-spine`
-  - bootstrap, repair, and working-memory recovery
+  - recover current project truth, hydrate from deep evidence, invalidate stale assumptions, and tighten retrieval
 - `principal-engineer-review`
   - structural review and durable-decision pressure
 - `context-spine-maintenance`
-  - run the maintenance loop and prioritize what to fix first
+  - audit hygiene, flow, and alignment drift in repo-local memory
 - `memory-promotion`
-  - decide what rolling work should become durable memory
+  - decide what rolling work, invalidations, and reasoning repairs should become durable memory
 - `multi-repo-rollout`
   - assess or safely evolve Context Spine across several local repos
 - `elon-doctrine`
@@ -43,6 +44,7 @@ bash ./scripts/context-spine/install-codex-skill.sh
 - after changing any file under `.pi/skills/`
 - after cloning the repo onto a new machine
 - before relying on a bundled skill in Codex
+- when the spine feels dry, blocked, bloated, or overly inferential under delivery pressure
 
 ## Verification
 

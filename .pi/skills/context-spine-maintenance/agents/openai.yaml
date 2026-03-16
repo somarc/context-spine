@@ -1,4 +1,4 @@
 interface:
   display_name: "Context Spine Maintenance"
-  short_description: "Run the repo memory maintenance loop"
-  default_prompt: "Use $context-spine-maintenance to audit this repo's Context Spine health and tell me what to fix first."
+  short_description: "Audit hygiene, flow, and alignment drift"
+  default_prompt: "Use $context-spine-maintenance to audit this repo's Context Spine hygiene, flow, and alignment drift and tell me what to fix first."

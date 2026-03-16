@@ -63,6 +63,18 @@ class ContextConfigTest(unittest.TestCase):
             self.assertEqual(variables["CONFIG_CONTEXT_SPINE_COLLECTION"], "demo-meta")
             self.assertEqual(variables["CONFIG_CONTEXT_SPINE_ROOT"], str((repo_root / ".memory" / "context").resolve()))
 
+    def test_shell_variables_expose_skills_collection_and_query(self):
+        variables = context_config.shell_variables(Path("/tmp/context-spine-test-root"))
+
+        self.assertEqual(
+            variables["CONFIG_CONTEXT_SPINE_SKILLS_COLLECTION"],
+            context_config.DEFAULT_CONFIG["collections"]["skills"],
+        )
+        self.assertEqual(
+            variables["CONFIG_CONTEXT_SPINE_QMD_QUERY_SKILLS"],
+            context_config.DEFAULT_CONFIG["qmd"]["queries"]["skills"],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

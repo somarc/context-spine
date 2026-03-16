@@ -1,4 +1,4 @@
 interface:
   display_name: "Context Spine"
-  short_description: "Bootstrap durable project memory"
-  default_prompt: "Use $context-spine to bootstrap or improve repo memory and retrieval."
+  short_description: "Recover current truth and repair memory flow"
+  default_prompt: "Use $context-spine to recover current project truth, surface stale assumptions, and improve repo memory and retrieval."

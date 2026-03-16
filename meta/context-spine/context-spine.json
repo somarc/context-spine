@@ -7,16 +7,18 @@
   "collections": {
     "meta": "context-spine-meta",
     "docs": "project-docs",
+    "skills": "project-skills",
     "vault": "project-vault",
     "vault_root": ""
   },
   "qmd": {
-    "collections": "context-spine-meta",
+    "collections": "context-spine-meta,project-docs,project-skills",
     "append_to_session": true,
     "queries": {
       "bootstrap": "spine notes baseline bootstrap memory",
       "primary": "priority todo decision action",
-      "extra": "evidence open questions source_of_truth"
+      "extra": "evidence open questions source_of_truth hydration flow cognition metacognition",
+      "skills": "hydration flow metacognition backflow source hydration flow state"
     },
     "retries": 4,
     "retry_sleep_sec": 1

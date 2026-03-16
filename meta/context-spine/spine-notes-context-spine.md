@@ -33,7 +33,8 @@ As of 2026-03-15, this repository is the reusable boilerplate for bootstrapping 
 - `meta/context-spine/hot-memory-index.md` should behave like a curated working set, not just a recent-files dump.
 - QMD collections should at minimum include `context-spine-meta` for `meta/` and `project-docs` for `docs/`.
 - The bootstrap flow should surface this note, the latest session note, recent visual explainers, and a quick QMD retrieval pass.
-- Repo-local Codex skill sources live under `.pi/skills/`, including `context-spine` and `principal-engineer-review`.
+- Repo-local Codex skill sources live under `.pi/skills/`, including the core spine suite and companion review skills.
+- The core spine suite now treats active-delivery recovery, invalidation, hydration, flow state, and metacognitive checks as first-class operating concerns.
 - Existing project installs should have a dedicated upgrade path instead of assuming every change is a fresh drop-in.
 - The upgrade path should copy missing config/runtime helpers safely but surface project-owned config differences for deliberate merge review.
 - Session templates should capture branch, HEAD, worktree state, and the last meaningful verification command so agents restart from concrete execution state.
@@ -48,6 +49,7 @@ As of 2026-03-15, this repository is the reusable boilerplate for bootstrapping 
 - Prefer `npm run context:*` wrappers so bootstrap commands still work when executable bits are lost outside a normal git checkout.
 - Make repo policy explicit in `context-spine.json` so bootstrap, doctor, score, upgrade, and gitignore surfaces stop inferring project shape independently.
 - Keep principal-engineer oversight as an additive review skill under `.pi/skills/` instead of making it a hard dependency of the core loop.
+- Keep Context Spine itself as the thinnest possible operating layer for current truth; if a memory feature drifts into ceremony, simplify or remove it.
 - Add a doctor command that checks baseline integrity, session freshness, generated-aid freshness, docs authority, and visual surfaces.
 - Add an additive-first upgrade command for older installs so the boilerplate can evolve without clobbering project-owned memory surfaces.
 - Upgrade hot memory from raw recency into a working set tied to baseline source-of-truth files, canonical docs, and recent visual explainers.

@@ -2,6 +2,33 @@
 
 ## Modes
 
+### Active delivery
+
+Use this mode when the user is trying to ship, unblock, or prove something now.
+
+Working set:
+
+1. active objective
+1. authoritative surfaces
+1. source hydration
+1. critical path
+1. stale or suspect assumptions
+1. flow state
+1. metacognitive check
+1. next irreversible action
+
+Command bias:
+
+- refresh retrieval if it is stale enough to mislead search
+- inspect runtime endpoints, git status, and the smallest relevant code surfaces first
+- open only 1-3 durable artifacts before acting
+
+After the implementation move:
+
+- update the latest session or observation
+- if durable truth changed, mark the old artifact superseded or route to `memory-promotion`
+- note any dryness, blockage, or backflow that should become a durable repair
+
 ### Existing Context Spine repo
 
 Use this mode when the repo already contains `meta/context-spine/` and `scripts/context-spine/`.
@@ -59,11 +86,64 @@ Install order:
 
 ## Truth Discipline
 
-- code is delivered behavior
-- docs are intended behavior
-- tests and command evidence are trusted behavior
+Use this evidence ladder:
+
+1. runtime behavior and command evidence
+1. code and tests
+1. docs and contracts
+1. durable notes and runbooks
+1. inference
 
 When they disagree, reconcile the mismatch explicitly.
+
+## Invalidation Discipline
+
+When new evidence contradicts durable memory:
+
+1. record the contradiction in the latest session or observation
+1. identify which durable artifact is now misleading
+1. update it or mark it superseded explicitly
+1. refresh retrieval so stale truth does not dominate search
+
+Do not present contradictory truths as equally current.
+
+## Topology Discipline
+
+Always identify:
+
+- primary repo
+- nested repos
+- planned repos
+- deployed surfaces
+- local endpoints
+
+Do not let a single local checkout stand in for the whole system when the work is multi-surface.
+
+## Flow Discipline
+
+- Hydrate from deep sources before leaning on summaries.
+- Keep the path from evidence to decision visible enough that another operator can follow it.
+- Bound the working set so it carries signal, not undifferentiated history.
+- If contradictions remain unresolved, present them as a blockage with the next step to clear it.
+- If stale memory is dominating search or planning, mark it as backflow and repair the durable artifact.
+
+## Cognition And Metacognition
+
+For non-trivial tasks, make these loops visible:
+
+1. perceive
+1. orient
+1. decide
+1. act
+1. reconcile
+
+Before closing, ask:
+
+- what did I know directly
+- what did I infer
+- what changed
+- what would mislead the next operator
+- what durable artifact now needs repair
 
 ## Change Discipline
 

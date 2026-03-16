@@ -1,23 +1,68 @@
 ---
 name: context-spine
-description: Bootstrap, install, and improve Context Spine for repo-local working memory and retrieval. Use when a user asks to recover project context, set up or repair `meta/context-spine` workflows, create baseline or session notes, harden bootstrap/QMD flows, or codify Context Spine itself as a reusable Codex skill.
+description: Recover current project truth, bootstrap durable repo-local memory, and tighten retrieval. Use when a user asks to recover context, align memory with live code or runtime evidence, set up or repair `meta/context-spine` workflows, create baseline or session notes, invalidate stale assumptions, or codify Context Spine itself as a reusable Codex skill.
 ---
 
 # Context Spine
 
 ## Overview
 
-Use this skill to make project understanding durable and retrievable instead of relying on raw recall. Prefer repo-local memory, QMD-first retrieval, and command-backed evidence over prompt-only context.
+Use this skill to recover current project truth, make it durable, and keep retrieval grounded in evidence rather than recall. Prefer repo-local memory, QMD-first retrieval, and command-backed evidence over prompt-only context.
+
+> Context Spine is not valuable because it stores more notes. It is valuable when it becomes the thinnest possible operating layer for current truth. If you keep it lean, evidence-based, and invalidation-aware, it is a very strong tool. If it drifts into ceremony, it dies.
+
+Optimize for useful truth under time pressure, not note accumulation.
+Optimize for flow as well: hydrate from the deepest relevant sources, move only the needed signal upward, and expose where thinking is compressed, blocked, or inferential.
 
 ## First Pass
 
 1. If the repo shape is unknown, run `python3 scripts/inspect_repo.py --root <repo>`.
-1. Detect the operating mode: `existing`, `partial`, `missing`, or skill-maintenance.
+1. Detect workspace topology: primary repo, nested repos, planned repos, deployed surfaces, and external endpoints that currently matter.
+1. Detect the operating mode: `active-delivery`, `existing`, `partial`, `missing`, `promotion`, or `skill-maintenance`.
 1. Prefer repo-local wrappers over ad hoc shell when they exist.
-1. Open only the top 1-3 high-signal artifacts first: a baseline `spine-notes-*.md`, the latest session, `hot-memory-index.md`, and the most relevant runbook.
+1. Open only the smallest high-signal working set first: a baseline `spine-notes-*.md`, the latest session, `hot-memory-index.md`, and the most relevant ADR or runbook.
+1. If freshness, project pivots, or contradictory evidence matter, read `references/spine-of-time.md`.
+1. If the problem feels information-dense, contradictory, or mentally slippery, read `references/flow-and-cognition.md`.
 1. Re-anchor any proposed change in code, tests, or command output. Do not treat code, docs, notes, and evidence as interchangeable.
 
+## Spine Of Time Rules
+
+- Use the evidence ladder: runtime and command evidence, then code and tests, then docs and contracts, then durable notes, then inference.
+- When new evidence contradicts durable memory, mark the old truth as superseded. Do not silently keep both live.
+- Keep `active objective`, `critical path`, and `suspect assumptions` separate from long-lived architecture notes.
+- Relative time words like `current`, `latest`, `today`, or `recent` should resolve to dated evidence whenever possible.
+
+## Flow And Cognition Rules
+
+- Hydrate from the lowest tier that can materially answer the question. Do not jump straight to durable notes when runtime, code, or commands are available.
+- Identify dry segments explicitly when an important source was not sampled.
+- Keep the flow column explicit:
+  - source hydration
+  - working-set compression
+  - decision frame
+  - user-facing summary
+  - memory reconciliation
+- Treat contradiction as a blockage, not as harmless ambiguity.
+- Treat stale notes dominating retrieval as backflow.
+- Treat unlabeled inference, wishful extrapolation, or missing uncertainty as metacognitive failure.
+
 ## Modes
+
+### Active delivery
+
+- Use this mode when the user is trying to ship, unblock, or prove something now.
+- Build a compact working set, not a broad memory tour.
+- Output:
+  - active objective
+  - authoritative surfaces
+  - source hydration
+  - critical path
+  - flow state
+  - stale or suspect assumptions
+  - metacognitive check
+  - immediate next action
+- Prefer freshness and unblock value over completeness.
+- Reconcile durable memory after implementation if the live truth changed.
 
 ### Existing Context Spine repo
 
@@ -39,6 +84,12 @@ Use this skill to make project understanding durable and retrievable instead of 
 - Use small scripts and explicit contracts instead of prompt-only glue.
 - Add a baseline note and one session path before declaring the install complete.
 
+### Promotion / reconciliation
+
+- Use this mode when recent work changed project shape, invalidated assumptions, or exposed a gap between durable memory and live evidence.
+- Capture what should be promoted, what should stay rolling, and what should be marked superseded.
+- Pair with `memory-promotion` when the durable destination is unclear.
+
 ### Codex skill maintenance
 
 - Treat `.pi/skills/context-spine/` as the repo source-of-truth when it exists.
@@ -47,12 +98,25 @@ Use this skill to make project understanding durable and retrievable instead of 
 
 ## Output Expectations
 
-- State the detected mode explicitly.
+- State the detected mode and topology explicitly.
+- Separate:
+  - `ACTIVE_OBJECTIVE`
+  - `AUTHORITATIVE_SURFACES`
+  - `SOURCE_HYDRATION`
+  - `FLOW_STATE`
+  - `STALE_OR_SUSPECT_TRUTHS`
+  - `COGNITIVE_FRAME`
+  - `METACOGNITIVE_CHECK`
+  - `WORKING_SET`
+  - `NEXT_ACTIONS`
 - Provide concrete file paths and commands, not generic advice.
 - When you change the system, run the relevant bootstrap/update/validation commands and report the result.
+- When durable memory is now misleading, say exactly which artifact should be updated or superseded.
 
 ## References
 
 - `references/workflow.md`
 - `references/adoption.md`
+- `references/spine-of-time.md`
+- `references/flow-and-cognition.md`
 - `scripts/inspect_repo.py`

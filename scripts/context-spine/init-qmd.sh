@@ -5,6 +5,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 eval "$(python3 "$ROOT/scripts/context-spine/context-config.py" --repo-root "$ROOT" --format shell)"
 META_NAME="${CONTEXT_SPINE_COLLECTION:-$CONFIG_CONTEXT_SPINE_COLLECTION}"
 DOCS_NAME="${CONTEXT_SPINE_DOCS_COLLECTION:-$CONFIG_CONTEXT_SPINE_DOCS_COLLECTION}"
+SKILLS_NAME="${CONTEXT_SPINE_SKILLS_COLLECTION:-$CONFIG_CONTEXT_SPINE_SKILLS_COLLECTION}"
 VAULT_NAME="${CONTEXT_SPINE_VAULT_COLLECTION:-$CONFIG_CONTEXT_SPINE_VAULT_COLLECTION}"
 VAULT_ROOT="${CONTEXT_SPINE_VAULT_ROOT:-$CONFIG_CONTEXT_SPINE_VAULT_ROOT}"
 MEM_ROOT="${CONTEXT_SPINE_ROOT:-$CONFIG_CONTEXT_SPINE_ROOT}"
@@ -78,6 +79,10 @@ ensure_collection "$ROOT/meta" "$META_NAME" "**/*.md"
 
 if [[ -d "$ROOT/docs" ]]; then
   ensure_collection "$ROOT/docs" "$DOCS_NAME" "**/*.md"
+fi
+
+if [[ -d "$ROOT/.pi/skills" ]]; then
+  ensure_collection "$ROOT/.pi/skills" "$SKILLS_NAME" "**/*.md"
 fi
 
 if [[ -n "$VAULT_ROOT" ]]; then
