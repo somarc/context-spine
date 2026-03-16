@@ -25,6 +25,13 @@ If the target repo already has a `docs/` directory, add these authority surfaces
 - `docs/archive/`
 - `docs/drafts/`
 
+Then set the repo-local contract in `meta/context-spine/context-spine.json` before people start relying on conventions:
+
+- project name
+- preferred baseline file
+- QMD collection names
+- gitignore mode
+
 ## Git Tracking Mode
 
 Choose the repo policy immediately after the drop-in:
@@ -59,6 +66,8 @@ qmd collection add /path/to/external-vault --name project-vault --mask "**/*.md"
 
 Use `bash ./scripts/context-spine/qmd-refresh.sh --embed` whenever durable notes or docs are added.
 
+If the config names differ from the boilerplate defaults, keep `context-spine.json` authoritative and let the scripts read from it instead of hardcoding local variants.
+
 If the repo ships the bundled skill source, install it into Codex with:
 
 ```bash
@@ -88,6 +97,7 @@ If the repo is in `local` gitignore mode, treat `meta/context-spine/` as private
 Do not let the initial install imply that every future session artifact belongs in long-lived git history.
 
 After installation, run `python3 ./scripts/context-spine/doctor.py` once so the repo starts with an explicit hygiene report instead of silent drift.
+If the repo includes `package.json`, also run `npm run context:verify` once so the config, tests, scorecard, and skill surfaces are validated together.
 
 ## First Week Recommendation
 

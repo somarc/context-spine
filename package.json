@@ -6,14 +6,17 @@
   "scripts": {
     "context:init": "bash ./scripts/context-spine/init-qmd.sh",
     "context:bootstrap": "bash ./scripts/context-spine/bootstrap.sh",
+    "context:config": "python3 ./scripts/context-spine/context-config.py --format json",
     "context:doctor": "python3 ./scripts/context-spine/doctor.py",
     "context:gitignore": "python3 ./scripts/context-spine/configure-gitignore.py",
     "context:rollout": "python3 ./scripts/context-spine/rollout.py",
+    "context:test": "python3 -m unittest discover -s tests -p 'test_*.py'",
     "context:upgrade": "python3 ./scripts/context-spine/upgrade.py",
-    "context:session": "python3 ./scripts/context-spine/mem-session.py --project context-spine",
-    "context:score": "python3 ./scripts/context-spine/mem-score.py --root ./meta/context-spine",
+    "context:session": "python3 ./scripts/context-spine/mem-session.py",
+    "context:score": "python3 ./scripts/context-spine/mem-score.py",
     "context:update": "bash ./scripts/context-spine/qmd-refresh.sh",
     "context:embed": "bash ./scripts/context-spine/qmd-refresh.sh --embed",
+    "context:verify": "npm run context:test && npm run context:doctor && npm run context:score && npm run context:skill:validate",
     "context:skill:validate": "bash ./scripts/context-spine/install-codex-skill.sh --validate-only",
     "context:skill:install": "bash ./scripts/context-spine/install-codex-skill.sh"
   }

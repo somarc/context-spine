@@ -126,10 +126,12 @@ The numbered commands below use the `npm run context:*` wrappers. If you do not 
 7. Record observations with [scripts/context-spine/mem-log.py](./scripts/context-spine/mem-log.py).
 8. Read or create a visual explainer when a subsystem is easier to absorb visually.
 9. Keep one durable external note per major deep dive, audit, or execution baseline.
-10. Refresh retrieval with `npm run context:update` and `npm run context:embed` when notes or docs change.
-11. Optionally install or sync the bundled Codex skills with `npm run context:skill:install` if you want `$context-spine` or `$principal-engineer-review` available globally.
-12. Pick a git tracking policy with `npm run context:gitignore -- --mode tracked` or `npm run context:gitignore -- --mode local`.
-13. If you are updating an older install in another repo, run `python3 ./scripts/context-spine/upgrade.py --target /path/to/project`.
+10. Set repo policy explicitly in [meta/context-spine/context-spine.json](./meta/context-spine/context-spine.json).
+11. Refresh retrieval with `npm run context:update` and `npm run context:embed` when notes or docs change.
+12. Validate the operating contract with `npm run context:verify`.
+13. Optionally install or sync the bundled Codex skills with `npm run context:skill:install` if you want `$context-spine` or `$principal-engineer-review` available globally.
+14. Pick a git tracking policy with `npm run context:gitignore -- --mode tracked` or `npm run context:gitignore -- --mode local`.
+15. If you are updating an older install in another repo, run `python3 ./scripts/context-spine/upgrade.py --target /path/to/project`.
 
 Direct-script equivalents remain available:
 
@@ -139,10 +141,28 @@ Direct-script equivalents remain available:
 - `python3 ./scripts/context-spine/configure-gitignore.py --mode tracked`
 - `python3 ./scripts/context-spine/rollout.py --repos /path/to/repo-a /path/to/repo-b`
 - `python3 ./scripts/context-spine/upgrade.py --target /path/to/project`
-- `python3 ./scripts/context-spine/mem-session.py --project context-spine`
-- `python3 ./scripts/context-spine/mem-score.py --root ./meta/context-spine`
+- `python3 ./scripts/context-spine/mem-session.py`
+- `python3 ./scripts/context-spine/mem-score.py`
 - `bash ./scripts/context-spine/qmd-refresh.sh --embed`
 - `bash ./scripts/context-spine/install-codex-skill.sh`
+
+## Explicit Config
+
+`meta/context-spine/context-spine.json` is the repo-local contract for how Context Spine behaves in a given project.
+
+Use it to declare:
+
+- project name
+- memory root
+- preferred baseline file
+- QMD collection names and default queries
+- managed gitignore mode
+
+Inspect the resolved runtime view with:
+
+```bash
+npm run context:config
+```
 
 ## Drop Into An Existing Project
 
@@ -190,6 +210,16 @@ Default recommendation:
 - a `Sources` section with direct paths or `qmd://` links
 
 If a project already has a naming convention, keep it. The loop matters more than the prefix.
+
+## Verification
+
+Use one command to prove the runtime contract still holds:
+
+```bash
+npm run context:verify
+```
+
+That runs the stdlib test suite, doctor, scorecard generation, and bundled skill validation.
 
 ## Prerequisites
 

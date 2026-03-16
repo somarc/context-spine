@@ -8,6 +8,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterable
 
+from context_config import default_config_path, load_config, resolve_repo_path
+
 
 @dataclass
 class CheckResult:
@@ -66,8 +68,15 @@ def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8", errors="ignore")
 
 
-def find_baseline(memory_root: Path) -> Path | None:
-    preferred = memory_root / "spine-notes-context-spine.md"
+def relative_repo_path(repo_root: Path, path: Path) -> str:
+    try:
+        return path.resolve().relative_to(repo_root.resolve()).as_posix()
+    except ValueError:
+        return ""
+
+
+def find_baseline(memory_root: Path, preferred_name: str = "spine-notes-context-spine.md") -> Path | None:
+    preferred = memory_root / preferred_name
     if preferred.exists():
         return preferred
     candidates = sorted(memory_root.glob("spine-notes-*.md"))
@@ -139,9 +148,10 @@ def git_available(repo_root: Path) -> bool:
     return run(["git", "rev-parse", "--show-toplevel"], cwd=repo_root).returncode == 0
 
 
-def latest_commit_date(repo_root: Path) -> dt.date | None:
+def latest_commit_date(repo_root: Path, memory_root: Path) -> dt.date | None:
     if not git_available(repo_root):
         return None
+    memory_pathspec = relative_repo_path(repo_root, memory_root)
     result = run(
         [
             "git",
@@ -150,7 +160,7 @@ def latest_commit_date(repo_root: Path) -> dt.date | None:
             "--format=%cs",
             "--",
             ".",
-            ":(exclude)meta/context-spine/**",
+            *([f":(exclude){memory_pathspec}/**"] if memory_pathspec else []),
             ":(exclude).agent/diagrams/**",
         ],
         cwd=repo_root,
@@ -166,7 +176,7 @@ def latest_commit_date(repo_root: Path) -> dt.date | None:
         return None
 
 
-def dirty_worktree_paths(repo_root: Path) -> list[str]:
+def dirty_worktree_paths(repo_root: Path, memory_root: Path) -> list[str]:
     if not git_available(repo_root):
         return []
     result = run(["git", "status", "--porcelain"], cwd=repo_root)
@@ -209,8 +219,72 @@ def roadmap_like_docs(paths: Iterable[Path]) -> list[Path]:
     return matches
 
 
-def check_baseline(repo_root: Path, memory_root: Path) -> CheckResult:
-    baseline = find_baseline(memory_root)
+def check_config(repo_root: Path, memory_root: Path, config: dict, config_path: Path, config_error: str) -> CheckResult:
+    if config_error:
+        return CheckResult(
+            slug="config",
+            title="Context Spine config",
+            status=FAIL,
+            summary=f"Could not load `{config_path.relative_to(repo_root)}`.",
+            details=[config_error],
+            actions=["Fix the JSON syntax so every Context Spine runtime surface reads the same contract."],
+        )
+
+    preferred_file = str(config.get("baseline", {}).get("preferred_file", "")).strip()
+    qmd_collection = str(config.get("collections", {}).get("meta", "")).strip()
+    configured_memory_root = resolve_repo_path(repo_root, str(config.get("memory_root", default_memory_root(repo_root))))
+
+    details = [
+        f"Memory root: {configured_memory_root}",
+        f"Preferred baseline: {preferred_file or '(default fallback only)'}",
+    ]
+    actions: list[str] = []
+
+    if not config_path.exists():
+        return CheckResult(
+            slug="config",
+            title="Context Spine config",
+            status=WARN,
+            summary="No explicit `context-spine.json` config is present.",
+            details=details,
+            actions=[
+                "Add `meta/context-spine/context-spine.json` so bootstrap, doctor, scoring, and upgrade use the same explicit repo contract."
+            ],
+        )
+
+    status = PASS
+    summary = "Explicit Context Spine config is present."
+
+    if configured_memory_root != memory_root.resolve():
+        status = WARN
+        details.append(f"Doctor memory root: {memory_root.resolve()}")
+        actions.append("Align `--root` usage with `context-spine.json`, or update the config if the memory root moved.")
+        summary = "The loaded config and requested memory root disagree."
+
+    if not preferred_file:
+        status = WARN
+        actions.append("Set `baseline.preferred_file` in `context-spine.json` so upgrades and bootstrap share the same preferred baseline.")
+        summary = "The config exists, but baseline preference is still implicit."
+
+    if not qmd_collection:
+        status = WARN
+        actions.append("Set `collections.meta` in `context-spine.json` so QMD-aware scripts do not rely on fallback collection names.")
+        summary = "The config exists, but the primary QMD collection is still implicit."
+    else:
+        details.append(f"Meta collection: {qmd_collection}")
+
+    return CheckResult(
+        slug="config",
+        title="Context Spine config",
+        status=status,
+        summary=summary,
+        details=details,
+        actions=actions,
+    )
+
+
+def check_baseline(repo_root: Path, memory_root: Path, preferred_name: str) -> CheckResult:
+    baseline = find_baseline(memory_root, preferred_name=preferred_name)
     if not baseline:
         return CheckResult(
             slug="baseline",
@@ -265,10 +339,11 @@ def check_session(repo_root: Path, memory_root: Path) -> CheckResult:
         )
 
     session_date = session_date_from_name(latest)
-    commit_date = latest_commit_date(repo_root)
+    commit_date = latest_commit_date(repo_root, memory_root)
+    memory_root_rel = relative_repo_path(repo_root, memory_root)
     dirty_paths = [
-        path for path in dirty_worktree_paths(repo_root)
-        if not path.startswith("meta/context-spine/") and not path.startswith(".agent/diagrams/")
+        path for path in dirty_worktree_paths(repo_root, memory_root)
+        if not (memory_root_rel and path.startswith(f"{memory_root_rel}/")) and not path.startswith(".agent/diagrams/")
     ]
     latest_text = read_text(latest)
     placeholders = placeholder_lines(latest_text)
@@ -555,11 +630,26 @@ def main() -> int:
     args = parser.parse_args()
 
     repo_root = Path(args.repo_root).expanduser() if args.repo_root else default_repo_root()
-    memory_root = Path(args.root).expanduser() if args.root else default_memory_root(repo_root)
+    config_path = default_config_path(repo_root)
+    config_error = ""
+    try:
+        config = load_config(repo_root)
+    except Exception as exc:
+        config = {}
+        config_error = str(exc)
+
+    configured_memory_root = default_memory_root(repo_root)
+    preferred_baseline = "spine-notes-context-spine.md"
+    if not config_error and config:
+        configured_memory_root = resolve_repo_path(repo_root, str(config.get("memory_root", configured_memory_root)))
+        preferred_baseline = str(config.get("baseline", {}).get("preferred_file", preferred_baseline))
+
+    memory_root = Path(args.root).expanduser() if args.root else configured_memory_root
     generated_at = dt.datetime.now()
 
     results = [
-        check_baseline(repo_root, memory_root),
+        check_config(repo_root, memory_root, config, config_path, config_error),
+        check_baseline(repo_root, memory_root, preferred_baseline),
         check_session(repo_root, memory_root),
         *check_generated(memory_root),
         check_docs(repo_root),

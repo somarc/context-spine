@@ -22,8 +22,11 @@ SAFE_ADDITIVE_FILES = [
     "docs/runbooks/pi-extension-points.md",
     "docs/runbooks/project-drop-in.md",
     "docs/runbooks/upgrade-existing-project.md",
+    "meta/context-spine/context-spine.json",
     "scripts/context-spine/codex-wrap.sh",
     "scripts/context-spine/configure-gitignore.py",
+    "scripts/context-spine/context-config.py",
+    "scripts/context-spine/context_config.py",
     "scripts/context-spine/doctor.py",
     "scripts/context-spine/hot-memory.py",
     "scripts/context-spine/install-codex-skill.sh",
@@ -43,6 +46,10 @@ MERGE_REVIEW_FILES = [
     "scripts/context-spine/mem-session.py",
     "scripts/context-spine/qmd-refresh.sh",
     "docs/runbooks/session-start.md",
+]
+
+CONFIGURABLE_FILES = [
+    "meta/context-spine/context-spine.json",
 ]
 
 PREFERRED_BASELINE_FILE = "meta/context-spine/spine-notes-context-spine.md"
@@ -184,6 +191,15 @@ def evaluate(target_root: Path, source_root: Path, apply_safe: bool, gitignore_m
         result.safe_missing.append(relative_path)
         if apply_safe and safe_copy(source_root, target_root, relative_path):
             result.safe_applied.append(relative_path)
+
+    for relative_path in CONFIGURABLE_FILES:
+        source = source_root / relative_path
+        target = target_root / relative_path
+        if not source.exists():
+            result.notes.append(f"Boilerplate source missing: {relative_path}")
+            continue
+        if target.exists() and not file_exists_and_same(target, source):
+            result.merge_different.append(relative_path)
 
     for relative_path in MERGE_REVIEW_FILES:
         source = source_root / relative_path

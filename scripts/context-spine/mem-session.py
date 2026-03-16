@@ -4,6 +4,8 @@ import datetime as dt
 import subprocess
 from pathlib import Path
 
+from context_config import load_config, resolve_repo_path
+
 
 def default_memory_root() -> Path:
     return Path(__file__).resolve().parents[2] / "meta" / "context-spine"
@@ -29,16 +31,19 @@ def git_dirty_summary(cwd: Path) -> str:
 def main():
     parser = argparse.ArgumentParser(description="Create a Context Spine session summary template.")
     parser.add_argument("--date", default="", help="Override date in YYYY-MM-DD")
-    parser.add_argument("--project", default="project", help="Project name")
+    parser.add_argument("--project", default="", help="Project name")
     parser.add_argument("--title", default="", help="Custom title")
     parser.add_argument("--root", default="", help="Override memory root directory")
     args = parser.parse_args()
 
     now = dt.datetime.now()
     date_str = args.date or now.strftime("%Y-%m-%d")
+    script_root = Path(__file__).resolve().parents[2]
+    config = load_config(script_root)
+    project_name = args.project or str(config.get("project", "project"))
     title = args.title or f"{date_str} - Session Summary"
 
-    memory_root = Path(args.root).expanduser() if args.root else default_memory_root()
+    memory_root = Path(args.root).expanduser() if args.root else resolve_repo_path(script_root, str(config.get("memory_root", default_memory_root())))
     repo_root = memory_root.parents[1] if memory_root.name == "context-spine" and memory_root.parent.name == "meta" else memory_root
     sessions_dir = memory_root / "sessions"
     sessions_dir.mkdir(parents=True, exist_ok=True)
@@ -55,7 +60,7 @@ def main():
         "---\n"
         f"date: {date_str}\n"
         "type: context-spine-session\n"
-        f"project: {args.project}\n"
+        f"project: {project_name}\n"
         "tags: [context-spine, session]\n"
         "---\n\n"
         f"# {title}\n\n"

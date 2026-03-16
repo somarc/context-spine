@@ -20,6 +20,8 @@ Use three lifecycles here:
 - rolling: sessions and observations
 - generated/local: hot-memory indexes, scorecards, and `.qmd/`
 
+The repo-local runtime contract lives in `context-spine.json`.
+
 ## Layout
 
 - `spine-notes-context-spine.md` — durable current workspace baseline note
@@ -57,6 +59,18 @@ Score memory quality:
 
 ```bash
 python3 scripts/context-spine/mem-score.py
+```
+
+Inspect the resolved runtime config:
+
+```bash
+npm run context:config
+```
+
+Run the full verification loop:
+
+```bash
+npm run context:verify
 ```
 
 Run a bootstrap pass:

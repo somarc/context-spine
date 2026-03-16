@@ -3,6 +3,8 @@ import argparse
 import datetime as dt
 from pathlib import Path
 
+from context_config import load_config, resolve_repo_path
+
 
 def split_csv(value: str):
     if not value:
@@ -10,8 +12,8 @@ def split_csv(value: str):
     return [item.strip() for item in value.split(",") if item.strip()]
 
 
-def default_memory_root() -> Path:
-    return Path(__file__).resolve().parents[2] / "meta" / "context-spine"
+def default_repo_root() -> Path:
+    return Path(__file__).resolve().parents[2]
 
 
 def ensure_frontmatter(path: Path, date_str: str, project: str):
@@ -32,7 +34,7 @@ def main():
     parser = argparse.ArgumentParser(description="Append a Context Spine observation.")
     parser.add_argument("--summary", required=True, help="Short summary of the observation")
     parser.add_argument("--type", default="observation", help="observation|decision|question|todo|summary")
-    parser.add_argument("--project", default="project", help="Project name")
+    parser.add_argument("--project", default="", help="Project name")
     parser.add_argument("--tags", default="", help="Comma-separated tags")
     parser.add_argument("--files", default="", help="Comma-separated file paths")
     parser.add_argument("--details", default="", help="Longer details")
@@ -51,9 +53,13 @@ def main():
     date_str = args.date or now.strftime("%Y-%m-%d")
     time_str = now.strftime("%H:%M:%S")
 
-    memory_root = Path(args.root).expanduser() if args.root else default_memory_root()
+    repo_root = default_repo_root()
+    config = load_config(repo_root)
+    configured_root = resolve_repo_path(repo_root, str(config.get("memory_root", "meta/context-spine")))
+    project_name = args.project or str(config.get("project", "project"))
+    memory_root = Path(args.root).expanduser() if args.root else configured_root
     observations_file = memory_root / "observations" / f"{date_str}.md"
-    ensure_frontmatter(observations_file, date_str, args.project)
+    ensure_frontmatter(observations_file, date_str, project_name)
 
     tags = split_csv(args.tags)
     files = split_csv(args.files)

@@ -1,0 +1,25 @@
+{
+  "project": "context-spine",
+  "memory_root": "meta/context-spine",
+  "baseline": {
+    "preferred_file": "spine-notes-context-spine.md"
+  },
+  "collections": {
+    "meta": "context-spine-meta",
+    "docs": "project-docs",
+    "vault": "project-vault",
+    "vault_root": ""
+  },
+  "qmd": {
+    "collections": "context-spine-meta",
+    "append_to_session": true,
+    "queries": {
+      "bootstrap": "spine notes baseline bootstrap memory",
+      "primary": "priority todo decision action",
+      "extra": "evidence open questions source_of_truth"
+    },
+    "retries": 4,
+    "retry_sleep_sec": 1
+  },
+  "gitignore_mode": "tracked"
+}

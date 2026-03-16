@@ -5,6 +5,8 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from context_config import load_config, resolve_repo_path
+
 
 @dataclass
 class WorkingSetItem:
@@ -241,11 +243,15 @@ def render_link(path: Path, repo_root: Path, collection_root: Path, collection_n
 def main():
     parser = argparse.ArgumentParser(description="Generate a working-set-focused hot-memory index.")
     parser.add_argument("--days", type=int, default=7, help="Lookback window for recent memory")
-    parser.add_argument("--collection", default="context-spine-meta", help="QMD collection name for links")
+    parser.add_argument("--collection", default="", help="QMD collection name for links")
     parser.add_argument("--root", default="", help="Override memory root directory")
     args = parser.parse_args()
 
-    memory_root = (Path(args.root).expanduser() if args.root else default_memory_root()).resolve()
+    repo_root_default = Path(__file__).resolve().parents[2]
+    config = load_config(repo_root_default)
+    configured_root = resolve_repo_path(repo_root_default, str(config.get("memory_root", default_memory_root())))
+    collection_name = args.collection or str(config.get("collections", {}).get("meta", "context-spine-meta"))
+    memory_root = (Path(args.root).expanduser() if args.root else configured_root).resolve()
     collection_root = infer_collection_root(memory_root)
     repo_root = infer_repo_root(memory_root)
 
@@ -280,7 +286,7 @@ def main():
             lines.extend([f"## {section}", ""])
             for item in section_items:
                 stamp = item.timestamp.strftime("%Y-%m-%d %H:%M") if item.timestamp else "unknown"
-                link = render_link(item.path, repo_root, collection_root, args.collection)
+                link = render_link(item.path, repo_root, collection_root, collection_name)
                 lines.append(f"- **{item.title}** · {stamp}")
                 lines.append(f"  - why: {item.reason}")
                 lines.append(f"  - open: {link}")

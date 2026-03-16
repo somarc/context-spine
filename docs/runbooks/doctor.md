@@ -6,6 +6,7 @@ Run a fast hygiene pass that answers a higher-value question than "do memory fil
 
 The doctor checks whether Context Spine still points at live project truth:
 
+- the repo has an explicit `context-spine.json` contract and it still loads cleanly
 - the baseline note still exists and its source paths still resolve
 - the latest session note is current enough to match recent repo work
 - generated aids such as hot memory and the scorecard are not stale
@@ -40,6 +41,12 @@ python3 ./scripts/context-spine/doctor.py --json-out ./meta/context-spine/doctor
 
 - baseline `spine-notes-*.md` exists
 - `source_of_truth` and `Sources` paths still point to real files when they are local paths
+
+### Explicit config
+
+- `meta/context-spine/context-spine.json` exists and parses cleanly
+- the configured memory root agrees with the runtime invocation
+- preferred baseline and primary QMD collection are not left implicit
 
 ### Latest session
 

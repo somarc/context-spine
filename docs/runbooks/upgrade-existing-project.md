@@ -43,8 +43,9 @@ python3 ./scripts/context-spine/upgrade.py --target /path/to/project --apply-saf
 The script will only create missing files from this set:
 
 - authority docs such as `docs/README.md`, `docs/archive/README.md`, and `docs/drafts/README.md`
+- the repo-local config surface `meta/context-spine/context-spine.json`
 - canonical runbooks such as `doctor.md`, `how-to-use-context-spine.md`, `project-drop-in.md`, `upgrade-existing-project.md`, `elon-doctrine.md`, and related docs
-- standalone runtime helpers such as `doctor.py`, `upgrade.py`, `hot-memory.py`, `rollout.py`, `qmd-quick.sh`, `mem-log.py`, `mem-search.py`, and Codex skill install helpers
+- standalone runtime helpers such as `doctor.py`, `upgrade.py`, `hot-memory.py`, `rollout.py`, `qmd-quick.sh`, `mem-log.py`, `mem-search.py`, `context-config.py`, `context_config.py`, and Codex skill install helpers
 
 It will not overwrite existing files.
 
@@ -70,8 +71,10 @@ Those files often carry repo-specific truth, commands, or reading paths.
 3. Apply the safe additive files if they are missing.
 4. Review the shared entrypoint files one by one instead of overwriting project-owned behavior.
 5. Add any new wrapper commands manually if the target repo uses `npm run context:*`.
-6. If the repo uses a custom baseline file name, keep it and merge the generic baseline detection changes into bootstrap and related docs.
-7. Run `context:doctor` and `context:score` in the target repo after the merge.
+6. Merge `meta/context-spine/context-spine.json` deliberately if the target repo already has project-specific names or paths.
+7. If the repo uses a custom baseline file name, keep it and merge the generic baseline detection changes into bootstrap and related docs.
+8. Run `context:doctor` and `context:score` in the target repo after the merge.
+9. If the target repo has the wrapper scripts, run `context:verify` so the upgrade is backed by tests and skill validation instead of file diff review alone.
 
 ## Gitignore Mode
 
@@ -113,4 +116,5 @@ The report tells you:
 - safe additive files applied
 - merge-review files that are missing
 - merge-review files that are present but diverged from the current boilerplate
+- whether the explicit config file is missing or diverged
 - additional notes such as dirty worktree status

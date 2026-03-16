@@ -2,6 +2,8 @@
 import argparse
 from pathlib import Path
 
+from context_config import load_config
+
 
 BEGIN_TEMPLATE = "# >>> context-spine gitignore (mode: {mode}) >>>"
 END_MARKER = "# <<< context-spine gitignore <<<"
@@ -77,28 +79,30 @@ def remove_block(content: str) -> str:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Manage the Context Spine block inside .gitignore.")
     parser.add_argument("--repo-root", default="", help="Target repo root; defaults to this repo")
-    parser.add_argument("--mode", choices=["tracked", "local", "none"], required=True)
+    parser.add_argument("--mode", choices=["tracked", "local", "none"], default="")
     args = parser.parse_args()
 
     repo_root = Path(args.repo_root).expanduser() if args.repo_root else Path(__file__).resolve().parents[2]
+    config = load_config(repo_root)
+    mode = args.mode or str(config.get("gitignore_mode", "tracked"))
     gitignore = repo_root / ".gitignore"
     content = gitignore.read_text(encoding="utf-8") if gitignore.exists() else ""
 
-    if args.mode == "none":
+    if mode == "none":
         updated = remove_block(content)
     else:
-        updated = replace_block(content, render_block(args.mode))
+        updated = replace_block(content, render_block(mode))
 
     if updated:
         gitignore.write_text(updated, encoding="utf-8")
     elif gitignore.exists():
         gitignore.unlink()
 
-    if args.mode == "none":
+    if mode == "none":
         print(f"Removed Context Spine gitignore block from {gitignore}")
     else:
-        print(f"Configured Context Spine gitignore mode '{args.mode}' in {gitignore}")
-        if args.mode == "local":
+        print(f"Configured Context Spine gitignore mode '{mode}' in {gitignore}")
+        if mode == "local":
             print("If Context Spine files are already tracked, untrack them once with: git rm -r --cached meta/context-spine")
     return 0
 

@@ -3,6 +3,9 @@ import argparse
 import json
 import subprocess
 import sys
+from pathlib import Path
+
+from context_config import load_config
 
 
 def run_qmd(cmd):
@@ -32,13 +35,15 @@ def main():
     parser = argparse.ArgumentParser(description="Search Context Spine memory with progressive disclosure.")
     parser.add_argument("query", help="Search query")
     parser.add_argument("-n", type=int, default=8, help="Number of results")
-    parser.add_argument("-c", "--collection", default="context-spine-meta", help="QMD collection")
+    parser.add_argument("-c", "--collection", default="", help="QMD collection")
     parser.add_argument("--mode", choices=["search", "query", "vsearch"], default="search", help="QMD mode")
     parser.add_argument("--get", default="", help="Comma-separated result indices to fetch")
     parser.add_argument("--lines", type=int, default=200, help="Lines to fetch per document")
     args = parser.parse_args()
 
-    raw = run_qmd(["qmd", args.mode, args.query, "-n", str(args.n), "--json", "-c", args.collection])
+    config = load_config(Path(__file__).resolve().parents[2])
+    collection = args.collection or str(config.get("collections", {}).get("meta", "context-spine-meta"))
+    raw = run_qmd(["qmd", args.mode, args.query, "-n", str(args.n), "--json", "-c", collection])
     try:
         results = json.loads(raw)
     except json.JSONDecodeError as exc:

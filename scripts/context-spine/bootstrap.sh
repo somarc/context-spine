@@ -2,15 +2,17 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-MEM_ROOT="${CONTEXT_SPINE_ROOT:-$ROOT/meta/context-spine}"
-COLLECTION="${CONTEXT_SPINE_COLLECTION:-context-spine-meta}"
-DOCS_COLLECTION="${CONTEXT_SPINE_DOCS_COLLECTION:-project-docs}"
+eval "$(python3 "$ROOT/scripts/context-spine/context-config.py" --repo-root "$ROOT" --format shell)"
+MEM_ROOT="${CONTEXT_SPINE_ROOT:-$CONFIG_CONTEXT_SPINE_ROOT}"
+COLLECTION="${CONTEXT_SPINE_COLLECTION:-$CONFIG_CONTEXT_SPINE_COLLECTION}"
+DOCS_COLLECTION="${CONTEXT_SPINE_DOCS_COLLECTION:-$CONFIG_CONTEXT_SPINE_DOCS_COLLECTION}"
 HOT_INDEX="$MEM_ROOT/hot-memory-index.md"
 SESSIONS_DIR="$MEM_ROOT/sessions"
 PACKAGE_JSON="$ROOT/package.json"
 
 find_baseline_note() {
-  local preferred="$MEM_ROOT/spine-notes-context-spine.md"
+  local preferred_name="${CONTEXT_SPINE_BASELINE_PREFERRED:-$CONFIG_CONTEXT_SPINE_BASELINE_PREFERRED}"
+  local preferred="$MEM_ROOT/$preferred_name"
   if [[ -f "$preferred" ]]; then
     echo "$preferred"
     return
@@ -29,10 +31,11 @@ preferred_init_cmd() {
 }
 
 preferred_session_cmd() {
+  local project_name="${CONTEXT_SPINE_PROJECT:-$CONFIG_CONTEXT_SPINE_PROJECT}"
   if [[ -f "$PACKAGE_JSON" ]]; then
     echo "npm run context:session"
   else
-    echo "python3 scripts/context-spine/mem-session.py --project context-spine"
+    echo "python3 scripts/context-spine/mem-session.py --project $project_name"
   fi
 }
 
@@ -228,8 +231,8 @@ else
   echo "  bash ./scripts/context-spine/bootstrap.sh"
   echo "  python3 scripts/context-spine/doctor.py"
   echo "  python3 scripts/context-spine/upgrade.py --target /path/to/project"
-  echo "  python3 scripts/context-spine/mem-session.py --project context-spine"
-  echo "  python3 scripts/context-spine/mem-score.py --root ./meta/context-spine"
+  echo "  python3 scripts/context-spine/mem-session.py"
+  echo "  python3 scripts/context-spine/mem-score.py"
   echo "  bash ./scripts/context-spine/qmd-refresh.sh --embed"
   echo "  bash ./scripts/context-spine/install-codex-skill.sh --validate-only"
   echo "  bash ./scripts/context-spine/install-codex-skill.sh"

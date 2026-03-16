@@ -15,6 +15,7 @@ Context Spine stores three kinds of things:
 Treat them differently.
 
 Git tracking is a repo policy choice, not a hidden default.
+Keep that choice explicit in `meta/context-spine/context-spine.json` and apply it through the managed `.gitignore` block.
 
 - `tracked` mode
   Commit durable and rolling Context Spine memory.

@@ -2,7 +2,8 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-MEM_ROOT="${CONTEXT_SPINE_ROOT:-$ROOT/meta/context-spine}"
+eval "$(python3 "$ROOT/scripts/context-spine/context-config.py" --repo-root "$ROOT" --format shell)"
+MEM_ROOT="${CONTEXT_SPINE_ROOT:-$CONFIG_CONTEXT_SPINE_ROOT}"
 LOCAL_INDEX_DIR="$MEM_ROOT/.qmd"
 LOCAL_INDEX_PATH="$LOCAL_INDEX_DIR/index.sqlite"
 RUN_EMBED=0
