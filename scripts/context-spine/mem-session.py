@@ -1,11 +1,29 @@
 #!/usr/bin/env python3
 import argparse
 import datetime as dt
+import subprocess
 from pathlib import Path
 
 
 def default_memory_root() -> Path:
     return Path(__file__).resolve().parents[2] / "meta" / "context-spine"
+
+
+def git_value(cmd: list[str], cwd: Path) -> str:
+    result = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, check=False)
+    if result.returncode != 0:
+        return "unknown"
+    return result.stdout.strip() or "unknown"
+
+
+def git_dirty_summary(cwd: Path) -> str:
+    result = subprocess.run(["git", "status", "--short"], cwd=cwd, capture_output=True, text=True, check=False)
+    if result.returncode != 0:
+        return "unknown"
+    lines = [line for line in result.stdout.splitlines() if line.strip()]
+    if not lines:
+        return "clean"
+    return f"{len(lines)} changed path(s)"
 
 
 def main():
@@ -21,12 +39,17 @@ def main():
     title = args.title or f"{date_str} - Session Summary"
 
     memory_root = Path(args.root).expanduser() if args.root else default_memory_root()
+    repo_root = memory_root.parents[2] if memory_root.name == "context-spine" and memory_root.parent.name == "meta" else memory_root
     sessions_dir = memory_root / "sessions"
     sessions_dir.mkdir(parents=True, exist_ok=True)
 
     session_file = sessions_dir / f"{date_str}-session.md"
     if session_file.exists():
         raise SystemExit(f"Session file already exists: {session_file}")
+
+    branch = git_value(["git", "rev-parse", "--abbrev-ref", "HEAD"], repo_root)
+    commit = git_value(["git", "rev-parse", "--short", "HEAD"], repo_root)
+    dirty = git_dirty_summary(repo_root)
 
     content = (
         "---\n"
@@ -36,6 +59,10 @@ def main():
         "tags: [context-spine, session]\n"
         "---\n\n"
         f"# {title}\n\n"
+        "## Session Context\n"
+        f"- Branch: `{branch}`\n"
+        f"- HEAD: `{commit}`\n"
+        f"- Worktree: `{dirty}`\n\n"
         "## QMD Triage\n"
         "- Required: add at least one `qmd://` link during the first retrieval pass.\n"
         "- Queries:\n"
@@ -49,6 +76,9 @@ def main():
         "- \n\n"
         "## Evidence\n"
         "- \n\n"
+        "## Verification\n"
+        "- Last command that proved something important:\n"
+        "  - \n\n"
         "## Decisions\n"
         "- \n\n"
         "## Constraints / First Principles\n"

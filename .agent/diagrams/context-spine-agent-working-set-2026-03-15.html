@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Context Spine Agent Working Set</title>
+  <style>
+    :root {
+      --bg: #071019;
+      --panel: rgba(11, 21, 35, 0.88);
+      --panel-soft: rgba(20, 35, 58, 0.9);
+      --line: rgba(138, 174, 222, 0.18);
+      --text: #eef5ff;
+      --muted: #b6c9e8;
+      --cyan: #77e0ff;
+      --blue: #72a7ff;
+      --green: #78e1b6;
+      --amber: #ffd486;
+      --violet: #b79dff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(92, 126, 255, 0.18), transparent 32%),
+        radial-gradient(circle at top right, rgba(82, 228, 187, 0.16), transparent 28%),
+        linear-gradient(180deg, #07111e 0%, #040912 100%);
+    }
+
+    .wrap {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 46px 24px 72px;
+    }
+
+    .hero {
+      display: grid;
+      gap: 18px;
+      margin-bottom: 32px;
+    }
+
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 12px;
+      color: var(--amber);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.6rem, 5vw, 4.8rem);
+      line-height: 0.95;
+      max-width: 980px;
+    }
+
+    .lede {
+      max-width: 860px;
+      color: var(--muted);
+      line-height: 1.72;
+      font-size: 1.1rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 18px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 22px;
+      background: var(--panel);
+      box-shadow: 0 22px 56px rgba(0, 0, 0, 0.28);
+      backdrop-filter: blur(14px);
+    }
+
+    .topline, .flow, .compare, .contract, .session { grid-column: span 12; }
+    .lane { grid-column: span 3; background: var(--panel-soft); }
+
+    .label {
+      margin: 0 0 12px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--cyan);
+    }
+
+    h2, h3 {
+      margin: 0 0 12px;
+      font-weight: 700;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.68;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+      font-size: 0.92rem;
+    }
+
+    .flow-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .step {
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      padding: 16px;
+      min-height: 170px;
+      background: rgba(255,255,255,0.04);
+    }
+
+    .step strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 1rem;
+      color: var(--text);
+    }
+
+    .lane .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      display: inline-block;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    ul {
+      margin: 14px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    li + li { margin-top: 8px; }
+
+    .compare-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .compare-box {
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      padding: 18px;
+      background: rgba(255,255,255,0.04);
+    }
+
+    .compare-box h3 {
+      margin-bottom: 10px;
+    }
+
+    .contract-grid {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .contract-row {
+      display: contents;
+    }
+
+    .contract-grid strong,
+    .contract-grid div {
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+    }
+
+    .contract-grid strong:nth-child(-n+2),
+    .contract-grid div:nth-child(-n+2) {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      background: rgba(255,255,255,0.07);
+      color: var(--text);
+      padding: 2px 6px;
+      border-radius: 8px;
+    }
+
+    @media (max-width: 1020px) {
+      .lane { grid-column: span 12; }
+      .flow-grid { grid-template-columns: 1fr; }
+      .compare-grid { grid-template-columns: 1fr; }
+      .contract-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="eyebrow">Context Spine · Agent Upgrade</div>
+      <h1>Hot memory should be a working set, not a pile of recent edits.</h1>
+      <p class="lede">
+        The old model was mostly file recency under <code>meta/context-spine</code>. That is better than nothing,
+        but still leaves agents guessing. The upgraded model points directly at the baseline, the active session,
+        the baseline’s source-of-truth files, canonical runbooks, and the most relevant visual explainers.
+      </p>
+    </section>
+
+    <div class="grid">
+      <section class="card topline">
+        <div class="label">Why This Matters</div>
+        <h2>Blind inference usually starts when the first files opened are the wrong ones.</h2>
+        <p>
+          GPT-grade reasoning improves when the repo itself narrows the opening read set. Instead of making the agent
+          infer the current model from scattered notes, the memory spine now gives it a deliberate sequence of trusted
+          surfaces.
+        </p>
+        <div class="pill-row">
+          <div class="pill">baseline first</div>
+          <div class="pill">latest intent second</div>
+          <div class="pill">source-of-truth code and docs next</div>
+          <div class="pill">visual explainers when shape matters</div>
+        </div>
+      </section>
+
+      <section class="card flow">
+        <div class="label">New Reading Path</div>
+        <h2>The opening sequence is now explicit</h2>
+        <div class="flow-grid">
+          <div class="step">
+            <strong>1. Baseline note</strong>
+            <span>Open the durable model of the repo before looking at fresh churn.</span>
+          </div>
+          <div class="step">
+            <strong>2. Latest session</strong>
+            <span>Recover active work, current intent, and what was last verified.</span>
+          </div>
+          <div class="step">
+            <strong>3. Source of truth</strong>
+            <span>Open the exact repo files named by the baseline instead of searching broadly.</span>
+          </div>
+          <div class="step">
+            <strong>4. Canonical docs</strong>
+            <span>Read the runbooks that control the current operating path.</span>
+          </div>
+          <div class="step">
+            <strong>5. Visual explainers</strong>
+            <span>Use diagrams for system shape, upgrade paths, and skill orchestration.</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card lane">
+        <div class="label">Working Set Lane</div>
+        <h3><span class="dot" style="background: var(--green);"></span>Start Here</h3>
+        <p>The baseline note and latest session are pinned because they answer “what is this?” and “what is happening now?”</p>
+      </section>
+
+      <section class="card lane">
+        <div class="label">Working Set Lane</div>
+        <h3><span class="dot" style="background: var(--amber);"></span>Source Of Truth</h3>
+        <p>The baseline’s <code>source_of_truth</code> list is now treated as executable reading order, not metadata decoration.</p>
+      </section>
+
+      <section class="card lane">
+        <div class="label">Working Set Lane</div>
+        <h3><span class="dot" style="background: var(--blue);"></span>Canonical Docs</h3>
+        <p>Session start, doctor, upgrade, rollout, and extension runbooks are promoted as the trusted operating contract.</p>
+      </section>
+
+      <section class="card lane">
+        <div class="label">Working Set Lane</div>
+        <h3><span class="dot" style="background: var(--violet);"></span>Visual Explainers</h3>
+        <p>Current diagrams remain part of the reading path because system shape is easier to reason from when it is visible.</p>
+      </section>
+
+      <section class="card compare">
+        <div class="label">Old Vs New</div>
+        <h2>What changed in practice</h2>
+        <div class="compare-grid">
+          <div class="compare-box">
+            <h3>Old hot memory</h3>
+            <ul>
+              <li>recent markdown only</li>
+              <li>mostly file modified time</li>
+              <li>easy to miss repo code/docs outside <code>meta/</code></li>
+              <li>encouraged recency over authority</li>
+            </ul>
+          </div>
+          <div class="compare-box">
+            <h3>New hot memory</h3>
+            <ul>
+              <li>curated working set</li>
+              <li>baseline-driven source-of-truth expansion</li>
+              <li>canonical docs included directly</li>
+              <li>recent explainers kept visible</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="card session">
+        <div class="label">Session Contract</div>
+        <h2>Session notes now carry execution state, not just prose</h2>
+        <div class="contract-grid">
+          <div class="contract-row">
+            <strong>Branch / HEAD / worktree</strong>
+            <div>Lets the next agent or maintainer restart from the actual code state instead of assuming the repo was clean or linear.</div>
+          </div>
+          <div class="contract-row">
+            <strong>Last meaningful verification</strong>
+            <div>Captures the command that last proved something important so the next session can anchor on evidence quickly.</div>
+          </div>
+          <div class="contract-row">
+            <strong>QMD triage still required</strong>
+            <div>The retrieval loop remains first-class; the session does not replace search, it makes search sharper.</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</body>
+</html>

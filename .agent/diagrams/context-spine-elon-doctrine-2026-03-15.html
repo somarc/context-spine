@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Context Spine E.L.O.N. Doctrine</title>
+  <style>
+    :root {
+      --bg: #07101a;
+      --panel: rgba(12, 22, 36, 0.88);
+      --panel-soft: rgba(20, 34, 56, 0.92);
+      --line: rgba(139, 176, 224, 0.2);
+      --text: #edf5ff;
+      --muted: #b8cae7;
+      --green: #77e0b3;
+      --blue: #77b7ff;
+      --amber: #ffd488;
+      --violet: #be9bff;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(86, 134, 255, 0.18), transparent 34%),
+        radial-gradient(circle at top right, rgba(97, 228, 186, 0.14), transparent 28%),
+        linear-gradient(180deg, #08121f 0%, #040912 100%);
+    }
+
+    .wrap {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 46px 24px 72px;
+    }
+
+    .hero {
+      display: grid;
+      gap: 18px;
+      margin-bottom: 34px;
+    }
+
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 12px;
+      color: var(--amber);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.6rem, 5vw, 4.8rem);
+      line-height: 0.95;
+      max-width: 980px;
+    }
+
+    .lede {
+      max-width: 860px;
+      color: var(--muted);
+      line-height: 1.72;
+      font-size: 1.08rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 18px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 22px;
+      background: var(--panel);
+      box-shadow: 0 22px 56px rgba(0, 0, 0, 0.28);
+      backdrop-filter: blur(14px);
+    }
+
+    .topline, .why, .compare, .outcomes { grid-column: span 12; }
+    .letter { grid-column: span 3; background: var(--panel-soft); }
+
+    .label {
+      margin: 0 0 12px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--blue);
+    }
+
+    h2, h3 { margin: 0 0 12px; }
+    p { margin: 0; color: var(--muted); line-height: 1.68; }
+
+    .letter-mark {
+      font-size: 3rem;
+      line-height: 1;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    ul {
+      margin: 14px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    li + li { margin-top: 8px; }
+
+    .compare-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .box {
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      padding: 18px;
+      background: rgba(255,255,255,0.04);
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .pill {
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      padding: 8px 12px;
+      background: rgba(255,255,255,0.04);
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 1020px) {
+      .letter { grid-column: span 12; }
+      .compare-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="eyebrow">Context Spine · Doctrine</div>
+      <h1>E.L.O.N. is the test for whether the memory system deserves to exist.</h1>
+      <p class="lede">
+        This doctrine turns a vague product taste into an operating filter. If a feature, workflow, note, or diagram
+        does not improve evidence, legibility, utility, or inference quality, it should be simplified, deferred, or removed.
+      </p>
+    </section>
+
+    <div class="grid">
+      <section class="card topline">
+        <div class="label">Doctrine</div>
+        <h2>The four letters</h2>
+        <div class="pill-row">
+          <div class="pill">Evidence over aspiration</div>
+          <div class="pill">Legibility over lore</div>
+          <div class="pill">Optimize for utility x impact</div>
+          <div class="pill">No blind inference</div>
+        </div>
+      </section>
+
+      <section class="card letter">
+        <div class="letter-mark" style="color: var(--green);">E</div>
+        <h3>Evidence over aspiration</h3>
+        <p>The repo should reflect what is true, not what is planned, imagined, or aesthetically satisfying.</p>
+        <ul>
+          <li>commands beat claims</li>
+          <li>verified docs beat aspirational docs</li>
+          <li>doctor and evidence surfaces matter</li>
+        </ul>
+      </section>
+
+      <section class="card letter">
+        <div class="letter-mark" style="color: var(--amber);">L</div>
+        <h3>Legibility over lore</h3>
+        <p>Another human or agent should be able to restart without depending on private memory or oral tradition.</p>
+        <ul>
+          <li>baseline and session should open the repo correctly</li>
+          <li>visual explainers are justified when they reduce orientation cost</li>
+          <li>lore is a failure mode</li>
+        </ul>
+      </section>
+
+      <section class="card letter">
+        <div class="letter-mark" style="color: var(--blue);">O</div>
+        <h3>Optimize for utility x impact</h3>
+        <p>Context Spine should help the most important workflows for the most meaningful restarts, handoffs, and audits.</p>
+        <ul>
+          <li>cold-start recovery</li>
+          <li>mid-project resume</li>
+          <li>handoff quality</li>
+          <li>truth maintenance</li>
+        </ul>
+      </section>
+
+      <section class="card letter">
+        <div class="letter-mark" style="color: var(--violet);">N</div>
+        <h3>No blind inference</h3>
+        <p>The next agent should be guided toward authority and explicit uncertainty instead of sounding confident while guessing.</p>
+        <ul>
+          <li>working set beats recency dump</li>
+          <li>source_of_truth must matter</li>
+          <li>uncertainty should be surfaced, not hidden</li>
+        </ul>
+      </section>
+
+      <section class="card why">
+        <div class="label">Why This Fits Context Spine</div>
+        <h2>It turns “is this clever?” into “does this reduce entropy?”</h2>
+        <p>
+          In the LLM-assisted world, endless creation is easy. The hard part is building only the layers that improve
+          restart quality, correctness, and handoff. E.L.O.N. is the anti-ornament doctrine.
+        </p>
+      </section>
+
+      <section class="card compare">
+        <div class="label">What It Rejects</div>
+        <div class="compare-grid">
+          <div class="box">
+            <h3>Keep</h3>
+            <ul>
+              <li>working-set hot memory</li>
+              <li>doctor and upgrade</li>
+              <li>skills that add orchestration</li>
+              <li>diagrams that reduce orientation time</li>
+            </ul>
+          </div>
+          <div class="box">
+            <h3>Reject</h3>
+            <ul>
+              <li>ceremonial note sprawl</li>
+              <li>features without measured value</li>
+              <li>beautiful but disconnected explainers</li>
+              <li>confidence without source grounding</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="card outcomes">
+        <div class="label">Preferred Outcome</div>
+        <h2>Every meaningful change should end in one of four judgments</h2>
+        <div class="pill-row">
+          <div class="pill">keep and strengthen</div>
+          <div class="pill">simplify</div>
+          <div class="pill">defer</div>
+          <div class="pill">remove</div>
+        </div>
+      </section>
+    </div>
+  </div>
+</body>
+</html>

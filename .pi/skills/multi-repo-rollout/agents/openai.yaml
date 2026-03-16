@@ -1,0 +1,4 @@
+interface:
+  display_name: "Multi Repo Rollout"
+  short_description: "Assess Context Spine across local repos"
+  default_prompt: "Use $multi-repo-rollout to assess or safely roll Context Spine across several local repositories."

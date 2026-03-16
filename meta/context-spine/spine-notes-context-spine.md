@@ -27,10 +27,13 @@ As of 2026-03-11, this repository is the reusable boilerplate for bootstrapping 
 - Repo-local memory lives under `meta/context-spine/`.
 - Bootstrap and session helpers live under `scripts/context-spine/`.
 - Preferred local entrypoints are `npm run context:init`, `npm run context:bootstrap`, `npm run context:doctor`, `npm run context:upgrade`, `npm run context:session`, `npm run context:score`, `npm run context:update`, and `npm run context:embed`.
+- `meta/context-spine/hot-memory-index.md` should behave like a curated working set, not just a recent-files dump.
 - QMD collections should at minimum include `context-spine-meta` for `meta/` and `project-docs` for `docs/`.
 - The bootstrap flow should surface this note, the latest session note, recent visual explainers, and a quick QMD retrieval pass.
 - Repo-local Codex skill sources live under `.pi/skills/`, including `context-spine` and `principal-engineer-review`.
 - Existing project installs should have a dedicated upgrade path instead of assuming every change is a fresh drop-in.
+- Session templates should capture branch, HEAD, worktree state, and the last meaningful verification command so agents restart from concrete execution state.
+- The repo uses E.L.O.N. as a doctrine for evaluating whether memory features improve reality alignment or just add complexity.
 
 ## Decisions
 
@@ -41,6 +44,8 @@ As of 2026-03-11, this repository is the reusable boilerplate for bootstrapping 
 - Keep principal-engineer oversight as an additive review skill under `.pi/skills/` instead of making it a hard dependency of the core loop.
 - Add a doctor command that checks baseline integrity, session freshness, generated-aid freshness, docs authority, and visual surfaces.
 - Add an additive-first upgrade command for older installs so the boilerplate can evolve without clobbering project-owned memory surfaces.
+- Upgrade hot memory from raw recency into a working set tied to baseline source-of-truth files, canonical docs, and recent visual explainers.
+- Keep E.L.O.N. explicit so future changes are judged by value, legibility, utility x impact, and reduced blind inference.
 
 ## Open Questions
 

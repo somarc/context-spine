@@ -26,6 +26,13 @@ In practice, people use Context Spine for five common jobs:
 4. refresh retrieval so future searches find the right notes quickly
 5. keep long-horizon knowledge outside the repo while keeping short-horizon working memory close to the code
 
+For agents, the key surface is not just the baseline note. It is the combination of:
+
+- the baseline note
+- the latest session
+- the hot-memory working set
+- the current source-of-truth files named in the baseline
+
 ## Core Surfaces
 
 These are the surfaces a person actually interacts with:
@@ -34,6 +41,8 @@ These are the surfaces a person actually interacts with:
   The baseline understanding of the project or subsystem.
 - `meta/context-spine/sessions/`
   Session summaries for current work.
+- `meta/context-spine/hot-memory-index.md`
+  A working set that points at what should be opened first right now.
 - `meta/context-spine/observations/`
   Small dated observations, decisions, and open questions.
 - `docs/adr/`
@@ -49,7 +58,8 @@ Use this when starting meaningful work:
 
 1. run `npm run context:bootstrap`
 2. read the baseline `spine-notes-*.md`
-3. read the latest session summary if one exists
+3. read `hot-memory-index.md` to see the current working set
+4. read the latest session summary if one exists
 4. create a fresh session note if the last one is stale or the task is substantial
 5. do the work in code, tests, docs, or commands
 6. update the session note with what changed, what was verified, and what remains open
@@ -62,8 +72,10 @@ Use this when starting meaningful work:
 A useful session note is short and concrete. It should answer:
 
 - what problem was being worked on
+- what branch / commit / worktree state framed the session
 - what is true now
 - what evidence was used
+- what command last proved something important
 - what decisions were made
 - what is still open
 - what someone else should do next

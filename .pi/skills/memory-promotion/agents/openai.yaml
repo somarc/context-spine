@@ -1,0 +1,4 @@
+interface:
+  display_name: "Memory Promotion"
+  short_description: "Decide what should become durable"
+  default_prompt: "Use $memory-promotion to decide what recent work should be promoted into durable project memory."

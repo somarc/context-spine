@@ -8,17 +8,20 @@ Start a working session from retrieval and recent evidence instead of raw recall
 
 1. Run `npm run context:bootstrap`.
 2. Open `meta/context-spine/spine-notes-context-spine.md`.
-3. If the latest session is stale, create a new one with `npm run context:session`.
-4. Run retrieval before broad file searches.
-5. Open only high-signal artifacts first.
-6. Re-anchor decisions in code, tests, and command output.
-7. Run `npm run context:doctor` if the work changed canonical docs, the repo reading path, or the project's trusted source map.
+3. Use `meta/context-spine/hot-memory-index.md` as a working set, not just a recent-files list.
+4. If the latest session is stale, create a new one with `npm run context:session`.
+5. Run retrieval before broad file searches.
+6. Open only high-signal artifacts first.
+7. Re-anchor decisions in code, tests, and command output.
+8. Run `npm run context:doctor` if the work changed canonical docs, the repo reading path, or the project's trusted source map.
 
 ## Closeout
 
 Before ending the session:
 
 - update the session note
+- capture branch / HEAD / worktree state if it changed materially
+- record the last command that verified something important
 - log at least one observation if something non-trivial changed
 - refresh QMD if durable notes or docs were added
 - run `npm run context:doctor` when the repo now feels harder to trust than it should

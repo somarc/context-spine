@@ -43,6 +43,12 @@ If you only open one diagram first, use this order:
    - best read when updating an older install
 5. `context-spine-pi-extension-points-2026-03-15.html`
    - best read when deciding what belongs in `.pi/`
+6. `context-spine-skill-stack-2026-03-15.html`
+   - best read when deciding how the maintenance, promotion, and rollout skills fit together
+7. `context-spine-agent-working-set-2026-03-15.html`
+   - best read when deciding how an agent should open the repo without guessing
+8. `context-spine-elon-doctrine-2026-03-15.html`
+   - best read when deciding whether a change is actually valuable or just more complexity
 
 ## Current Catalog
 
@@ -53,6 +59,9 @@ If you only open one diagram first, use this order:
 | `context-spine-doctor-2026-03-15.html` | maintainer, lead | repo hygiene and drift control | "How do we know the memory spine still maps to project truth?" | current |
 | `context-spine-upgrade-path-2026-03-15.html` | maintainer of older installs | existing-project upgrades | "How do we move older repos forward safely?" | current |
 | `context-spine-pi-extension-points-2026-03-15.html` | maintainer, agent user | optional extension design | "What should `.pi/` contain, and what should stay out?" | current |
+| `context-spine-skill-stack-2026-03-15.html` | maintainer, agent user | the new orchestration layer | "How do maintenance, promotion, and rollout fit around the core scripts?" | current |
+| `context-spine-agent-working-set-2026-03-15.html` | maintainer, agent user | opening the repo correctly | "How does the memory spine reduce blind inference for the next agent?" | current |
+| `context-spine-elon-doctrine-2026-03-15.html` | maintainer, builder | value discipline | "Does this change actually improve Context Spine or just add more shape?" | current |
 
 ## Curation Rules
 

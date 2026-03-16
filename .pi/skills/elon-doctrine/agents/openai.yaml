@@ -1,0 +1,4 @@
+interface:
+  display_name: "E.L.O.N. Doctrine"
+  short_description: "Judge value, legibility, and blind inference risk"
+  default_prompt: "Use $elon-doctrine to evaluate whether this Context Spine change is actually valuable or just more complexity."

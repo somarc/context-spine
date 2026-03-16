@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Context Spine Skill Stack</title>
+  <style>
+    :root {
+      --bg: #08111f;
+      --panel: rgba(14, 26, 45, 0.88);
+      --panel-2: rgba(23, 39, 64, 0.9);
+      --line: rgba(133, 167, 214, 0.22);
+      --text: #eff5ff;
+      --muted: #b6c7e5;
+      --blue: #6db8ff;
+      --green: #70e0b1;
+      --amber: #ffd27d;
+      --violet: #b38dff;
+      --red: #ff8f8f;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(78, 131, 255, 0.18), transparent 32%),
+        radial-gradient(circle at top right, rgba(91, 223, 183, 0.16), transparent 28%),
+        linear-gradient(180deg, #091221 0%, #050b15 100%);
+      color: var(--text);
+    }
+
+    .wrap {
+      max-width: 1260px;
+      margin: 0 auto;
+      padding: 48px 24px 72px;
+    }
+
+    .hero {
+      display: grid;
+      gap: 18px;
+      margin-bottom: 34px;
+    }
+
+    .eyebrow {
+      font-size: 13px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--amber);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.4rem, 5vw, 4.6rem);
+      line-height: 0.96;
+      max-width: 900px;
+    }
+
+    .lede {
+      max-width: 840px;
+      font-size: 1.12rem;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+      backdrop-filter: blur(14px);
+    }
+
+    .summary { grid-column: span 12; }
+    .loop { grid-column: span 12; }
+    .skill { grid-column: span 4; background: var(--panel-2); }
+    .map { grid-column: span 7; }
+    .rules { grid-column: span 5; }
+    .commands { grid-column: span 12; }
+
+    .section-label {
+      margin: 0 0 12px;
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--blue);
+    }
+
+    .card h2, .card h3 {
+      margin: 0 0 12px;
+      font-size: 1.28rem;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .pill {
+      padding: 9px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-size: 0.92rem;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .step {
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+      min-height: 160px;
+      position: relative;
+    }
+
+    .step strong {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 1rem;
+      color: var(--text);
+    }
+
+    .step span {
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 0.95rem;
+    }
+
+    .step::after {
+      content: "→";
+      position: absolute;
+      right: -12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255,255,255,0.4);
+      font-size: 1.25rem;
+    }
+
+    .step:last-child::after { content: ""; }
+
+    .skill-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      flex: 0 0 auto;
+    }
+
+    ul {
+      margin: 14px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    li + li { margin-top: 8px; }
+
+    .matrix {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .matrix-row {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 14px;
+      align-items: start;
+      padding: 14px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .matrix-row:first-child { border-top: 0; padding-top: 0; }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      color: var(--text);
+      background: rgba(255,255,255,0.06);
+      padding: 2px 6px;
+      border-radius: 8px;
+    }
+
+    .cmd-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .cmd {
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .cmd strong {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .footer {
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 980px) {
+      .skill, .map, .rules { grid-column: span 12; }
+      .flow { grid-template-columns: 1fr; }
+      .step::after { content: ""; }
+      .matrix-row { grid-template-columns: 1fr; }
+      .cmd-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="eyebrow">Context Spine · Skill Stack</div>
+      <h1>Give the memory loop operators, not just notes.</h1>
+      <p class="lede">
+        The core memory system already had baseline notes, sessions, doctor, and upgrade. The new skill layer
+        makes that system easier to run deliberately: maintain the spine, promote recent work into the right durable
+        surface, and assess multiple repos without reinventing the operating pattern every time.
+      </p>
+    </section>
+
+    <div class="grid">
+      <section class="card summary">
+        <div class="section-label">What Changed</div>
+        <h2>The new layer is orchestration.</h2>
+        <p>
+          These additions do not replace the scripts. They wrap them in named judgment paths so an operator or agent
+          can ask the right question quickly: <em>is this repo healthy?</em>, <em>what deserves promotion?</em>,
+          <em>which local repos should I fix first?</em>
+        </p>
+        <div class="pill-row">
+          <div class="pill">script truth stays in <code>doctor.py</code> / <code>upgrade.py</code></div>
+          <div class="pill">skills add orchestration and triage</div>
+          <div class="pill">rollout stays small-batch and local</div>
+        </div>
+      </section>
+
+      <section class="card loop">
+        <div class="section-label">Operating Loop</div>
+        <h2>How the improved memory system now runs</h2>
+        <div class="flow">
+          <div class="step">
+            <strong>1. Inspect the spine</strong>
+            <span>Run bootstrap, doctor, and score so the repo says whether the memory layer still maps to project truth.</span>
+          </div>
+          <div class="step">
+            <strong>2. Interpret the result</strong>
+            <span>Use the maintenance skill to decide what is healthy, what is drifting, and what deserves immediate repair.</span>
+          </div>
+          <div class="step">
+            <strong>3. Promote only the right truths</strong>
+            <span>Use memory promotion to turn rolling work into an ADR, runbook, baseline note, evidence pack, or diagram.</span>
+          </div>
+          <div class="step">
+            <strong>4. Roll forward across repos</strong>
+            <span>Use multi-repo rollout when a handful of local projects need the same hygiene and upgrade pass.</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card skill">
+        <div class="section-label">Skill 1</div>
+        <div class="skill-title">
+          <span class="dot" style="background: var(--green);"></span>
+          <h3>Context Spine Maintenance</h3>
+        </div>
+        <p>Runs the core maintenance loop and tells you what to fix first.</p>
+        <ul>
+          <li>prefers repo wrappers</li>
+          <li>anchors on <code>doctor</code> before opinion</li>
+          <li>treats <code>score</code> as secondary signal</li>
+        </ul>
+      </section>
+
+      <section class="card skill">
+        <div class="section-label">Skill 2</div>
+        <div class="skill-title">
+          <span class="dot" style="background: var(--amber);"></span>
+          <h3>Memory Promotion</h3>
+        </div>
+        <p>Prevents memory sprawl by deciding what should become durable and where it belongs.</p>
+        <ul>
+          <li>baseline note vs ADR vs runbook</li>
+          <li>evidence pack vs diagram vs session-only</li>
+          <li>smallest durable surface wins</li>
+        </ul>
+      </section>
+
+      <section class="card skill">
+        <div class="section-label">Skill 3</div>
+        <div class="skill-title">
+          <span class="dot" style="background: var(--violet);"></span>
+          <h3>Multi Repo Rollout</h3>
+        </div>
+        <p>Assesses a small fleet of local repos and ranks them by urgency.</p>
+        <ul>
+          <li>doctor counts per repo</li>
+          <li>upgrade-safe gaps vs merge-review drift</li>
+          <li>one rollout report instead of repeated guesswork</li>
+        </ul>
+      </section>
+
+      <section class="card map">
+        <div class="section-label">Use Map</div>
+        <h2>Which surface answers which question?</h2>
+        <div class="matrix">
+          <div class="matrix-row">
+            <strong>“Is this repo healthy?”</strong>
+            <div>Run <code>context:doctor</code> directly, or use <code>$context-spine-maintenance</code> when you also want prioritization.</div>
+          </div>
+          <div class="matrix-row">
+            <strong>“What should become durable?”</strong>
+            <div>Use <code>$memory-promotion</code> after a feature, audit, investigation, or architectural turn.</div>
+          </div>
+          <div class="matrix-row">
+            <strong>“Which repos need attention first?”</strong>
+            <div>Run <code>context:rollout</code> or use <code>$multi-repo-rollout</code> to compare a small local fleet.</div>
+          </div>
+          <div class="matrix-row">
+            <strong>“Should doctor itself be a skill?”</strong>
+            <div>No. The script remains the deterministic source of truth. Skills are the orchestration layer around it.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card rules">
+        <div class="section-label">Design Rules</div>
+        <h2>Why this fits GPT-5.4 Extra High better</h2>
+        <ul>
+          <li>less prompt reconstruction and more named workflows</li>
+          <li>clear split between deterministic checks and human-style judgment</li>
+          <li>stronger repo-to-repo reuse without pretending every project is identical</li>
+          <li>memory stays curated instead of turning into a permanent dump of session residue</li>
+          <li>operators get an upgrade path instead of “reinstall and hope”</li>
+        </ul>
+      </section>
+
+      <section class="card commands">
+        <div class="section-label">Primary Commands</div>
+        <h2>The concrete operating surface</h2>
+        <div class="cmd-grid">
+          <div class="cmd">
+            <strong>Maintenance</strong>
+            <code>npm run context:bootstrap</code><br>
+            <code>npm run context:doctor</code><br>
+            <code>npm run context:score</code>
+          </div>
+          <div class="cmd">
+            <strong>Rollout</strong>
+            <code>npm run context:rollout -- --repos /path/a /path/b</code>
+          </div>
+          <div class="cmd">
+            <strong>Safe additive rollout</strong>
+            <code>npm run context:rollout -- --apply-safe --repos /path/a /path/b</code>
+          </div>
+          <div class="cmd">
+            <strong>Skill layer</strong>
+            <code>npm run context:skill:validate</code><br>
+            <code>npm run context:skill:install</code>
+          </div>
+        </div>
+        <div class="footer">
+          Read this explainer with the runbooks for <code>doctor</code>, <code>upgrade-existing-project</code>,
+          <code>multi-repo-rollout</code>, and <code>codex-skill</code>.
+        </div>
+      </section>
+    </div>
+  </div>
+</body>
+</html>

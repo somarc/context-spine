@@ -9,4 +9,6 @@ meta/context-spine/doctor-report.md
 meta/context-spine/doctor-report.json
 meta/context-spine/upgrade-report.md
 meta/context-spine/upgrade-report.json
+meta/context-spine/rollout-report.md
+meta/context-spine/rollout-report.json
 node_modules/

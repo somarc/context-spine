@@ -41,6 +41,17 @@ The goal is simple:
 - keep delivered behavior, documented intent, and trusted evidence connected
 - make future sessions start from retrieval instead of rediscovery
 
+## E.L.O.N.
+
+Context Spine uses a simple doctrine for deciding whether a feature or memory surface is actually pulling its weight:
+
+- **Evidence over aspiration**
+- **Legibility over lore**
+- **Optimize for utility x impact**
+- **No blind inference**
+
+Read the full doctrine in [docs/runbooks/elon-doctrine.md](./docs/runbooks/elon-doctrine.md).
+
 ## How People Use It
 
 Context Spine is for normal project work, not just agent workflows.
@@ -110,19 +121,21 @@ The numbered commands below use the `npm run context:*` wrappers. If you do not 
 2. Run `npm run context:init`.
 3. Run `npm run context:bootstrap`.
 4. Open [meta/context-spine/spine-notes-context-spine.md](./meta/context-spine/spine-notes-context-spine.md).
-5. Create a session note with `npm run context:session`.
-6. Record observations with [scripts/context-spine/mem-log.py](./scripts/context-spine/mem-log.py).
-7. Read or create a visual explainer when a subsystem is easier to absorb visually.
-8. Keep one durable external note per major deep dive, audit, or execution baseline.
-9. Refresh retrieval with `npm run context:update` and `npm run context:embed` when notes or docs change.
-10. Optionally install or sync the bundled Codex skills with `npm run context:skill:install` if you want `$context-spine` or `$principal-engineer-review` available globally.
-11. If you are updating an older install in another repo, run `python3 ./scripts/context-spine/upgrade.py --target /path/to/project`.
+5. Use [meta/context-spine/hot-memory-index.md](./meta/context-spine/hot-memory-index.md) as the current working set.
+6. Create a session note with `npm run context:session`.
+7. Record observations with [scripts/context-spine/mem-log.py](./scripts/context-spine/mem-log.py).
+8. Read or create a visual explainer when a subsystem is easier to absorb visually.
+9. Keep one durable external note per major deep dive, audit, or execution baseline.
+10. Refresh retrieval with `npm run context:update` and `npm run context:embed` when notes or docs change.
+11. Optionally install or sync the bundled Codex skills with `npm run context:skill:install` if you want `$context-spine` or `$principal-engineer-review` available globally.
+12. If you are updating an older install in another repo, run `python3 ./scripts/context-spine/upgrade.py --target /path/to/project`.
 
 Direct-script equivalents remain available:
 
 - `bash ./scripts/context-spine/init-qmd.sh`
 - `bash ./scripts/context-spine/bootstrap.sh`
 - `python3 ./scripts/context-spine/doctor.py`
+- `python3 ./scripts/context-spine/rollout.py --repos /path/to/repo-a /path/to/repo-b`
 - `python3 ./scripts/context-spine/upgrade.py --target /path/to/project`
 - `python3 ./scripts/context-spine/mem-session.py --project context-spine`
 - `python3 ./scripts/context-spine/mem-score.py --root ./meta/context-spine`
@@ -236,13 +249,28 @@ For the detailed `.pi/` model, read [docs/runbooks/pi-extension-points.md](./doc
 
 ## Codex Skills
 
-This repo ships project-owned Codex skill sources under [`.pi/skills/`](./.pi/skills/), including `context-spine` for memory bootstrap and `principal-engineer-review` for architectural oversight.
+This repo ships project-owned Codex skill sources under [`.pi/skills/`](./.pi/skills/), including:
+
+- `context-spine`
+  - memory bootstrap and repair
+- `principal-engineer-review`
+  - architectural oversight
+- `context-spine-maintenance`
+  - maintenance loop orchestration
+- `memory-promotion`
+  - deciding what recent work should become durable
+- `multi-repo-rollout`
+  - batch assessment of local repo installs
+- `elon-doctrine`
+  - judging whether a change is genuinely valuable or just more complexity
 
 These skills are optional. Context Spine should still make sense and provide value to people even if no agent is involved.
 
 - validate them with `npm run context:skill:validate`
 - install or sync them into Codex with `npm run context:skill:install`
 - see [docs/runbooks/codex-skill.md](./docs/runbooks/codex-skill.md) for the maintenance loop
+
+If you maintain several local repos, use `npm run context:rollout -- --repos ...` and read [docs/runbooks/multi-repo-rollout.md](./docs/runbooks/multi-repo-rollout.md).
 
 ## Repository Status
 

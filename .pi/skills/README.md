@@ -18,6 +18,15 @@ Use a skill when the repo needs a named workflow such as:
 
 Do not turn this directory into a generic prompt dump or a second copy of the project docs.
 
-`context-spine/` is the bundled source-of-truth skill for promoting this workflow into Codex.
+Current bundled skills:
+
+- `context-spine`
+- `principal-engineer-review`
+- `context-spine-maintenance`
+- `elon-doctrine`
+- `memory-promotion`
+- `multi-repo-rollout`
+
+`context-spine/` remains the bundled source-of-truth skill for promoting this workflow into Codex.
 
 Read the fuller guidance in [../../docs/runbooks/pi-extension-points.md](../../docs/runbooks/pi-extension-points.md).
