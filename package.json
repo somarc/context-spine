@@ -6,6 +6,8 @@
   "scripts": {
     "context:init": "bash ./scripts/context-spine/init-qmd.sh",
     "context:bootstrap": "bash ./scripts/context-spine/bootstrap.sh",
+    "context:doctor": "python3 ./scripts/context-spine/doctor.py",
+    "context:upgrade": "python3 ./scripts/context-spine/upgrade.py",
     "context:session": "python3 ./scripts/context-spine/mem-session.py --project context-spine",
     "context:score": "python3 ./scripts/context-spine/mem-score.py --root ./meta/context-spine",
     "context:update": "bash ./scripts/context-spine/qmd-refresh.sh",

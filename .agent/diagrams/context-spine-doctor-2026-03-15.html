@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Context Doctor | Context Spine</title>
+    <style>
+      :root {
+        --bg: #f6f1e8;
+        --paper: rgba(255, 252, 247, 0.8);
+        --ink: #1e2430;
+        --muted: #596172;
+        --line: rgba(30, 36, 48, 0.12);
+        --accent: #1d4262;
+        --accent-soft: rgba(29, 66, 98, 0.12);
+        --warn: #9c5b14;
+        --warn-soft: rgba(156, 91, 20, 0.12);
+        --pass: #1d6b57;
+        --pass-soft: rgba(29, 107, 87, 0.12);
+        --fail: #8e2f39;
+        --fail-soft: rgba(142, 47, 57, 0.12);
+        --shadow: 0 24px 70px rgba(44, 40, 32, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top left, rgba(29, 66, 98, 0.08), transparent 30%),
+          linear-gradient(180deg, #f9f5ed 0%, var(--bg) 100%);
+      }
+
+      .grid {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background-image:
+          linear-gradient(rgba(30, 36, 48, 0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(30, 36, 48, 0.05) 1px, transparent 1px);
+        background-size: 36px 36px;
+        mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.35), transparent 80%);
+      }
+
+      main {
+        position: relative;
+        width: min(1220px, calc(100vw - 48px));
+        margin: 32px auto 80px;
+      }
+
+      .hero,
+      .card,
+      .panel {
+        background: var(--paper);
+        backdrop-filter: blur(12px);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+      }
+
+      .hero {
+        padding: 40px;
+        display: grid;
+        gap: 24px;
+      }
+
+      .eyebrow,
+      .kicker {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        font-size: 12px;
+        color: var(--accent);
+      }
+
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        font-weight: 500;
+      }
+
+      h1 {
+        font-size: clamp(3rem, 6vw, 5.6rem);
+        line-height: 0.96;
+        max-width: 11ch;
+      }
+
+      .lede {
+        font-size: 1.25rem;
+        line-height: 1.6;
+        max-width: 68ch;
+        color: var(--muted);
+      }
+
+      .hero-grid,
+      .lane-grid,
+      .triptych,
+      .status-grid {
+        display: grid;
+        gap: 20px;
+      }
+
+      .hero-grid {
+        grid-template-columns: 1.2fr 0.8fr;
+        align-items: start;
+      }
+
+      .card {
+        padding: 24px;
+      }
+
+      .metric {
+        display: grid;
+        gap: 8px;
+      }
+
+      .metric strong {
+        font-size: 2.4rem;
+        font-weight: 500;
+      }
+
+      .metric span {
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      .section {
+        margin-top: 28px;
+      }
+
+      .section > .card,
+      .section > .panel {
+        padding: 30px;
+      }
+
+      .lane-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .lane {
+        display: grid;
+        gap: 16px;
+      }
+
+      .lane ul,
+      .panel ul,
+      .triptych ul {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      .triptych {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: white;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.88rem;
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+
+      .dot.pass { background: var(--pass); }
+      .dot.warn { background: var(--warn); }
+      .dot.fail { background: var(--fail); }
+
+      .status-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .status-card {
+        padding: 22px;
+        border-radius: 24px;
+        border: 1px solid var(--line);
+      }
+
+      .status-card.pass { background: var(--pass-soft); }
+      .status-card.warn { background: var(--warn-soft); }
+      .status-card.fail { background: var(--fail-soft); }
+
+      .flow {
+        position: relative;
+        margin-top: 16px;
+        padding-left: 24px;
+      }
+
+      .flow::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 8px;
+        bottom: 8px;
+        width: 2px;
+        background: linear-gradient(180deg, var(--accent), rgba(29, 66, 98, 0.12));
+      }
+
+      .flow-step {
+        position: relative;
+        padding: 0 0 22px 18px;
+      }
+
+      .flow-step::before {
+        content: "";
+        position: absolute;
+        left: -6px;
+        top: 5px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 0 8px var(--accent-soft);
+      }
+
+      .flow-step strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 1.05rem;
+      }
+
+      .flow-step p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.92em;
+        background: rgba(29, 66, 98, 0.08);
+        padding: 0.15em 0.4em;
+        border-radius: 0.4em;
+      }
+
+      .footer-note {
+        margin-top: 22px;
+        color: var(--muted);
+        font-size: 0.96rem;
+        line-height: 1.6;
+      }
+
+      @media (max-width: 960px) {
+        main {
+          width: min(100vw - 24px, 100%);
+          margin: 16px auto 48px;
+        }
+
+        .hero,
+        .section > .card,
+        .section > .panel {
+          padding: 22px;
+        }
+
+        .hero-grid,
+        .lane-grid,
+        .triptych,
+        .status-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="grid"></div>
+    <main>
+      <section class="hero">
+        <div class="eyebrow">Context Spine · Doctor</div>
+        <div class="hero-grid">
+          <div>
+            <h1>Audit the memory spine before drift turns into confusion.</h1>
+            <p class="lede">
+              <code>context:doctor</code> is the hygiene pass that checks whether Context Spine still
+              maps cleanly to real project truth. It is not about "more notes." It is about whether
+              the baseline, sessions, docs, generated aids, and explainers still point at the right things.
+            </p>
+          </div>
+          <div class="card">
+            <div class="metric">
+              <div class="kicker">What it catches</div>
+              <strong>Silent drift</strong>
+              <span>Stale sessions, broken source paths, missing docs boundaries, or explainers with no durable home.</span>
+            </div>
+            <div class="footer-note">
+              Run it after major doc changes, before phase closeout, before handoff, or whenever the repo feels harder to trust than it should.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="card">
+          <div class="eyebrow">Doctor Loop</div>
+          <div class="flow">
+            <div class="flow-step">
+              <strong>1. Read the baseline contract</strong>
+              <p>Verify that a baseline note exists and that its <code>source_of_truth</code> still resolves to live files.</p>
+            </div>
+            <div class="flow-step">
+              <strong>2. Compare work against memory</strong>
+              <p>Check whether the latest session note is current enough to explain recent git changes and ongoing dirty work.</p>
+            </div>
+            <div class="flow-step">
+              <strong>3. Inspect generated aids</strong>
+              <p>Make sure hot memory and the scorecard are fresh enough to help, not mislead.</p>
+            </div>
+            <div class="flow-step">
+              <strong>4. Check authority surfaces</strong>
+              <p>Look for the boundaries that keep docs legible: <code>docs/README.md</code>, <code>docs/archive/</code>, and <code>docs/drafts/</code>.</p>
+            </div>
+            <div class="flow-step">
+              <strong>5. Confirm the visual path</strong>
+              <p>Ensure explainers have a stable home in <code>.agent/diagrams/</code> so comprehension has a first-class surface.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="panel">
+          <div class="eyebrow">Checks</div>
+          <div class="lane-grid">
+            <div class="lane">
+              <h2>Project truth checks</h2>
+              <ul>
+                <li>Baseline note exists.</li>
+                <li>Local source paths still resolve.</li>
+                <li>Latest session note tracks current work.</li>
+                <li>Dirty worktree outside memory is visible.</li>
+              </ul>
+            </div>
+            <div class="lane">
+              <h2>Reading path checks</h2>
+              <ul>
+                <li>Hot memory and scorecard are fresh enough to trust.</li>
+                <li>Docs authority boundaries are explicit.</li>
+                <li>Roadmap-like docs do not compete silently at docs root.</li>
+                <li>Visual explainers still have a stable home.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="panel">
+          <div class="eyebrow">Output</div>
+          <div class="status-grid">
+            <div class="status-card pass">
+              <h3>PASS</h3>
+              <p>Healthy enough for normal work. The surface still points at live project truth.</p>
+            </div>
+            <div class="status-card warn">
+              <h3>WARN</h3>
+              <p>Usable, but drifting. This is where confusion starts if nobody tightens the spine.</p>
+            </div>
+            <div class="status-card fail">
+              <h3>FAIL</h3>
+              <p>A required memory surface or trusted source path is broken. Fix this before pretending the repo is legible.</p>
+            </div>
+          </div>
+          <div class="pill-row" style="margin-top: 20px;">
+            <div class="pill"><span class="dot pass"></span> Terminal summary</div>
+            <div class="pill"><span class="dot warn"></span> Local markdown report</div>
+            <div class="pill"><span class="dot fail"></span> Optional JSON output</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="panel">
+          <div class="eyebrow">Real value</div>
+          <div class="triptych">
+            <div class="card">
+              <h3>For the builder</h3>
+              <ul>
+                <li>Catches drift while the project is still fresh in your head.</li>
+                <li>Turns a vague "this feels messy" into explicit next actions.</li>
+                <li>Protects against phases being "done" in code but stale in docs.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>For the future operator</h3>
+              <ul>
+                <li>Keeps the reading path calm and explicit.</li>
+                <li>Reduces the chance of opening the wrong doc first.</li>
+                <li>Improves handoff confidence before the original builder is absent.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>For the agent</h3>
+              <ul>
+                <li>Improves restart speed without trusting stale summaries.</li>
+                <li>Keeps the repo legible under long execution threads.</li>
+                <li>Makes context retrieval safer because the sources stay curated.</li>
+              </ul>
+            </div>
+          </div>
+          <p class="footer-note">
+            The doctor is not the whole system. It is the moment where Context Spine stops being only a memory layer and starts acting like a lightweight project-truth maintenance system.
+          </p>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

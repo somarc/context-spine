@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Context Spine Upgrade Path</title>
+    <style>
+      :root {
+        --bg: #f3f6fb;
+        --surface: rgba(255, 255, 255, 0.82);
+        --ink: #102033;
+        --muted: #5f7086;
+        --line: rgba(16, 32, 51, 0.1);
+        --accent: #1b4f72;
+        --accent-soft: rgba(27, 79, 114, 0.11);
+        --safe: #1f6b59;
+        --safe-soft: rgba(31, 107, 89, 0.12);
+        --review: #8c5a18;
+        --review-soft: rgba(140, 90, 24, 0.12);
+        --shadow: 0 22px 64px rgba(21, 38, 58, 0.12);
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        color: var(--ink);
+        font-family: "Iowan Old Style", "Palatino Linotype", serif;
+        background:
+          radial-gradient(circle at top right, rgba(27,79,114,0.09), transparent 32%),
+          linear-gradient(180deg, #f9fbff 0%, var(--bg) 100%);
+      }
+      main {
+        width: min(1180px, calc(100vw - 40px));
+        margin: 28px auto 72px;
+      }
+      .hero, .panel, .tile {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(12px);
+      }
+      .hero { padding: 36px; display: grid; gap: 20px; }
+      .eyebrow, .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        font-size: 12px;
+        color: var(--accent);
+      }
+      h1, h2, h3 { margin: 0; font-weight: 500; }
+      h1 { font-size: clamp(3rem, 6vw, 5.2rem); line-height: 0.95; max-width: 10ch; }
+      .lede { max-width: 70ch; color: var(--muted); font-size: 1.2rem; line-height: 1.65; }
+      .hero-grid, .grid-2, .grid-3 { display: grid; gap: 22px; }
+      .hero-grid { grid-template-columns: 1.15fr 0.85fr; }
+      .panel { padding: 28px; margin-top: 24px; }
+      .tile { padding: 20px; }
+      .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .steps {
+        position: relative;
+        margin-top: 14px;
+        padding-left: 28px;
+      }
+      .steps::before {
+        content: "";
+        position: absolute;
+        left: 5px;
+        top: 8px;
+        bottom: 8px;
+        width: 2px;
+        background: linear-gradient(180deg, var(--accent), rgba(27,79,114,0.18));
+      }
+      .step {
+        position: relative;
+        padding: 0 0 22px 18px;
+      }
+      .step::before {
+        content: "";
+        position: absolute;
+        left: -1px;
+        top: 4px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 0 8px var(--accent-soft);
+      }
+      .step p, .tile p, li { color: var(--muted); line-height: 1.65; }
+      ul { margin: 0; padding-left: 18px; }
+      .callout {
+        border-radius: 24px;
+        padding: 22px;
+        border: 1px solid var(--line);
+      }
+      .callout.safe { background: var(--safe-soft); }
+      .callout.review { background: var(--review-soft); }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        background: rgba(27,79,114,0.08);
+        border-radius: 0.45em;
+        padding: 0.15em 0.4em;
+      }
+      @media (max-width: 960px) {
+        main { width: min(100vw - 20px, 100%); margin: 16px auto 40px; }
+        .hero, .panel { padding: 22px; }
+        .hero-grid, .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <div class="eyebrow">Context Spine · Upgrade Path</div>
+        <div class="hero-grid">
+          <div>
+            <h1>Upgrade older installs without stomping the project’s own truth.</h1>
+            <p class="lede">
+              The upgrade path is additive-first. It detects what a target repo is missing,
+              scaffolds only the low-risk surfaces, and leaves project-owned files in a
+              merge-review lane instead of pretending a boilerplate sync is safe.
+            </p>
+          </div>
+          <div class="tile">
+            <div class="mono">Command</div>
+            <p><code>python3 ./scripts/context-spine/upgrade.py --target /path/to/project</code></p>
+            <p>Writes a local report into the target repo so the upgrade is explicit before anything changes.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="eyebrow">Flow</div>
+        <div class="steps">
+          <div class="step">
+            <h2>1. Detect the install shape</h2>
+            <p>Classify the target repo as <code>missing</code>, <code>partial</code>, or <code>existing</code> so the upgrade starts from the real state, not assumptions.</p>
+          </div>
+          <div class="step">
+            <h2>2. Separate safe additive files from merge-worthy files</h2>
+            <p>Missing docs-governance surfaces and the doctor runbook are safe to add. Bootstrap, package scripts, and baseline wiring stay in a manual review lane.</p>
+          </div>
+          <div class="step">
+            <h2>3. Write an upgrade report</h2>
+            <p>The report becomes the shared artifact for the upgrade decision, rather than a hazy “we probably updated Context Spine.”</p>
+          </div>
+          <div class="step">
+            <h2>4. Run doctor afterward</h2>
+            <p>Once the upgrade lands, <code>context:doctor</code> checks whether the target repo now has a clean reading path.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="eyebrow">Two Lanes</div>
+        <div class="grid-2">
+          <div class="callout safe">
+            <h3>Safe additive</h3>
+            <ul>
+              <li><code>docs/README.md</code></li>
+              <li><code>docs/archive/README.md</code></li>
+              <li><code>docs/drafts/README.md</code></li>
+              <li><code>docs/runbooks/doctor.md</code></li>
+            </ul>
+            <p>These can be created if missing without taking authority away from the target project.</p>
+          </div>
+          <div class="callout review">
+            <h3>Merge review</h3>
+            <ul>
+              <li><code>package.json</code></li>
+              <li><code>.gitignore</code></li>
+              <li><code>scripts/context-spine/bootstrap.sh</code></li>
+              <li><code>docs/runbooks/session-start.md</code></li>
+              <li><code>meta/context-spine/spine-notes-context-spine.md</code></li>
+            </ul>
+            <p>These often carry repo-specific truth. The upgrade path calls them out instead of overwriting them.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="eyebrow">Why this is worth it</div>
+        <div class="grid-3">
+          <div class="tile">
+            <h3>For the maintainer</h3>
+            <p>You can evolve Context Spine across projects without turning upgrades into risky manual archaeology.</p>
+          </div>
+          <div class="tile">
+            <h3>For the project</h3>
+            <p>The repo gets the newer hygiene surfaces without losing its custom baseline, commands, or memory voice.</p>
+          </div>
+          <div class="tile">
+            <h3>For the future</h3>
+            <p>The upgrade report becomes the durable record of what changed and what still needs judgment.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

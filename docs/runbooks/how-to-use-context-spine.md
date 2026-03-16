@@ -55,6 +55,7 @@ Use this when starting meaningful work:
 6. update the session note with what changed, what was verified, and what remains open
 7. add an observation if something non-trivial was learned
 8. refresh retrieval if notes or docs changed
+9. run `npm run context:doctor` when the repo's trusted reading path changed
 
 ## A Good Session Note
 
@@ -119,6 +120,7 @@ Once a week is usually enough:
 - roll stable architecture or boundary knowledge out of sessions and into durable notes
 - refresh retrieval if docs or notes changed
 - run the memory score if you want a lightweight health check
+- run the doctor if the repo now feels harder to trust than it should
 
 ## Retention
 

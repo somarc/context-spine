@@ -108,8 +108,10 @@ echo
 echo "===== START HERE ====="
 for starter in \
   "$ROOT/README.md" \
+  "$ROOT/docs/README.md" \
   "$BASELINE_NOTE" \
   "$ROOT/docs/runbooks/session-start.md" \
+  "$ROOT/.agent/diagrams/context-spine-doctor-2026-03-15.html" \
   "$ROOT/.agent/diagrams/context-spine-human-review-2026-03-11.html" \
   "$ROOT/.agent/diagrams/context-spine-overview-2026-03-11.html"; do
   if [[ -f "$starter" ]]; then
@@ -227,6 +229,8 @@ echo "Quick start:"
 if [[ -f "$PACKAGE_JSON" ]]; then
   echo "  npm run context:init"
   echo "  npm run context:bootstrap"
+  echo "  npm run context:doctor"
+  echo "  npm run context:upgrade -- --target /path/to/project"
   echo "  npm run context:session"
   echo "  npm run context:score"
   echo "  npm run context:update"
@@ -236,6 +240,8 @@ if [[ -f "$PACKAGE_JSON" ]]; then
 else
   echo "  bash ./scripts/context-spine/init-qmd.sh"
   echo "  bash ./scripts/context-spine/bootstrap.sh"
+  echo "  python3 scripts/context-spine/doctor.py"
+  echo "  python3 scripts/context-spine/upgrade.py --target /path/to/project"
   echo "  python3 scripts/context-spine/mem-session.py --project context-spine"
   echo "  python3 scripts/context-spine/mem-score.py --root ./meta/context-spine"
   echo "  bash ./scripts/context-spine/qmd-refresh.sh --embed"

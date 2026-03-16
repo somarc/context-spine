@@ -6,6 +6,8 @@ Attach Context Spine to an existing project without waiting for a large reorgani
 
 The target outcome is simple: a person joining the repo should be able to find the current baseline, the latest session, and the trusted operating docs without guessing.
 
+If the target repo already has Context Spine surfaces, do not treat it like a first install. Use [upgrade-existing-project.md](./upgrade-existing-project.md) so you can add newer hygiene features without overwriting project-owned customizations.
+
 ## Minimum Installation
 
 Copy or vendor these paths into the target repository:
@@ -16,6 +18,12 @@ Copy or vendor these paths into the target repository:
 - `scripts/delegation/`
 - optional `.pi/`
 - optional `.pi/skills/` if you want the repo to ship project-owned Codex skill sources too
+
+If the target repo already has a `docs/` directory, add these authority surfaces too:
+
+- `docs/README.md`
+- `docs/archive/`
+- `docs/drafts/`
 
 ## Retrieval Wiring
 
@@ -60,6 +68,8 @@ After the drop-in, classify memory immediately:
 - generated/local: `.qmd/`, hot-memory indexes, scorecards
 
 Do not let the initial install imply that every future session artifact belongs in long-lived git history.
+
+After installation, run `python3 ./scripts/context-spine/doctor.py` once so the repo starts with an explicit hygiene report instead of silent drift.
 
 ## First Week Recommendation
 
