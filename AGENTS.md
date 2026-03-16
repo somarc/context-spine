@@ -128,6 +128,9 @@ When memory freshness matters:
 - add project-specific retrieval or oracle integrations as adapters, not hard dependencies
 - prefer small scripts and explicit contracts over large prompt-only systems
 - do not hardcode personal paths or secrets into reusable tooling
+- prefer composing skills over expanding one skill into a fake all-in-one oracle
+- when a skill has a natural companion, say so explicitly inside the skill contract
+- example: `elon-doctrine` should consider `principal-engineer-review` for system-shape questions, and `principal-engineer-review` should consider `elon-doctrine` for worthiness questions
 
 ## Safety
 

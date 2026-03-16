@@ -9,6 +9,9 @@ description: Assess a project's emerging shape with a principal-engineer lens. U
 
 Use this skill to judge the forming shape of a project, not just the correctness of a diff. Focus on architecture, boundaries, reliability, evidence quality, and whether new understanding should be captured in durable memory.
 
+This skill is not the final judge of whether a surface should exist at all.
+When the question is partly "is this actually worth keeping?" rather than only "is this structurally sound?", pair this with `elon-doctrine`.
+
 ## When To Use
 
 - asked to review project direction, system shape, or architectural drift
@@ -25,6 +28,23 @@ Do not use this as a substitute for normal bug-hunting code review when the user
 1. Identify what changed in system shape, not just file contents.
 1. Apply the rubric in `references/rubric.md`.
 1. Separate concrete defects from architectural concerns and from memory obligations.
+1. If the thing being reviewed may be ceremonial, ornamental, or low-value despite being well-structured, invoke `elon-doctrine` alongside this skill.
+
+## Skill Composition
+
+Use `principal-engineer-review` with adjacent skills when the review spans more than architecture:
+
+- pair with `elon-doctrine`
+  when you need a value judgment about whether the surface or workflow should exist at all
+- pair with `memory-promotion`
+  when the review implies a concrete durable artifact should be created or updated
+- pair with `context-spine-maintenance`
+  when doctor/score drift needs architectural interpretation rather than hygiene-only reporting
+
+The contract is:
+
+- `principal-engineer-review` judges system shape, boundaries, and durability implications
+- companion skills judge worthiness, operating hygiene, or promotion target
 
 ## Output Contract
 
@@ -56,3 +76,4 @@ When possible, map memory updates to one of:
 ## References
 
 - `references/rubric.md`
+- `../../elon-doctrine/SKILL.md`

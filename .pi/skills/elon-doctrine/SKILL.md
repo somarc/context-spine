@@ -9,6 +9,9 @@ description: Apply the E.L.O.N. doctrine to Context Spine decisions. Use when ju
 
 Use this skill when the question is not just "can we build this?" but "should this exist in Context Spine at all?"
 
+This skill is about value discipline, not architectural sufficiency by itself.
+When the thing being judged changes project shape, boundaries, coupling, reliability, or durable artifact needs, pair this with `principal-engineer-review`.
+
 E.L.O.N. means:
 
 - **Evidence over aspiration**
@@ -31,11 +34,28 @@ This is the doctrine for deciding whether Context Spine is becoming more valuabl
    - handoff quality
    - correctness under context reset
    - drift resistance
-5. Recommend one of:
+5. If the issue is also architectural, operational, or durability-shaping, invoke `principal-engineer-review` alongside this skill.
+6. Recommend one of:
    - keep and strengthen
    - simplify
    - defer
    - remove
+
+## Skill Composition
+
+Use `elon-doctrine` with other skills when the question spans more than value judgment:
+
+- pair with `principal-engineer-review`
+  when you also need a judgment about system shape, coupling, reliability, or what should become durable
+- pair with `context-spine-maintenance`
+  when doctor/score findings exist and you need to decide which hygiene work is genuinely worth doing
+- pair with `memory-promotion`
+  when the result of the E.L.O.N. pass is "this should become durable" and you need to choose the right artifact
+
+The contract is:
+
+- `elon-doctrine` decides whether the thing deserves to exist
+- companion skills decide how it should be shaped, stored, or executed
 
 ## Evaluation Lens
 
@@ -81,3 +101,4 @@ Return:
 - `../../../../docs/runbooks/elon-doctrine.md`
 - `../../../../meta/context-spine/spine-notes-context-spine.md`
 - `../../../../README.md`
+- `../../principal-engineer-review/SKILL.md`

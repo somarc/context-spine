@@ -8,6 +8,15 @@ Each skill should be:
 - small enough to maintain
 - explicit about what it does
 - grounded in code, docs, or scripts instead of vague prose
+- aware of adjacent skills when the real job spans multiple lenses
+
+Prefer skill composition over skill sprawl:
+
+- one skill can judge value
+- another can judge architecture
+- another can decide promotion target or maintenance action
+
+Skills should call out their natural companions instead of pretending they are sufficient for every case.
 
 Use a skill when the repo needs a named workflow such as:
 
