@@ -4,7 +4,7 @@
 
 <p align="center">
   <strong>Context Spine</strong><br>
-  Durable repo-local memory and retrieval bootstrap for software projects.
+  Make a software project understandable again after time, handoff, or context loss.
 </p>
 
 <p align="center">
@@ -14,20 +14,66 @@
   <img alt="skills" src="https://img.shields.io/badge/skills-context--spine_%7C_principal--engineer--review-374151?style=for-the-badge">
 </p>
 
-`Context Spine` is a reusable operating layer for keeping code, docs, notes, and evidence connected so people can restart, hand off, and search a project without relying on memory alone.
+Most repos are easy to run and hard to re-understand.
 
-It is not a product scaffold. It is the working memory spine that sits next to the code and makes the project legible under growth, handoff, and context resets.
+`Context Spine` is the missing reading path for a software project. It adds a small memory system next to the code so a person or agent can answer the basic questions fast:
 
-## At A Glance
+- what this repo is
+- what matters right now
+- what changed
+- what was actually verified
+- where to look next
 
-| Signal | What it means |
+If you have ever reopened a project and thought "I know we figured this out already, but where is the actual truth?", this is for that moment.
+
+It is not a product scaffold. It is the working memory spine that sits next to the code and keeps the project legible under growth, handoff, and context resets.
+
+## You Probably Want This If
+
+- restarting a project after a week costs real time
+- handoffs depend on one person explaining everything live
+- the truth is split across code, docs, notes, and command output
+- agents keep rediscovering context your team already had once
+
+## You Probably Do Not Need This If
+
+- the repo is short-lived and nobody will revisit it
+- the system is small enough that a single README already keeps it legible
+- you do not care about durable handoff, retrieval, or evidence trails
+
+## What You Actually Get
+
+- a baseline note that explains the repo in human terms
+- session notes that let work resume without a recap meeting
+- a hot-memory index that points to what to open first right now
+- retrieval plumbing so those notes stay searchable instead of forgotten
+- a place to tie decisions back to code, tests, commands, and docs
+
+The point is not "more notes." The point is a repo that can explain itself again.
+
+## 60-Second Tour
+
+| Open this | Why it matters |
 | --- | --- |
-| `Status` | Active reusable boilerplate for repo-local project memory |
-| `Fit` | Existing repos, new repos, and agent-assisted workflows |
-| `Core loop` | `bootstrap -> retrieve -> work -> synthesize -> re-index` |
-| `Project stance` | Evidence-backed understanding over chat-history recall |
+| `meta/context-spine/spine-notes-*.md` | The stable explanation of what the repo is and how to read it |
+| `meta/context-spine/sessions/` | The current thread of work and what changed recently |
+| `meta/context-spine/hot-memory-index.md` | The working set for today, not just a file dump |
+| `source_of_truth` files named in the baseline | The code and docs you should actually trust |
+| `docs/adr/`, `docs/runbooks/`, `.agent/diagrams/` | Durable decisions, repeatable operations, and visual system shape |
 
-## How Teams Use It
+That is the product. The scripts and QMD integration exist to keep that reading path current.
+
+## First Useful Workflow
+
+1. Run `npm run context:init`.
+2. Run `npm run context:bootstrap`.
+3. Open the baseline note and `meta/context-spine/hot-memory-index.md`.
+4. Create a session note with `npm run context:session` before meaningful work.
+5. Refresh retrieval with `npm run context:update` and `npm run context:embed` after notes or docs change.
+
+If that loop already sounds right, the rest of this README is mainly installation detail and extension points.
+
+## Where It Helps
 
 | Scenario | What they add | What they get |
 | --- | --- | --- |
@@ -35,24 +81,17 @@ It is not a product scaffold. It is the working memory spine that sits next to t
 | Agent-heavy repo | `.pi/skills/`, evidence packs, bounded delegation | Better retrieval and less prompt soup |
 | Deep technical system | ADRs, runbooks, diagrams, durable notes | Architectural shape that stays legible |
 
+If you only want the one-line version:
+
+`Context Spine` turns "project knowledge" from vague memory into a set of files and entrypoints people can actually reopen and trust.
+
 The goal is simple:
 
 - lower the cost of getting a new project legible
 - keep delivered behavior, documented intent, and trusted evidence connected
 - make future sessions start from retrieval instead of rediscovery
 
-## E.L.O.N.
-
-Context Spine uses a simple doctrine for deciding whether a feature or memory surface is actually pulling its weight:
-
-- **Evidence over aspiration**
-- **Legibility over lore**
-- **Optimize for utility x impact**
-- **No blind inference**
-
-Read the full doctrine in [docs/runbooks/elon-doctrine.md](./docs/runbooks/elon-doctrine.md).
-
-## How People Use It
+## How It Changes Day To Day Work
 
 Context Spine is for normal project work, not just agent workflows.
 
@@ -115,7 +154,7 @@ The system works when two loops exist at the same time:
 
 ## Quick Start
 
-The numbered commands below use the `npm run context:*` wrappers. If you do not want to use `npm`, use the direct-script equivalents listed immediately after.
+The shortest useful path uses the `npm run context:*` wrappers:
 
 1. Read the prerequisites in [docs/runbooks/prerequisites.md](./docs/runbooks/prerequisites.md).
 2. Run `npm run context:init`.
@@ -123,15 +162,18 @@ The numbered commands below use the `npm run context:*` wrappers. If you do not 
 4. Open the repo baseline `meta/context-spine/spine-notes-*.md` file.
 5. Use [meta/context-spine/hot-memory-index.md](./meta/context-spine/hot-memory-index.md) as the current working set.
 6. Create a session note with `npm run context:session`.
-7. Record observations with [scripts/context-spine/mem-log.py](./scripts/context-spine/mem-log.py).
-8. Read or create a visual explainer when a subsystem is easier to absorb visually.
-9. Keep one durable external note per major deep dive, audit, or execution baseline.
-10. Set repo policy explicitly in [meta/context-spine/context-spine.json](./meta/context-spine/context-spine.json).
-11. Refresh retrieval with `npm run context:update` and `npm run context:embed` when notes or docs change.
-12. Validate the operating contract with `npm run context:verify`.
-13. Optionally install or sync the bundled Codex skills with `npm run context:skill:install` if you want `$context-spine` or `$principal-engineer-review` available globally.
-14. Pick a git tracking policy with `npm run context:gitignore -- --mode tracked` or `npm run context:gitignore -- --mode local`.
-15. If you are updating an older install in another repo, run `python3 ./scripts/context-spine/upgrade.py --target /path/to/project`.
+7. Refresh retrieval with `npm run context:update` and `npm run context:embed` when notes or docs change.
+8. Validate the operating contract with `npm run context:verify`.
+
+Useful next steps:
+
+- record observations with [scripts/context-spine/mem-log.py](./scripts/context-spine/mem-log.py)
+- read or create a visual explainer when a subsystem is easier to absorb visually
+- keep one durable external note per major deep dive, audit, or execution baseline
+- set repo policy explicitly in [meta/context-spine/context-spine.json](./meta/context-spine/context-spine.json)
+- optionally install or sync the bundled Codex skills with `npm run context:skill:install` if you want `$context-spine` or `$principal-engineer-review` available globally
+- pick a git tracking policy with `npm run context:gitignore -- --mode tracked` or `npm run context:gitignore -- --mode local`
+- if you are updating an older install in another repo, run `python3 ./scripts/context-spine/upgrade.py --target /path/to/project`
 
 Direct-script equivalents remain available:
 
@@ -285,6 +327,17 @@ Recommended extension points:
 The rule is: extend by adding adapters and conventions, not by replacing the memory loop.
 
 For the detailed `.pi/` model, read [docs/runbooks/pi-extension-points.md](./docs/runbooks/pi-extension-points.md).
+
+## E.L.O.N.
+
+Once you start adding memory surfaces, it is easy to add ceremony that feels smart but does not help. Context Spine uses a simple doctrine to push back on that:
+
+- **Evidence over aspiration**
+- **Legibility over lore**
+- **Optimize for utility x impact**
+- **No blind inference**
+
+Read the full doctrine in [docs/runbooks/elon-doctrine.md](./docs/runbooks/elon-doctrine.md).
 
 ## Codex Skills
 
