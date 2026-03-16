@@ -33,7 +33,9 @@ SAFE_ADDITIVE_FILES = [
     "scripts/context-spine/mem-log.py",
     "scripts/context-spine/mem-search.py",
     "scripts/context-spine/qmd-quick.sh",
+    "scripts/context-spine/refresh.sh",
     "scripts/context-spine/rollout.py",
+    "scripts/context-spine/setup.sh",
     "scripts/context-spine/upgrade.py",
     "scripts/context-spine/validate-codex-skill.py",
 ]

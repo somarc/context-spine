@@ -46,6 +46,7 @@ The script will only create missing files from this set:
 - the repo-local config surface `meta/context-spine/context-spine.json`
 - canonical runbooks such as `doctor.md`, `how-to-use-context-spine.md`, `project-drop-in.md`, `upgrade-existing-project.md`, `elon-doctrine.md`, and related docs
 - standalone runtime helpers such as `doctor.py`, `upgrade.py`, `hot-memory.py`, `rollout.py`, `qmd-quick.sh`, `mem-log.py`, `mem-search.py`, `context-config.py`, `context_config.py`, and Codex skill install helpers
+- lean entrypoint helpers such as `setup.sh` and `refresh.sh`
 
 It will not overwrite existing files.
 
@@ -70,7 +71,7 @@ Those files often carry repo-specific truth, commands, or reading paths.
 2. Pick the git tracking policy with `--gitignore-mode tracked` or `--gitignore-mode local`.
 3. Apply the safe additive files if they are missing.
 4. Review the shared entrypoint files one by one instead of overwriting project-owned behavior.
-5. Add any new wrapper commands manually if the target repo uses `npm run context:*`.
+5. Add any new wrapper commands manually if the target repo uses `npm run context:*`, especially `context:setup` and `context:refresh`.
 6. Merge `meta/context-spine/context-spine.json` deliberately if the target repo already has project-specific names or paths.
 7. If the repo uses a custom baseline file name, keep it and merge the generic baseline detection changes into bootstrap and related docs.
 8. Run `context:doctor` and `context:score` in the target repo after the merge.

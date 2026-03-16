@@ -23,5 +23,5 @@ Before ending the session:
 - capture branch / HEAD / worktree state if it changed materially
 - record the last command that verified something important
 - log at least one observation if something non-trivial changed
-- refresh QMD if durable notes or docs were added
+- run `npm run context:refresh` if durable notes or docs were added
 - run `npm run context:doctor` when the repo now feels harder to trust than it should

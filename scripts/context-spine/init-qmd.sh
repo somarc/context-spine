@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 eval "$(python3 "$ROOT/scripts/context-spine/context-config.py" --repo-root "$ROOT" --format shell)"
+PACKAGE_JSON="$ROOT/package.json"
 META_NAME="${CONTEXT_SPINE_COLLECTION:-$CONFIG_CONTEXT_SPINE_COLLECTION}"
 DOCS_NAME="${CONTEXT_SPINE_DOCS_COLLECTION:-$CONFIG_CONTEXT_SPINE_DOCS_COLLECTION}"
 SKILLS_NAME="${CONTEXT_SPINE_SKILLS_COLLECTION:-$CONFIG_CONTEXT_SPINE_SKILLS_COLLECTION}"
@@ -91,5 +92,10 @@ fi
 
 echo
 echo "Next steps:"
-echo "  npm run context:update"
-echo "  npm run context:embed"
+if [[ -f "$PACKAGE_JSON" ]]; then
+  echo "  npm run context:setup"
+  echo "  npm run context:refresh"
+else
+  echo "  bash ./scripts/context-spine/setup.sh"
+  echo "  bash ./scripts/context-spine/refresh.sh"
+fi

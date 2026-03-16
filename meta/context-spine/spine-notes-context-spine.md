@@ -8,12 +8,14 @@ tags:
   - memory
 domain: repo-bootstrap
 type: spine-note
-as_of: 2026-03-15
+as_of: 2026-03-16
 source_of_truth:
   - /Users/mhess/aem/aem-code/context-spine/README.md
   - /Users/mhess/aem/aem-code/context-spine/AGENTS.md
   - /Users/mhess/aem/aem-code/context-spine/package.json
   - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/bootstrap.sh
+  - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/setup.sh
+  - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/refresh.sh
   - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/context_config.py
   - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/init-qmd.sh
 ---
@@ -22,17 +24,18 @@ source_of_truth:
 
 ## Summary
 
-As of 2026-03-15, this repository is the reusable boilerplate for bootstrapping repo-local memory, QMD-backed retrieval, evidence capture, explicit repo-local config, and verification surfaces in agent-assisted software projects.
+As of 2026-03-16, this repository is the reusable boilerplate for bootstrapping repo-local memory, QMD-backed retrieval, evidence capture, explicit repo-local config, and verification surfaces in agent-assisted software projects.
 
 ## Current State
 
 - Repo-local memory lives under `meta/context-spine/`.
 - Bootstrap and session helpers live under `scripts/context-spine/`.
 - `meta/context-spine/context-spine.json` is now the explicit contract for project name, memory root, baseline preference, QMD collections, query defaults, and gitignore mode.
-- Preferred local entrypoints are `npm run context:init`, `npm run context:bootstrap`, `npm run context:doctor`, `npm run context:upgrade`, `npm run context:session`, `npm run context:score`, `npm run context:update`, `npm run context:embed`, and `npm run context:verify`.
+- Preferred local entrypoints are `npm run context:setup`, `npm run context:bootstrap`, `npm run context:session`, `npm run context:refresh`, `npm run context:doctor`, and `npm run context:verify`.
+- Low-level retrieval primitives remain available as `npm run context:init`, `npm run context:update`, and `npm run context:embed` for cases where the repo needs direct control instead of the lean path.
 - `meta/context-spine/hot-memory-index.md` should behave like a curated working set, not just a recent-files dump.
 - QMD collections should at minimum include `context-spine-meta` for `meta/` and `project-docs` for `docs/`.
-- The bootstrap flow should surface this note, the latest session note, recent visual explainers, and a quick QMD retrieval pass.
+- The bootstrap flow should detect `fresh`, `recovery`, and `active` modes so normal sessions stay compact while first setup and stale recovery stay explicit.
 - Repo-local Codex skill sources live under `.pi/skills/`, including the core spine suite and companion review skills.
 - The core spine suite now treats active-delivery recovery, invalidation, hydration, flow state, and metacognitive checks as first-class operating concerns.
 - Existing project installs should have a dedicated upgrade path instead of assuming every change is a fresh drop-in.
@@ -50,6 +53,8 @@ As of 2026-03-15, this repository is the reusable boilerplate for bootstrapping 
 - Make repo policy explicit in `context-spine.json` so bootstrap, doctor, score, upgrade, and gitignore surfaces stop inferring project shape independently.
 - Keep principal-engineer oversight as an additive review skill under `.pi/skills/` instead of making it a hard dependency of the core loop.
 - Keep Context Spine itself as the thinnest possible operating layer for current truth; if a memory feature drifts into ceremony, simplify or remove it.
+- Collapse first-use ceremony into one setup command and one refresh command so the default path is easier to adopt and easier to remember.
+- Keep bootstrap compact in active-session mode and reserve deeper retrieval output for recovery cases.
 - Add a doctor command that checks baseline integrity, session freshness, generated-aid freshness, docs authority, and visual surfaces.
 - Add an additive-first upgrade command for older installs so the boilerplate can evolve without clobbering project-owned memory surfaces.
 - Upgrade hot memory from raw recency into a working set tied to baseline source-of-truth files, canonical docs, and recent visual explainers.
@@ -68,5 +73,7 @@ As of 2026-03-15, this repository is the reusable boilerplate for bootstrapping 
 - /Users/mhess/aem/aem-code/context-spine/README.md
 - /Users/mhess/aem/aem-code/context-spine/AGENTS.md
 - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/bootstrap.sh
+- /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/setup.sh
+- /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/refresh.sh
 - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/init-qmd.sh
 - /Users/mhess/aem/aem-code/context-spine/docs/runbooks/session-start.md

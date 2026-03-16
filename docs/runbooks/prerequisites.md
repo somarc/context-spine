@@ -6,7 +6,7 @@ Make explicit what `Context Spine` builds on so teams understand the shoulders i
 
 ## Recommended Wrapper Path
 
-The README quick start uses `npm run ...` wrappers. For that path, verify these commands first:
+The lean path uses `npm run context:setup`, `npm run context:bootstrap`, and `npm run context:refresh`. For that path, verify these commands first:
 
 ```bash
 git --version
@@ -88,5 +88,5 @@ Context Spine is an intelligence layer, not a replacement stack. Its value comes
 
 - wrapper commands come from [package.json](../../package.json)
 - bootstrap availability checks come from [scripts/context-spine/bootstrap.sh](../../scripts/context-spine/bootstrap.sh)
-- qmd availability checks come from [scripts/context-spine/init-qmd.sh](../../scripts/context-spine/init-qmd.sh) and [scripts/context-spine/qmd-refresh.sh](../../scripts/context-spine/qmd-refresh.sh)
+- qmd availability checks come from [scripts/context-spine/init-qmd.sh](../../scripts/context-spine/init-qmd.sh), [scripts/context-spine/refresh.sh](../../scripts/context-spine/refresh.sh), and [scripts/context-spine/qmd-refresh.sh](../../scripts/context-spine/qmd-refresh.sh)
 - official QMD install and requirements commands come from the [QMD README Quick Start](https://github.com/tobi/qmd#quick-start), [QMD Installation](https://github.com/tobi/qmd#installation), and [QMD Requirements](https://github.com/tobi/qmd#requirements)

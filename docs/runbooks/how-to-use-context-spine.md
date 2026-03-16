@@ -56,7 +56,7 @@ These are the surfaces a person actually interacts with:
 
 Use this when starting meaningful work:
 
-1. run `npm run context:bootstrap`
+1. if this is your first visit to the repo, run `npm run context:setup`; otherwise run `npm run context:bootstrap`
 2. read the baseline `spine-notes-*.md`
 3. read `hot-memory-index.md` to see the current working set
 4. read the latest session summary if one exists
@@ -64,7 +64,7 @@ Use this when starting meaningful work:
 5. do the work in code, tests, docs, or commands
 6. update the session note with what changed, what was verified, and what remains open
 7. add an observation if something non-trivial was learned
-8. refresh retrieval if notes or docs changed
+8. run `npm run context:refresh` if notes or docs changed
 9. run `npm run context:doctor` when the repo's trusted reading path changed
 
 ## A Good Session Note

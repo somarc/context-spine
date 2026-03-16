@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+RUN_BOOTSTRAP=1
+RUN_EMBED=1
+
+usage() {
+  cat <<'EOF'
+Usage: setup.sh [--skip-bootstrap] [--no-embed]
+
+Fast first-time path for Context Spine:
+  1. wire repo-local QMD collections
+  2. refresh retrieval
+  3. open the working set via bootstrap
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --skip-bootstrap)
+      RUN_BOOTSTRAP=0
+      shift
+      ;;
+    --no-embed)
+      RUN_EMBED=0
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Unknown argument: $1" >&2
+      usage >&2
+      exit 1
+      ;;
+  esac
+done
+
+echo "===== CONTEXT SETUP ====="
+echo "Root: $ROOT"
+
+if command -v qmd >/dev/null 2>&1; then
+  echo "Retrieval: configuring repo-local QMD collections and refreshing the index"
+  if [[ "$RUN_EMBED" -eq 1 ]]; then
+    bash "$ROOT/scripts/context-spine/refresh.sh"
+  else
+    bash "$ROOT/scripts/context-spine/refresh.sh" --no-embed
+  fi
+else
+  echo "Retrieval: qmd not found; continuing without repo-local search"
+  echo "Install qmd later, then rerun \`npm run context:setup\` or \`npm run context:refresh\`."
+fi
+
+if [[ "$RUN_BOOTSTRAP" -eq 1 ]]; then
+  echo
+  echo "Opening the working set..."
+  bash "$ROOT/scripts/context-spine/bootstrap.sh"
+fi

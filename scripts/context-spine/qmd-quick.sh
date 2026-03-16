@@ -26,11 +26,11 @@ if ! command -v qmd >/dev/null 2>&1; then
   exit 0
 fi
 
-preferred_init_cmd() {
+preferred_setup_cmd() {
   if [[ -f "$PACKAGE_JSON" ]]; then
-    echo "npm run context:init"
+    echo "npm run context:setup"
   else
-    echo "bash ./scripts/context-spine/init-qmd.sh"
+    echo "bash ./scripts/context-spine/setup.sh"
   fi
 }
 
@@ -76,7 +76,7 @@ qmd_search_with_retry() {
       continue
     fi
     if printf '%s' "$output" | grep -q "Collection not found"; then
-      echo "HINT: run $(preferred_init_cmd) to register the collection." >&2
+      echo "HINT: run $(preferred_setup_cmd) to register the collection." >&2
     fi
     printf '%s\n' "$output"
     return "$status"
@@ -119,8 +119,12 @@ append_block() {
 echo "===== QMD QUICK SEARCH ====="
 IFS=',' read -r -a collections <<< "$QMD_COLLECTIONS"
 session_has_qmd_link=0
+session_has_qmd_block=0
 if [[ -n "$LATEST_SESSION" && -f "$LATEST_SESSION" ]] && grep -q "qmd://" "$LATEST_SESSION"; then
   session_has_qmd_link=1
+fi
+if [[ -n "$LATEST_SESSION" && -f "$LATEST_SESSION" ]] && grep -q "^### QMD Quick Search -" "$LATEST_SESSION"; then
+  session_has_qmd_block=1
 fi
 
 for query in "$QMD_QUERY_BOOTSTRAP" "$QMD_QUERY" "$QMD_QUERY_EXTRA" "$QMD_QUERY_SKILLS"; do
@@ -142,7 +146,7 @@ for query in "$QMD_QUERY_BOOTSTRAP" "$QMD_QUERY" "$QMD_QUERY_EXTRA" "$QMD_QUERY_
         session_has_qmd_link=1
       fi
     fi
-    if [[ "$QMD_APPEND" != "0" && -n "$LATEST_SESSION" && -f "$LATEST_SESSION" ]]; then
+    if [[ "$QMD_APPEND" != "0" && "$session_has_qmd_block" -eq 0 && -n "$LATEST_SESSION" && -f "$LATEST_SESSION" ]]; then
       block_file="$(mktemp)"
       {
         echo ""
@@ -163,7 +167,7 @@ for query in "$QMD_QUERY_BOOTSTRAP" "$QMD_QUERY" "$QMD_QUERY_EXTRA" "$QMD_QUERY_
   echo
 done
 
-if [[ "$QMD_APPEND" != "0" && -n "$LATEST_SESSION" && -f "$LATEST_SESSION" && "$session_has_qmd_link" -eq 0 ]]; then
+if [[ "$QMD_APPEND" != "0" && "$session_has_qmd_block" -eq 0 && -n "$LATEST_SESSION" && -f "$LATEST_SESSION" && "$session_has_qmd_link" -eq 0 ]]; then
   block_file="$(mktemp)"
   {
     echo ""

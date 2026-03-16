@@ -32,6 +32,17 @@ Then set the repo-local contract in `meta/context-spine/context-spine.json` befo
 - QMD collection names
 - gitignore mode
 
+## Fast Path
+
+If the target repo includes `package.json`, the lean path is:
+
+1. copy the required surfaces
+2. choose the gitignore mode
+3. run `npm run context:setup`
+4. open the baseline note and hot-memory index
+
+If the target repo does not use `npm`, run `bash ./scripts/context-spine/setup.sh` instead.
+
 ## Git Tracking Mode
 
 Choose the repo policy immediately after the drop-in:
@@ -53,7 +64,7 @@ If Context Spine files are already tracked, untrack them once with:
 Recommended QMD collections:
 
 ```bash
-scripts/context-spine/init-qmd.sh
+npm run context:setup
 ```
 
 Optional manual equivalent:
@@ -64,7 +75,8 @@ qmd collection add /path/to/project/docs --name project-docs --mask "**/*.md"
 qmd collection add /path/to/external-vault --name project-vault --mask "**/*.md"
 ```
 
-Use `bash ./scripts/context-spine/qmd-refresh.sh --embed` whenever durable notes or docs are added.
+Use `npm run context:refresh` whenever durable notes or docs are added.
+Use `bash ./scripts/context-spine/qmd-refresh.sh --embed` only when you want the low-level direct script.
 
 If the config names differ from the boilerplate defaults, keep `context-spine.json` authoritative and let the scripts read from it instead of hardcoding local variants.
 
@@ -98,14 +110,6 @@ Do not let the initial install imply that every future session artifact belongs 
 
 After installation, run `python3 ./scripts/context-spine/doctor.py` once so the repo starts with an explicit hygiene report instead of silent drift.
 If the repo includes `package.json`, also run `npm run context:verify` once so the config, tests, scorecard, and skill surfaces are validated together.
-
-## First Week Recommendation
-
-- day 1: install the bootstrap and session tools
-- day 2: create the first durable hub note
-- day 3: log at least one observation per real work session
-- day 4: add the first evidence pack from a delegated or bounded investigation
-- day 5: review the memory scorecard and fix the weakest loop
 
 After installation, hand the team this reading order:
 

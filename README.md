@@ -65,11 +65,10 @@ That is the product. The scripts and QMD integration exist to keep that reading 
 
 ## First Useful Workflow
 
-1. Run `npm run context:init`.
-2. Run `npm run context:bootstrap`.
-3. Open the baseline note and `meta/context-spine/hot-memory-index.md`.
-4. Create a session note with `npm run context:session` before meaningful work.
-5. Refresh retrieval with `npm run context:update` and `npm run context:embed` after notes or docs change.
+1. Run `npm run context:setup`.
+2. Open the baseline note and `meta/context-spine/hot-memory-index.md`.
+3. Create a session note with `npm run context:session` before meaningful work.
+4. Refresh retrieval with `npm run context:refresh` after notes or docs change.
 
 If that loop already sounds right, the rest of this README is mainly installation detail and extension points.
 
@@ -157,13 +156,12 @@ The system works when two loops exist at the same time:
 The shortest useful path uses the `npm run context:*` wrappers:
 
 1. Read the prerequisites in [docs/runbooks/prerequisites.md](./docs/runbooks/prerequisites.md).
-2. Run `npm run context:init`.
-3. Run `npm run context:bootstrap`.
-4. Open the repo baseline `meta/context-spine/spine-notes-*.md` file.
-5. Use [meta/context-spine/hot-memory-index.md](./meta/context-spine/hot-memory-index.md) as the current working set.
-6. Create a session note with `npm run context:session`.
-7. Refresh retrieval with `npm run context:update` and `npm run context:embed` when notes or docs change.
-8. Validate the operating contract with `npm run context:verify`.
+2. Run `npm run context:setup`.
+3. Open the repo baseline `meta/context-spine/spine-notes-*.md` file.
+4. Use [meta/context-spine/hot-memory-index.md](./meta/context-spine/hot-memory-index.md) as the current working set.
+5. Create a session note with `npm run context:session`.
+6. Refresh retrieval with `npm run context:refresh` when notes or docs change.
+7. Validate the operating contract with `npm run context:verify`.
 
 Useful next steps:
 
@@ -174,11 +172,14 @@ Useful next steps:
 - optionally install or sync the bundled Codex skills with `npm run context:skill:install` if you want `$context-spine` or `$principal-engineer-review` available globally
 - pick a git tracking policy with `npm run context:gitignore -- --mode tracked` or `npm run context:gitignore -- --mode local`
 - if you are updating an older install in another repo, run `python3 ./scripts/context-spine/upgrade.py --target /path/to/project`
+- use `npm run context:init`, `npm run context:update`, and `npm run context:embed` only when you want the low-level retrieval primitives directly
 
 Direct-script equivalents remain available:
 
+- `bash ./scripts/context-spine/setup.sh`
 - `bash ./scripts/context-spine/init-qmd.sh`
 - `bash ./scripts/context-spine/bootstrap.sh`
+- `bash ./scripts/context-spine/refresh.sh`
 - `python3 ./scripts/context-spine/doctor.py`
 - `python3 ./scripts/context-spine/configure-gitignore.py --mode tracked`
 - `python3 ./scripts/context-spine/rollout.py --repos /path/to/repo-a /path/to/repo-b`
@@ -215,6 +216,8 @@ If the project already has an older Context Spine install, use [docs/runbooks/up
 The short version:
 
 - copy or vendor `meta/context-spine/`, `scripts/context-spine/`, `scripts/delegation/`, and `AGENTS.md`
+- choose a gitignore mode immediately
+- run `npm run context:setup`
 - keep repo-local memory in the project repo
 - keep durable notes in an external linked vault
 - connect both through QMD or an equivalent retrieval layer

@@ -30,6 +30,21 @@ class HotMemoryTest(unittest.TestCase):
 
             self.assertEqual(paths, [docs_file.resolve()])
 
+    def test_latest_session_file_prefers_session_date_over_mtime(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            sessions_dir = Path(tmpdir)
+            older_session = sessions_dir / "2026-03-15-session.md"
+            newer_session = sessions_dir / "2026-03-16-session.md"
+            older_session.write_text("# Older\n", encoding="utf-8")
+            newer_session.write_text("# Newer\n", encoding="utf-8")
+
+            # Touch the older session after the newer session to simulate later edits.
+            older_session.touch()
+
+            latest = hot_memory.latest_session_file([older_session, newer_session])
+
+            self.assertEqual(latest, newer_session)
+
 
 if __name__ == "__main__":
     unittest.main()

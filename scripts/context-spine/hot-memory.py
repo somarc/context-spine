@@ -65,6 +65,24 @@ def latest_file(paths: list[Path]) -> Path | None:
     return ranked[0][1]
 
 
+def session_date_key(path: Path) -> tuple[int, dt.date, dt.datetime]:
+    match = re.match(r"(?P<date>\d{4}-\d{2}-\d{2})", path.name)
+    stamp = safe_mtime(path) or dt.datetime.min
+    if not match:
+        return (0, dt.date.min, stamp)
+    try:
+        session_date = dt.date.fromisoformat(match.group("date"))
+    except ValueError:
+        return (0, dt.date.min, stamp)
+    return (1, session_date, stamp)
+
+
+def latest_session_file(paths: list[Path]) -> Path | None:
+    if not paths:
+        return None
+    return max(paths, key=session_date_key)
+
+
 def parse_source_of_truth(note_path: Path, repo_root: Path) -> list[Path]:
     text = note_path.read_text(encoding="utf-8")
     if "---" not in text:
@@ -117,7 +135,7 @@ def build_working_set(memory_root: Path, repo_root: Path, days: int) -> list[Wor
             ),
         )
 
-    latest_session = latest_file(sorted((memory_root / "sessions").glob("*.md")))
+    latest_session = latest_session_file(sorted((memory_root / "sessions").glob("*.md")))
     if latest_session is not None:
         add_item(
             items,

@@ -105,8 +105,12 @@ Run the doctor:
 
 ## Relationship To Other Commands
 
+- `context:setup`
+  First-time path that wires retrieval and opens the working set.
 - `context:bootstrap`
   Starts a session from high-signal artifacts.
+- `context:refresh`
+  Rebuilds retrieval after notes or docs change.
 - `context:score`
   Measures retrieval habit quality.
 - `context:doctor`
