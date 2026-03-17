@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from context_config import load_config, resolve_repo_path
+from generated_artifact import GeneratedArtifactSpec, markdown_heading_validator, publish_generated_artifacts
 from run_state import finish_run, start_run
 
 
@@ -259,7 +260,7 @@ def render_link(path: Path, repo_root: Path, collection_root: Path, collection_n
     return f"`{rel_repo}`"
 
 
-def main():
+def main() -> int:
     parser = argparse.ArgumentParser(description="Generate a working-set-focused hot-memory index.")
     parser.add_argument("--days", type=int, default=7, help="Lookback window for recent memory")
     parser.add_argument("--collection", default="", help="QMD collection name for links")
@@ -318,17 +319,42 @@ def main():
             lines.append("")
 
     out_file = memory_root / "hot-memory-index.md"
-    out_file.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+    try:
+        published = publish_generated_artifacts(
+            [
+                GeneratedArtifactSpec(
+                    path=out_file,
+                    content="\n".join(lines).rstrip() + "\n",
+                    validator=markdown_heading_validator("# Hot Memory Index"),
+                )
+            ],
+            run_id=run_handle.run_id,
+        )
+    except Exception as exc:
+        finish_run(
+            run_handle,
+            status="fail",
+            summary=f"Failed to publish hot-memory index: {exc}",
+            artifacts=[],
+            extra={"collection": collection_name, "publication_error": str(exc)},
+        )
+        print(f"Failed to publish hot-memory index: {exc}")
+        return 1
     finish_run(
         run_handle,
         status="success",
         summary=f"Generated hot-memory index with {len(items)} working-set item(s).",
-        artifacts=[str(out_file)],
-        extra={"item_count": len(items), "collection": collection_name},
+        artifacts=[str(item.path) for item in published],
+        extra={
+            "item_count": len(items),
+            "collection": collection_name,
+            "artifact_digests": {str(item.path): item.digest for item in published},
+        },
     )
     print(f"Run ID: {run_handle.run_id}")
     print(f"Wrote {out_file}")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

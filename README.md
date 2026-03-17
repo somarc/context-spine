@@ -84,6 +84,8 @@ If you only want the one-line version:
 
 `Context Spine` turns "project knowledge" from vague memory into a set of files and entrypoints people can actually reopen and trust.
 
+Generated aids stay deliberately lightweight: they are regenerated locally, validated, and promoted into place only when the new artifact is structurally sound. If regeneration fails, the active artifact stays in place as the last-known-good reading surface.
+
 The goal is simple:
 
 - lower the cost of getting a new project legible
@@ -109,6 +111,7 @@ Read the plain-language guide in [docs/runbooks/how-to-use-context-spine.md](./d
 - repo-local working memory under `meta/context-spine/`
 - bootstrap and retrieval scripts under `scripts/context-spine/`
 - a versioned runtime manifest under `scripts/context-spine/runtime-manifest.json`
+- candidate-first promotion for generated aids so failed refreshes do not overwrite the active reading path
 - evidence-pack discipline for delegated work under `scripts/delegation/`
 - a generic agent constitution in [AGENTS.md](./AGENTS.md)
 - a visual explainer surface under `.agent/diagrams/`

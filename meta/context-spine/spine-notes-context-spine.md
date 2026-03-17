@@ -21,6 +21,7 @@ source_of_truth:
   - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/runtime-manifest.json
   - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/runtime_manifest.py
   - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/run_state.py
+  - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/generated_artifact.py
 ---
 
 # Context Spine Baseline
@@ -49,6 +50,7 @@ As of 2026-03-16, this repository is the reusable boilerplate for bootstrapping 
 - The runtime now has an explicit versioned manifest for shared boilerplate/runtime surfaces and compatibility metadata.
 - Maintenance commands now emit run IDs and write structured JSON run records under `meta/context-spine/runs/`.
 - Codex skill sync now validates source and installed digests instead of only checking syntax.
+- Generated aids now publish through transient candidate artifacts and promote only after validation passes, so failed refreshes do not overwrite the active reading path.
 
 ## Decisions
 
@@ -67,6 +69,7 @@ As of 2026-03-16, this repository is the reusable boilerplate for bootstrapping 
 - Back the runtime with a local unittest suite so adoption confidence comes from executable proof, not README promises.
 - Keep E.L.O.N. explicit so future changes are judged by value, legibility, utility x impact, and reduced blind inference.
 - Keep the runtime manifest as the shared contract for upgrade-safe runtime files instead of duplicating file lists across scripts.
+- Keep revision-safety mechanics scoped to generated aids instead of extending them into human-authored truth surfaces.
 
 ## Open Questions
 

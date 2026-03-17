@@ -9,6 +9,12 @@ from pathlib import Path
 from typing import Iterable
 
 from context_config import default_config_path, load_config, resolve_repo_path
+from generated_artifact import (
+    GeneratedArtifactSpec,
+    markdown_heading_validator,
+    publish_generated_artifacts,
+    validate_json_artifact,
+)
 from run_state import finish_run, start_run
 from runtime_manifest import default_manifest_path, load_runtime_manifest
 
@@ -727,30 +733,50 @@ def main() -> int:
         runtime_version=run_handle.payload["runtime_version"],
     )
     out_path = Path(args.out).expanduser() if args.out else memory_root / "doctor-report.md"
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(report, encoding="utf-8")
-
-    artifacts = [str(out_path)]
+    artifact_specs = [
+        GeneratedArtifactSpec(
+            path=out_path,
+            content=report,
+            validator=markdown_heading_validator("# Context Doctor Report"),
+        )
+    ]
     if args.json_out:
         json_path = Path(args.json_out).expanduser()
-        json_path.parent.mkdir(parents=True, exist_ok=True)
-        json_path.write_text(
-            json.dumps(
-                {
-                    "run_id": run_handle.run_id,
-                    "runtime_version": run_handle.payload["runtime_version"],
-                    "generated_at": generated_at.isoformat(),
-                    "repo_root": str(repo_root),
-                    "memory_root": str(memory_root),
-                    "results": [result.__dict__ for result in results],
-                    "counts": summarize_status(results),
-                },
-                indent=2,
+        artifact_specs.append(
+            GeneratedArtifactSpec(
+                path=json_path,
+                content=(
+                    json.dumps(
+                        {
+                            "run_id": run_handle.run_id,
+                            "runtime_version": run_handle.payload["runtime_version"],
+                            "generated_at": generated_at.isoformat(),
+                            "repo_root": str(repo_root),
+                            "memory_root": str(memory_root),
+                            "results": [result.__dict__ for result in results],
+                            "counts": summarize_status(results),
+                        },
+                        indent=2,
+                    )
+                    + "\n"
+                ),
+                validator=validate_json_artifact,
             )
-            + "\n",
-            encoding="utf-8",
         )
-        artifacts.append(str(json_path))
+    try:
+        published = publish_generated_artifacts(artifact_specs, run_id=run_handle.run_id)
+    except Exception as exc:
+        finish_run(
+            run_handle,
+            status=FAIL,
+            summary=f"Failed to publish doctor artifact(s): {exc}",
+            artifacts=[],
+            extra={"publication_error": str(exc)},
+        )
+        sys.stderr.write(f"Failed to publish doctor artifact(s): {exc}\n")
+        return 1
+
+    artifacts = [str(item.path) for item in published]
 
     counts = summarize_status(results)
     run_status = FAIL if counts[FAIL] > 0 else WARN if counts[WARN] > 0 else PASS
@@ -759,7 +785,10 @@ def main() -> int:
         status=run_status,
         summary=f"Doctor counts: pass={counts[PASS]} warn={counts[WARN]} fail={counts[FAIL]}",
         artifacts=artifacts,
-        extra={"counts": counts},
+        extra={
+            "counts": counts,
+            "artifact_digests": {str(item.path): item.digest for item in published},
+        },
     )
     sys.stdout.write(f"Run ID: {run_handle.run_id}\n")
     sys.stdout.write(render_terminal(results))

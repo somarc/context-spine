@@ -6,6 +6,12 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
+from generated_artifact import (
+    GeneratedArtifactSpec,
+    markdown_heading_validator,
+    publish_generated_artifacts,
+    validate_json_artifact,
+)
 from run_state import finish_run, start_run
 from runtime_manifest import runtime_version
 
@@ -77,7 +83,7 @@ def recommendation(status: RepoStatus) -> str:
     return "Repo looks current; keep it on the normal doctor/score loop."
 
 
-def render_report(statuses: list[RepoStatus], out_path: Path, *, run_id: str, runtime_version_text: str) -> None:
+def render_report(statuses: list[RepoStatus], *, run_id: str, runtime_version_text: str) -> str:
     lines = [
         "# Context Spine Rollout Report",
         "",
@@ -102,10 +108,10 @@ def render_report(statuses: list[RepoStatus], out_path: Path, *, run_id: str, ru
                 f"- Recommendation: {recommendation(status)}",
             ]
         )
-    out_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return "\n".join(lines) + "\n"
 
 
-def render_json(statuses: list[RepoStatus], out_path: Path, *, run_id: str, runtime_version_text: str) -> None:
+def render_json(statuses: list[RepoStatus], *, run_id: str, runtime_version_text: str) -> str:
     payload = {
         "run_id": run_id,
         "runtime_version": runtime_version_text,
@@ -123,7 +129,7 @@ def render_json(statuses: list[RepoStatus], out_path: Path, *, run_id: str, runt
             for status in statuses
         ]
     }
-    out_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    return json.dumps(payload, indent=2) + "\n"
 
 
 def main() -> int:
@@ -167,21 +173,47 @@ def main() -> int:
     statuses.sort(key=severity)
 
     out_path = Path(args.out).expanduser() if args.out else root / "meta" / "context-spine" / "rollout-report.md"
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    render_report(statuses, out_path, run_id=run_handle.run_id, runtime_version_text=runtime_version_text)
-    artifacts = [str(out_path)]
+    artifact_specs = [
+        GeneratedArtifactSpec(
+            path=out_path,
+            content=render_report(statuses, run_id=run_handle.run_id, runtime_version_text=runtime_version_text),
+            validator=markdown_heading_validator("# Context Spine Rollout Report"),
+        )
+    ]
     if args.json_out:
         json_out_path = Path(args.json_out).expanduser()
-        json_out_path.parent.mkdir(parents=True, exist_ok=True)
-        render_json(statuses, json_out_path, run_id=run_handle.run_id, runtime_version_text=runtime_version_text)
-        artifacts.append(str(json_out_path))
+        artifact_specs.append(
+            GeneratedArtifactSpec(
+                path=json_out_path,
+                content=render_json(statuses, run_id=run_handle.run_id, runtime_version_text=runtime_version_text),
+                validator=validate_json_artifact,
+            )
+        )
+
+    try:
+        published = publish_generated_artifacts(artifact_specs, run_id=run_handle.run_id)
+    except Exception as exc:
+        finish_run(
+            run_handle,
+            status="fail",
+            summary=f"Failed to publish rollout artifact(s): {exc}",
+            artifacts=[],
+            extra={"publication_error": str(exc)},
+        )
+        print(f"Failed to publish rollout artifact(s): {exc}")
+        return 1
+
+    artifacts = [str(item.path) for item in published]
 
     finish_run(
         run_handle,
         status="success",
         summary=f"Rollout assessed {len(statuses)} repo(s).",
         artifacts=artifacts,
-        extra={"repo_count": len(statuses)},
+        extra={
+            "repo_count": len(statuses),
+            "artifact_digests": {str(item.path): item.digest for item in published},
+        },
     )
     print(f"Run ID: {run_handle.run_id}")
     print("===== CONTEXT SPINE ROLLOUT =====")

@@ -9,6 +9,12 @@ import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from generated_artifact import (
+    GeneratedArtifactSpec,
+    markdown_heading_validator,
+    publish_generated_artifacts,
+    validate_json_artifact,
+)
 from run_state import finish_run, start_run
 from runtime_manifest import configurable_files, load_runtime_manifest, merge_review_files, runtime_files, safe_additive_files
 
@@ -344,36 +350,56 @@ def main() -> int:
     result = evaluate(target_root, source_root, args.apply_safe, args.gitignore_mode)
 
     out_path = Path(args.out).expanduser() if args.out else target_root / "meta" / "context-spine" / "upgrade-report.md"
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(render_report(result, generated_at, run_handle.run_id), encoding="utf-8")
-
-    artifacts = [str(out_path)]
+    artifact_specs = [
+        GeneratedArtifactSpec(
+            path=out_path,
+            content=render_report(result, generated_at, run_handle.run_id),
+            validator=markdown_heading_validator("# Context Spine Upgrade Report"),
+        )
+    ]
     if args.json_out:
         json_path = Path(args.json_out).expanduser()
-        json_path.parent.mkdir(parents=True, exist_ok=True)
-        json_path.write_text(
-            json.dumps(
-                {
-                    "run_id": run_handle.run_id,
-                    "runtime_version": result.runtime_version,
-                    "generated_at": generated_at.isoformat(),
-                    "target_repo": str(result.repo_root),
-                    "source_root": str(result.source_root),
-                    "mode": result.mode,
-                    "safe_missing": result.safe_missing,
-                    "safe_applied": result.safe_applied,
-                    "merge_missing": result.merge_missing,
-                    "merge_different": result.merge_different,
-                    "gitignore_mode": result.gitignore_mode,
-                    "gitignore_applied": result.gitignore_applied,
-                    "notes": result.notes,
-                },
-                indent=2,
+        artifact_specs.append(
+            GeneratedArtifactSpec(
+                path=json_path,
+                content=(
+                    json.dumps(
+                        {
+                            "run_id": run_handle.run_id,
+                            "runtime_version": result.runtime_version,
+                            "generated_at": generated_at.isoformat(),
+                            "target_repo": str(result.repo_root),
+                            "source_root": str(result.source_root),
+                            "mode": result.mode,
+                            "safe_missing": result.safe_missing,
+                            "safe_applied": result.safe_applied,
+                            "merge_missing": result.merge_missing,
+                            "merge_different": result.merge_different,
+                            "gitignore_mode": result.gitignore_mode,
+                            "gitignore_applied": result.gitignore_applied,
+                            "notes": result.notes,
+                        },
+                        indent=2,
+                    )
+                    + "\n"
+                ),
+                validator=validate_json_artifact,
             )
-            + "\n",
-            encoding="utf-8",
         )
-        artifacts.append(str(json_path))
+    try:
+        published = publish_generated_artifacts(artifact_specs, run_id=run_handle.run_id)
+    except Exception as exc:
+        finish_run(
+            run_handle,
+            status="fail",
+            summary=f"Failed to publish upgrade artifact(s): {exc}",
+            artifacts=[],
+            extra={"publication_error": str(exc)},
+        )
+        print(f"Failed to publish upgrade artifact(s): {exc}")
+        return 1
+
+    artifacts = [str(item.path) for item in published]
 
     finish_run(
         run_handle,
@@ -389,6 +415,7 @@ def main() -> int:
             "safe_applied": len(result.safe_applied),
             "merge_missing": len(result.merge_missing),
             "merge_different": len(result.merge_different),
+            "artifact_digests": {str(item.path): item.digest for item in published},
         },
     )
     print(f"Run ID: {run_handle.run_id}")

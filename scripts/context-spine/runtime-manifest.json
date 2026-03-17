@@ -7,7 +7,8 @@
   "runtime_files": [
     "scripts/context-spine/runtime-manifest.json",
     "scripts/context-spine/runtime_manifest.py",
-    "scripts/context-spine/run_state.py"
+    "scripts/context-spine/run_state.py",
+    "scripts/context-spine/generated_artifact.py"
   ],
   "safe_additive_files": [
     "docs/README.md",

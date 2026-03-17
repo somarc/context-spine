@@ -5,6 +5,8 @@ import re
 from pathlib import Path
 
 from context_config import default_config_path, load_config, resolve_repo_path
+from generated_artifact import GeneratedArtifactSpec, markdown_heading_validator, publish_generated_artifacts
+from run_state import finish_run, start_run
 
 
 QMD_PATTERN = re.compile(r"(qmd://|\bqmd\b)", re.IGNORECASE)
@@ -174,7 +176,13 @@ def main():
     if not config_error and config:
         configured_memory_root = resolve_repo_path(repo_root, str(config.get("memory_root", configured_memory_root)))
 
-    memory_root = Path(args.root).expanduser() if args.root else configured_memory_root
+    memory_root = (Path(args.root).expanduser() if args.root else configured_memory_root).resolve()
+    run_handle = start_run(
+        repo_root,
+        memory_root,
+        "context:score",
+        args=vars(args),
+    )
     sessions = session_stats(memory_root / "sessions")
     observations = observation_stats(memory_root / "observations")
     hot_age = hot_memory_age(memory_root / "hot-memory-index.md")
@@ -255,10 +263,43 @@ def main():
     if lines[-1] == "## Recommendations":
         lines.append("- No major memory-quality gaps detected.")
 
-    out_path = Path(args.out).expanduser() if args.out else memory_root / "memory-scorecard.md"
-    out_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    out_path = (Path(args.out).expanduser() if args.out else memory_root / "memory-scorecard.md").resolve()
+    try:
+        published = publish_generated_artifacts(
+            [
+                GeneratedArtifactSpec(
+                    path=out_path,
+                    content="\n".join(lines) + "\n",
+                    validator=markdown_heading_validator("# Memory Scorecard"),
+                )
+            ],
+            run_id=run_handle.run_id,
+        )
+    except Exception as exc:
+        finish_run(
+            run_handle,
+            status="fail",
+            summary=f"Failed to publish memory scorecard: {exc}",
+            artifacts=[],
+            extra={"publication_error": str(exc)},
+        )
+        print(f"Failed to publish memory scorecard: {exc}")
+        return 1
+
+    finish_run(
+        run_handle,
+        status="success",
+        summary=f"Generated memory scorecard with MQS {total}/100.",
+        artifacts=[str(item.path) for item in published],
+        extra={
+            "mqs": total,
+            "artifact_digests": {str(item.path): item.digest for item in published},
+        },
+    )
+    print(f"Run ID: {run_handle.run_id}")
     print(f"Wrote scorecard to {out_path}")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

@@ -59,6 +59,7 @@ python3 ./scripts/context-spine/doctor.py --json-out ./meta/context-spine/doctor
 
 - `hot-memory-index.md` exists and is reasonably fresh
 - `memory-scorecard.md` exists and is reasonably fresh
+- generated reports are published through transient candidates and only promoted when the new artifact validates
 
 ### Docs governance
 
@@ -98,6 +99,7 @@ meta/context-spine/runs/
 ```
 
 That report is a local generated aid. It should usually stay out of git history.
+When the report is regenerated, Context Spine stages a transient candidate and only promotes it if the new markdown or JSON artifact validates, leaving the active report untouched on failure.
 
 ## When To Run It
 
