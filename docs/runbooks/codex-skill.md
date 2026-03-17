@@ -31,6 +31,7 @@ This runbook is optional and only matters if your team wants the bundled workflo
 
 - validate the sources: `npm run context:skill:validate`
 - install or sync the skills: `npm run context:skill:install`
+- verify installed copies match repo source digests: `npm run context:skill:verify-installed`
 - assess several local repos: `npm run context:rollout -- --repos /path/to/repo-a /path/to/repo-b`
 
 Direct shell equivalent:
@@ -51,7 +52,10 @@ bash ./scripts/context-spine/install-codex-skill.sh
 After installation:
 
 1. confirm the target folders exist under `$CODEX_HOME/skills/`
-2. run the bundled inspector if needed: `python3 ~/.codex/skills/context-spine/scripts/inspect_repo.py --root <repo>`
+2. verify the runtime from the target repo itself, not from the installed skill copy:
+   - `npm run context:config`
+   - `npm run context:bootstrap`
+   - `npm run context:doctor`
 3. invoke the relevant skill explicitly in Codex when testing, for example:
    - `$context-spine`
    - `$principal-engineer-review`

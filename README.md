@@ -108,12 +108,14 @@ Read the plain-language guide in [docs/runbooks/how-to-use-context-spine.md](./d
 
 - repo-local working memory under `meta/context-spine/`
 - bootstrap and retrieval scripts under `scripts/context-spine/`
+- a versioned runtime manifest under `scripts/context-spine/runtime-manifest.json`
 - evidence-pack discipline for delegated work under `scripts/delegation/`
 - a generic agent constitution in [AGENTS.md](./AGENTS.md)
 - a visual explainer surface under `.agent/diagrams/`
 - starter ADRs, runbooks, and durable-note templates
 - bundled Codex skill sources under [`.pi/skills/`](./.pi/skills/), including `context-spine` and `principal-engineer-review`
 - optional extension points under `.pi/`
+- structured run records under `meta/context-spine/runs/` for doctor, rollout, upgrade, and related maintenance commands
 
 ## Core Model
 
@@ -265,6 +267,12 @@ npm run context:verify
 ```
 
 That runs the stdlib test suite, doctor, scorecard generation, and bundled skill validation.
+
+If you want to prove the installed Codex skill copies still match the repo source, run:
+
+```bash
+npm run context:skill:verify-installed
+```
 
 ## Prerequisites
 

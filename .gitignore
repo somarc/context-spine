@@ -7,6 +7,7 @@ node_modules/
 # >>> context-spine gitignore (mode: tracked) >>>
 # Commit durable and rolling Context Spine memory; ignore only generated local aids.
 meta/context-spine/.qmd/
+meta/context-spine/runs/
 meta/context-spine/hot-memory-index.md
 meta/context-spine/memory-scorecard.md
 meta/context-spine/doctor-report.md

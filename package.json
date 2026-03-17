@@ -20,6 +20,7 @@
     "context:embed": "bash ./scripts/context-spine/qmd-refresh.sh --embed",
     "context:verify": "npm run context:test && npm run context:doctor && npm run context:score && npm run context:skill:validate",
     "context:skill:validate": "bash ./scripts/context-spine/install-codex-skill.sh --validate-only",
-    "context:skill:install": "bash ./scripts/context-spine/install-codex-skill.sh"
+    "context:skill:install": "bash ./scripts/context-spine/install-codex-skill.sh",
+    "context:skill:verify-installed": "bash ./scripts/context-spine/install-codex-skill.sh --verify-installed"
   }
 }

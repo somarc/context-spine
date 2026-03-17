@@ -6,6 +6,9 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
+from run_state import finish_run, start_run
+from runtime_manifest import runtime_version
+
 
 @dataclass
 class RepoStatus:
@@ -16,6 +19,10 @@ class RepoStatus:
     safe_applied: int
     merge_missing: int
     merge_different: int
+
+
+def default_repo_root() -> Path:
+    return Path(__file__).resolve().parents[2]
 
 
 def doctor_status(repo: Path, doctor_script: Path) -> dict:
@@ -70,10 +77,12 @@ def recommendation(status: RepoStatus) -> str:
     return "Repo looks current; keep it on the normal doctor/score loop."
 
 
-def render_report(statuses: list[RepoStatus], out_path: Path) -> None:
+def render_report(statuses: list[RepoStatus], out_path: Path, *, run_id: str, runtime_version_text: str) -> None:
     lines = [
         "# Context Spine Rollout Report",
         "",
+        f"- Run ID: {run_id}",
+        f"- Runtime version: {runtime_version_text}",
         "## Summary",
         f"- Repos scanned: {len(statuses)}",
         "",
@@ -96,8 +105,10 @@ def render_report(statuses: list[RepoStatus], out_path: Path) -> None:
     out_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def render_json(statuses: list[RepoStatus], out_path: Path) -> None:
+def render_json(statuses: list[RepoStatus], out_path: Path, *, run_id: str, runtime_version_text: str) -> None:
     payload = {
+        "run_id": run_id,
+        "runtime_version": runtime_version_text,
         "repos": [
             {
                 "repo": str(status.repo),
@@ -123,9 +134,18 @@ def main() -> int:
     parser.add_argument("--json-out", default="", help="Optional JSON report path")
     args = parser.parse_args()
 
-    root = Path(__file__).resolve().parents[2]
+    root = default_repo_root()
     doctor_script = root / "scripts" / "context-spine" / "doctor.py"
     upgrade_script = root / "scripts" / "context-spine" / "upgrade.py"
+    memory_root = root / "meta" / "context-spine"
+    runtime_version_text = runtime_version(root)
+    run_handle = start_run(
+        root,
+        memory_root,
+        "context:rollout",
+        args=vars(args),
+        extra={"runtime_version": runtime_version_text},
+    )
 
     statuses: list[RepoStatus] = []
     for repo_arg in args.repos:
@@ -148,12 +168,22 @@ def main() -> int:
 
     out_path = Path(args.out).expanduser() if args.out else root / "meta" / "context-spine" / "rollout-report.md"
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    render_report(statuses, out_path)
+    render_report(statuses, out_path, run_id=run_handle.run_id, runtime_version_text=runtime_version_text)
+    artifacts = [str(out_path)]
     if args.json_out:
         json_out_path = Path(args.json_out).expanduser()
         json_out_path.parent.mkdir(parents=True, exist_ok=True)
-        render_json(statuses, json_out_path)
+        render_json(statuses, json_out_path, run_id=run_handle.run_id, runtime_version_text=runtime_version_text)
+        artifacts.append(str(json_out_path))
 
+    finish_run(
+        run_handle,
+        status="success",
+        summary=f"Rollout assessed {len(statuses)} repo(s).",
+        artifacts=artifacts,
+        extra={"repo_count": len(statuses)},
+    )
+    print(f"Run ID: {run_handle.run_id}")
     print("===== CONTEXT SPINE ROLLOUT =====")
     for status in statuses:
         print(f"{status.repo}")

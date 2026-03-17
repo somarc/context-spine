@@ -9,11 +9,16 @@ TARGET_ROOT="${CONTEXT_SPINE_SKILLS_TARGET:-$CODEX_HOME_DIR/skills}"
 TARGET_DIR_OVERRIDE="${CONTEXT_SPINE_SKILL_TARGET:-}"
 VALIDATOR="${CONTEXT_SPINE_SKILL_VALIDATOR:-$ROOT/scripts/context-spine/validate-codex-skill.py}"
 VALIDATE_ONLY=0
+VERIFY_INSTALLED=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --validate-only)
       VALIDATE_ONLY=1
+      shift
+      ;;
+    --verify-installed)
+      VERIFY_INSTALLED=1
       shift
       ;;
     *)
@@ -46,11 +51,15 @@ collect_skill_dirs() {
 
 validate_skill_dir() {
   local skill_dir="$1"
-  if [[ -f "$VALIDATOR" ]]; then
-    python3 "$VALIDATOR" "$skill_dir"
-  else
-    echo "Validator not found at $VALIDATOR; skipping source validation."
-  fi
+  [[ -f "$VALIDATOR" ]] || { echo "Validator not found at $VALIDATOR" >&2; exit 1; }
+  python3 "$VALIDATOR" "$skill_dir"
+}
+
+compare_skill_dirs() {
+  local source_dir="$1"
+  local target_dir="$2"
+  [[ -f "$VALIDATOR" ]] || { echo "Validator not found at $VALIDATOR" >&2; exit 1; }
+  python3 "$VALIDATOR" --compare "$source_dir" "$target_dir"
 }
 
 sync_skill_dir() {
@@ -91,6 +100,24 @@ if [[ "$VALIDATE_ONLY" -eq 1 ]]; then
   exit 0
 fi
 
+if [[ "$VERIFY_INSTALLED" -eq 1 ]]; then
+  echo "Verifying installed Codex skills:"
+  for skill_dir in "${SKILL_DIRS[@]}"; do
+    skill_name="$(basename "$skill_dir")"
+    if [[ -n "$TARGET_DIR_OVERRIDE" ]]; then
+      target_dir="$TARGET_DIR_OVERRIDE"
+    else
+      target_dir="$TARGET_ROOT/$skill_name"
+    fi
+    if [[ ! -d "$target_dir" ]]; then
+      echo "Installed skill not found: $target_dir" >&2
+      exit 1
+    fi
+    compare_skill_dirs "$skill_dir" "$target_dir"
+  done
+  exit 0
+fi
+
 mkdir -p "$TARGET_ROOT"
 declare -a INSTALLED_TARGETS=()
 
@@ -104,6 +131,7 @@ for skill_dir in "${SKILL_DIRS[@]}"; do
 
   sync_skill_dir "$skill_dir" "$target_dir"
   validate_skill_dir "$target_dir"
+  compare_skill_dirs "$skill_dir" "$target_dir"
   INSTALLED_TARGETS+=("$target_dir")
 done
 

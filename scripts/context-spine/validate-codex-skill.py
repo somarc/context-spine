@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
+import argparse
 import re
 import sys
 from pathlib import Path
+
+from runtime_manifest import directory_digest
 
 
 MAX_SKILL_NAME_LENGTH = 64
@@ -76,10 +79,44 @@ def validate_skill(skill_dir: Path) -> None:
         raise ValueError(f"Description is too long ({len(description)} characters); max is 1024")
 
 
+def compare_skill_dirs(source_dir: Path, target_dir: Path) -> tuple[str, str]:
+    validate_skill(source_dir)
+    validate_skill(target_dir)
+    source_digest = directory_digest(source_dir)
+    target_digest = directory_digest(target_dir)
+    if source_digest != target_digest:
+        raise ValueError(
+            "Installed skill drift detected. "
+            f"source={source_digest} target={target_digest}"
+        )
+    return source_digest, target_digest
+
+
 def main() -> None:
-    if len(sys.argv) != 2:
-        raise SystemExit("Usage: validate-codex-skill.py <skill_directory>")
-    skill_dir = Path(sys.argv[1]).expanduser().resolve()
+    parser = argparse.ArgumentParser(description="Validate or compare Context Spine Codex skill directories.")
+    parser.add_argument("skill_directory", nargs="?", help="Single skill directory to validate")
+    parser.add_argument(
+        "--compare",
+        nargs=2,
+        metavar=("SOURCE_DIR", "TARGET_DIR"),
+        help="Validate both skill directories and compare normalized directory digests",
+    )
+    args = parser.parse_args()
+
+    if args.compare:
+        source_dir = Path(args.compare[0]).expanduser().resolve()
+        target_dir = Path(args.compare[1]).expanduser().resolve()
+        source_digest, target_digest = compare_skill_dirs(source_dir, target_dir)
+        print(f"Skill digests match: {source_digest}")
+        print(f"Source: {source_dir}")
+        print(f"Target: {target_dir}")
+        assert source_digest == target_digest
+        return
+
+    if not args.skill_directory:
+        raise SystemExit("Usage: validate-codex-skill.py <skill_directory> | --compare <source_dir> <target_dir>")
+
+    skill_dir = Path(args.skill_directory).expanduser().resolve()
     validate_skill(skill_dir)
     print("Skill is valid!")
 

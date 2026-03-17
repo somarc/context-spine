@@ -11,6 +11,7 @@ END_MARKER = "# <<< context-spine gitignore <<<"
 RULES = {
     "tracked": [
         "meta/context-spine/.qmd/",
+        "meta/context-spine/runs/",
         "meta/context-spine/hot-memory-index.md",
         "meta/context-spine/memory-scorecard.md",
         "meta/context-spine/doctor-report.md",

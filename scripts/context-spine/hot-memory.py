@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from context_config import load_config, resolve_repo_path
+from run_state import finish_run, start_run
 
 
 @dataclass
@@ -272,6 +273,12 @@ def main():
     memory_root = (Path(args.root).expanduser() if args.root else configured_root).resolve()
     collection_root = infer_collection_root(memory_root)
     repo_root = infer_repo_root(memory_root)
+    run_handle = start_run(
+        repo_root,
+        memory_root,
+        "context:hot-memory",
+        args=vars(args),
+    )
 
     items = build_working_set(memory_root, repo_root, args.days)
     sections = [
@@ -312,6 +319,14 @@ def main():
 
     out_file = memory_root / "hot-memory-index.md"
     out_file.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+    finish_run(
+        run_handle,
+        status="success",
+        summary=f"Generated hot-memory index with {len(items)} working-set item(s).",
+        artifacts=[str(out_file)],
+        extra={"item_count": len(items), "collection": collection_name},
+    )
+    print(f"Run ID: {run_handle.run_id}")
     print(f"Wrote {out_file}")
 
 

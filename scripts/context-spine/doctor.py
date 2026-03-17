@@ -9,6 +9,8 @@ from pathlib import Path
 from typing import Iterable
 
 from context_config import default_config_path, load_config, resolve_repo_path
+from run_state import finish_run, start_run
+from runtime_manifest import default_manifest_path, load_runtime_manifest
 
 
 @dataclass
@@ -280,6 +282,54 @@ def check_config(repo_root: Path, memory_root: Path, config: dict, config_path: 
         summary=summary,
         details=details,
         actions=actions,
+    )
+
+
+def check_runtime_manifest(repo_root: Path) -> CheckResult:
+    manifest_path = default_manifest_path(repo_root)
+    if not manifest_path.exists():
+        return CheckResult(
+            slug="runtime-manifest",
+            title="Runtime manifest",
+            status=WARN,
+            summary="No versioned runtime manifest is present.",
+            actions=["Add `scripts/context-spine/runtime-manifest.json` or run the latest `context:upgrade` from the boilerplate source."],
+        )
+
+    try:
+        manifest = load_runtime_manifest(repo_root)
+    except Exception as exc:
+        return CheckResult(
+            slug="runtime-manifest",
+            title="Runtime manifest",
+            status=FAIL,
+            summary=f"Could not load `{manifest_path.relative_to(repo_root)}`.",
+            details=[str(exc)],
+            actions=["Fix the runtime manifest so doctor, upgrade, and run-state surfaces can share one versioned contract."],
+        )
+
+    runtime_files = [str(item) for item in manifest.get("runtime_files", [])]
+    missing_files = [path for path in runtime_files if not (repo_root / path).exists()]
+    details = [
+        f"Runtime version: {manifest.get('runtime_version', 'unknown')}",
+        f"Runtime files declared: {len(runtime_files)}",
+    ]
+    if missing_files:
+        return CheckResult(
+            slug="runtime-manifest",
+            title="Runtime manifest",
+            status=WARN,
+            summary="The runtime manifest is present, but some declared runtime files are missing.",
+            details=details + [f"Missing: {path}" for path in missing_files],
+            actions=["Run `context:upgrade` from the boilerplate source to restore missing runtime files."],
+        )
+
+    return CheckResult(
+        slug="runtime-manifest",
+        title="Runtime manifest",
+        status=PASS,
+        summary="Versioned runtime manifest is present and its declared runtime files resolve.",
+        details=details,
     )
 
 
@@ -555,11 +605,16 @@ def render_markdown(
     memory_root: Path,
     results: list[CheckResult],
     generated_at: dt.datetime,
+    *,
+    run_id: str,
+    runtime_version: str,
 ) -> str:
     counts = summarize_status(results)
     lines = [
         "# Context Doctor Report",
         "",
+        f"- Run ID: {run_id}",
+        f"- Runtime version: {runtime_version}",
         f"- Generated: {generated_at.strftime('%Y-%m-%d %H:%M:%S')}",
         f"- Repo root: {repo_root}",
         f"- Memory root: {memory_root}",
@@ -646,9 +701,16 @@ def main() -> int:
 
     memory_root = Path(args.root).expanduser() if args.root else configured_memory_root
     generated_at = dt.datetime.now()
+    run_handle = start_run(
+        repo_root,
+        memory_root,
+        "context:doctor",
+        args=vars(args),
+    )
 
     results = [
         check_config(repo_root, memory_root, config, config_path, config_error),
+        check_runtime_manifest(repo_root),
         check_baseline(repo_root, memory_root, preferred_baseline),
         check_session(repo_root, memory_root),
         *check_generated(memory_root),
@@ -656,17 +718,27 @@ def main() -> int:
         check_visuals(repo_root),
     ]
 
-    report = render_markdown(repo_root, memory_root, results, generated_at)
+    report = render_markdown(
+        repo_root,
+        memory_root,
+        results,
+        generated_at,
+        run_id=run_handle.run_id,
+        runtime_version=run_handle.payload["runtime_version"],
+    )
     out_path = Path(args.out).expanduser() if args.out else memory_root / "doctor-report.md"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(report, encoding="utf-8")
 
+    artifacts = [str(out_path)]
     if args.json_out:
         json_path = Path(args.json_out).expanduser()
         json_path.parent.mkdir(parents=True, exist_ok=True)
         json_path.write_text(
             json.dumps(
                 {
+                    "run_id": run_handle.run_id,
+                    "runtime_version": run_handle.payload["runtime_version"],
                     "generated_at": generated_at.isoformat(),
                     "repo_root": str(repo_root),
                     "memory_root": str(memory_root),
@@ -678,11 +750,21 @@ def main() -> int:
             + "\n",
             encoding="utf-8",
         )
+        artifacts.append(str(json_path))
 
+    counts = summarize_status(results)
+    run_status = FAIL if counts[FAIL] > 0 else WARN if counts[WARN] > 0 else PASS
+    finish_run(
+        run_handle,
+        status=run_status,
+        summary=f"Doctor counts: pass={counts[PASS]} warn={counts[WARN]} fail={counts[FAIL]}",
+        artifacts=artifacts,
+        extra={"counts": counts},
+    )
+    sys.stdout.write(f"Run ID: {run_handle.run_id}\n")
     sys.stdout.write(render_terminal(results))
     sys.stdout.write(f"Report: {out_path}\n")
 
-    counts = summarize_status(results)
     if counts[FAIL] > 0:
         return 1
     if args.strict and counts[WARN] > 0:

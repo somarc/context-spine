@@ -18,6 +18,9 @@ source_of_truth:
   - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/refresh.sh
   - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/context_config.py
   - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/init-qmd.sh
+  - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/runtime-manifest.json
+  - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/runtime_manifest.py
+  - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/run_state.py
 ---
 
 # Context Spine Baseline
@@ -43,6 +46,9 @@ As of 2026-03-16, this repository is the reusable boilerplate for bootstrapping 
 - Session templates should capture branch, HEAD, worktree state, and the last meaningful verification command so agents restart from concrete execution state.
 - The repo uses E.L.O.N. as a doctrine for evaluating whether memory features improve reality alignment or just add complexity.
 - The runtime now carries stdlib tests for config loading, gitignore management, upgrade evaluation, hot-memory source resolution, and doctor config checks.
+- The runtime now has an explicit versioned manifest for shared boilerplate/runtime surfaces and compatibility metadata.
+- Maintenance commands now emit run IDs and write structured JSON run records under `meta/context-spine/runs/`.
+- Codex skill sync now validates source and installed digests instead of only checking syntax.
 
 ## Decisions
 
@@ -60,6 +66,7 @@ As of 2026-03-16, this repository is the reusable boilerplate for bootstrapping 
 - Upgrade hot memory from raw recency into a working set tied to baseline source-of-truth files, canonical docs, and recent visual explainers.
 - Back the runtime with a local unittest suite so adoption confidence comes from executable proof, not README promises.
 - Keep E.L.O.N. explicit so future changes are judged by value, legibility, utility x impact, and reduced blind inference.
+- Keep the runtime manifest as the shared contract for upgrade-safe runtime files instead of duplicating file lists across scripts.
 
 ## Open Questions
 

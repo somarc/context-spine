@@ -16,7 +16,7 @@ Optimize for flow as well: hydrate from the deepest relevant sources, move only 
 
 ## First Pass
 
-1. If the repo shape is unknown, run `python3 scripts/inspect_repo.py --root <repo>`.
+1. If the repo shape is unknown, inspect the repo-local Context Spine runtime first: prefer `npm run context:config` and `npm run context:bootstrap` when available; otherwise read `meta/context-spine/context-spine.json` and use `python3 scripts/context-spine/context-config.py --repo-root <repo> --format json`.
 1. Detect workspace topology: primary repo, nested repos, planned repos, deployed surfaces, and external endpoints that currently matter.
 1. Detect the operating mode: `active-delivery`, `existing`, `partial`, `missing`, `promotion`, or `skill-maintenance`.
 1. Prefer repo-local wrappers over ad hoc shell when they exist.
@@ -119,4 +119,6 @@ Optimize for flow as well: hydrate from the deepest relevant sources, move only 
 - `references/adoption.md`
 - `references/spine-of-time.md`
 - `references/flow-and-cognition.md`
-- `scripts/inspect_repo.py`
+- `scripts/context-spine/context-config.py`
+- `scripts/context-spine/bootstrap.sh`
+- `scripts/context-spine/doctor.py`

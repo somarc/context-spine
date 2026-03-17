@@ -9,50 +9,8 @@ import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 
-
-SAFE_ADDITIVE_FILES = [
-    "docs/README.md",
-    "docs/archive/README.md",
-    "docs/drafts/README.md",
-    "docs/runbooks/codex-skill.md",
-    "docs/runbooks/doctor.md",
-    "docs/runbooks/elon-doctrine.md",
-    "docs/runbooks/how-to-use-context-spine.md",
-    "docs/runbooks/multi-repo-rollout.md",
-    "docs/runbooks/pi-extension-points.md",
-    "docs/runbooks/project-drop-in.md",
-    "docs/runbooks/upgrade-existing-project.md",
-    "meta/context-spine/context-spine.json",
-    "scripts/context-spine/codex-wrap.sh",
-    "scripts/context-spine/configure-gitignore.py",
-    "scripts/context-spine/context-config.py",
-    "scripts/context-spine/context_config.py",
-    "scripts/context-spine/doctor.py",
-    "scripts/context-spine/hot-memory.py",
-    "scripts/context-spine/install-codex-skill.sh",
-    "scripts/context-spine/mem-log.py",
-    "scripts/context-spine/mem-search.py",
-    "scripts/context-spine/qmd-quick.sh",
-    "scripts/context-spine/refresh.sh",
-    "scripts/context-spine/rollout.py",
-    "scripts/context-spine/setup.sh",
-    "scripts/context-spine/upgrade.py",
-    "scripts/context-spine/validate-codex-skill.py",
-]
-
-MERGE_REVIEW_FILES = [
-    "package.json",
-    "scripts/context-spine/bootstrap.sh",
-    "scripts/context-spine/init-qmd.sh",
-    "scripts/context-spine/mem-score.py",
-    "scripts/context-spine/mem-session.py",
-    "scripts/context-spine/qmd-refresh.sh",
-    "docs/runbooks/session-start.md",
-]
-
-CONFIGURABLE_FILES = [
-    "meta/context-spine/context-spine.json",
-]
+from run_state import finish_run, start_run
+from runtime_manifest import configurable_files, load_runtime_manifest, merge_review_files, runtime_files, safe_additive_files
 
 PREFERRED_BASELINE_FILE = "meta/context-spine/spine-notes-context-spine.md"
 GITIGNORE_BEGIN = "# >>> context-spine gitignore "
@@ -64,6 +22,7 @@ class UpgradeResult:
     repo_root: Path
     source_root: Path
     mode: str
+    runtime_version: str = ""
     safe_missing: list[str] = field(default_factory=list)
     safe_applied: list[str] = field(default_factory=list)
     merge_missing: list[str] = field(default_factory=list)
@@ -179,10 +138,30 @@ def apply_gitignore_mode(source_root: Path, target_root: Path, mode: str) -> tup
 
 
 def evaluate(target_root: Path, source_root: Path, apply_safe: bool, gitignore_mode: str) -> UpgradeResult:
-    result = UpgradeResult(repo_root=target_root, source_root=source_root, mode=detect_mode(target_root))
+    manifest = load_runtime_manifest(source_root)
+    result = UpgradeResult(
+        repo_root=target_root,
+        source_root=source_root,
+        mode=detect_mode(target_root),
+        runtime_version=str(manifest.get("runtime_version", "unknown")),
+    )
     result.gitignore_mode = gitignore_mode
 
-    for relative_path in SAFE_ADDITIVE_FILES:
+    for relative_path in runtime_files(source_root):
+        source = source_root / relative_path
+        target = target_root / relative_path
+        if not source.exists():
+            result.notes.append(f"Boilerplate source missing: {relative_path}")
+            continue
+        if not target.exists():
+            result.safe_missing.append(relative_path)
+            if apply_safe and safe_copy(source_root, target_root, relative_path):
+                result.safe_applied.append(relative_path)
+            continue
+        if not file_exists_and_same(target, source):
+            result.merge_different.append(relative_path)
+
+    for relative_path in safe_additive_files(source_root):
         source = source_root / relative_path
         target = target_root / relative_path
         if not source.exists():
@@ -194,7 +173,7 @@ def evaluate(target_root: Path, source_root: Path, apply_safe: bool, gitignore_m
         if apply_safe and safe_copy(source_root, target_root, relative_path):
             result.safe_applied.append(relative_path)
 
-    for relative_path in CONFIGURABLE_FILES:
+    for relative_path in configurable_files(source_root):
         source = source_root / relative_path
         target = target_root / relative_path
         if not source.exists():
@@ -203,7 +182,7 @@ def evaluate(target_root: Path, source_root: Path, apply_safe: bool, gitignore_m
         if target.exists() and not file_exists_and_same(target, source):
             result.merge_different.append(relative_path)
 
-    for relative_path in MERGE_REVIEW_FILES:
+    for relative_path in merge_review_files(source_root):
         source = source_root / relative_path
         target = target_root / relative_path
         if not source.exists():
@@ -247,10 +226,12 @@ def evaluate(target_root: Path, source_root: Path, apply_safe: bool, gitignore_m
     return result
 
 
-def render_report(result: UpgradeResult, generated_at: dt.datetime) -> str:
+def render_report(result: UpgradeResult, generated_at: dt.datetime, run_id: str) -> str:
     lines = [
         "# Context Spine Upgrade Report",
         "",
+        f"- Run ID: {run_id}",
+        f"- Runtime version: {result.runtime_version}",
         f"- Generated: {generated_at.strftime('%Y-%m-%d %H:%M:%S')}",
         f"- Target repo: {result.repo_root}",
         f"- Boilerplate source: {result.source_root}",
@@ -309,6 +290,7 @@ def render_report(result: UpgradeResult, generated_at: dt.datetime) -> str:
 def render_terminal(result: UpgradeResult, out_path: Path) -> str:
     lines = [
         "===== CONTEXT UPGRADE =====",
+        f"runtime_version={result.runtime_version}",
         f"mode={result.mode}",
         f"safe_missing={len(result.safe_missing)} safe_applied={len(result.safe_applied)} merge_missing={len(result.merge_missing)} merge_different={len(result.merge_different)}",
         f"gitignore_mode={result.gitignore_mode or 'none'} gitignore_applied={'yes' if result.gitignore_applied else 'no'}",
@@ -351,19 +333,29 @@ def main() -> int:
     source_root = Path(args.source_root).expanduser() if args.source_root else Path(__file__).resolve().parents[2]
     target_root = Path(args.target).expanduser()
     generated_at = dt.datetime.now()
+    memory_root = target_root / "meta" / "context-spine"
+    run_handle = start_run(
+        target_root,
+        memory_root,
+        "context:upgrade",
+        args=vars(args),
+    )
 
     result = evaluate(target_root, source_root, args.apply_safe, args.gitignore_mode)
 
     out_path = Path(args.out).expanduser() if args.out else target_root / "meta" / "context-spine" / "upgrade-report.md"
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(render_report(result, generated_at), encoding="utf-8")
+    out_path.write_text(render_report(result, generated_at, run_handle.run_id), encoding="utf-8")
 
+    artifacts = [str(out_path)]
     if args.json_out:
         json_path = Path(args.json_out).expanduser()
         json_path.parent.mkdir(parents=True, exist_ok=True)
         json_path.write_text(
             json.dumps(
                 {
+                    "run_id": run_handle.run_id,
+                    "runtime_version": result.runtime_version,
                     "generated_at": generated_at.isoformat(),
                     "target_repo": str(result.repo_root),
                     "source_root": str(result.source_root),
@@ -381,7 +373,25 @@ def main() -> int:
             + "\n",
             encoding="utf-8",
         )
+        artifacts.append(str(json_path))
 
+    finish_run(
+        run_handle,
+        status="success",
+        summary=(
+            f"Upgrade evaluated: safe_missing={len(result.safe_missing)} "
+            f"merge_missing={len(result.merge_missing)} merge_different={len(result.merge_different)}"
+        ),
+        artifacts=artifacts,
+        extra={
+            "mode": result.mode,
+            "safe_missing": len(result.safe_missing),
+            "safe_applied": len(result.safe_applied),
+            "merge_missing": len(result.merge_missing),
+            "merge_different": len(result.merge_different),
+        },
+    )
+    print(f"Run ID: {run_handle.run_id}")
     print(render_terminal(result, out_path), end="")
     return 0
 

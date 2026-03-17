@@ -91,6 +91,12 @@ The command prints a concise terminal summary and writes a markdown report to:
 meta/context-spine/doctor-report.md
 ```
 
+It also emits a run ID in terminal output and records structured run state under:
+
+```text
+meta/context-spine/runs/
+```
+
 That report is a local generated aid. It should usually stay out of git history.
 
 ## When To Run It
