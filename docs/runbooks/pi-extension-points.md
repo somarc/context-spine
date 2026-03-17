@@ -189,6 +189,21 @@ The clean split is:
 
 That keeps the system understandable for both humans and agents.
 
+## Runtime Adapter Contract
+
+When an external runtime wants to consume Context Spine as a memory substrate, keep the contract small:
+
+1. call `npm run context:query` or `npm run context:rehydrate`
+2. read the returned JSON packet
+3. if durable truth changed, update the repo files directly
+4. call `npm run context:promote -- --format json ...` or `npm run context:invalidate -- --format json ...`
+
+Important boundary:
+
+- `reconcile` is this caller-owned sequence, not a resident core service
+- `.pi/` may package that loop for a runtime, but it must not redefine Context Spine as a worker orchestrator
+- the authoritative store remains repo files plus structured records and events, not hidden runtime memory
+
 ## Maintenance Loop
 
 When `.pi/` changes:

@@ -138,12 +138,16 @@ def classify_command(command: str, args: dict | list | None = None) -> dict:
         family = "maintenance"
     elif any(token in lowered for token in ("state", "hot-memory")):
         family = "generated-aid"
+    elif any(token in lowered for token in ("promote", "invalidate")):
+        family = "reconciliation"
     elif any(token in lowered for token in ("session", "log", "refresh", "embed", "update")):
         family = "capture"
 
     signals = ["git", "diffs", "tool-events"]
     if any(token in lowered for token in ("verify", ":test", "pytest", "unittest")):
         signals.append("tests")
+    if any(token in lowered for token in ("promote", "invalidate")):
+        signals.append("memory-reconciliation")
 
     return {
         "family": family,

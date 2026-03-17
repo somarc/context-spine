@@ -44,6 +44,18 @@ class MemoryStateTest(unittest.TestCase):
                 {"summary": "Observation record"},
                 record_id="observation-demo",
             )
+            memory_records.write_record(
+                memory_root,
+                "promotions",
+                {"summary": "Promotion record"},
+                record_id="promotion-demo",
+            )
+            memory_records.write_record(
+                memory_root,
+                "invalidations",
+                {"summary": "Invalidation record"},
+                record_id="invalidation-demo",
+            )
             memory_events.write_event(
                 memory_root,
                 "decision",
@@ -72,6 +84,8 @@ class MemoryStateTest(unittest.TestCase):
             self.assertEqual(payload["layers"]["project"]["evidence_pack_count"], 1)
             self.assertEqual(payload["layers"]["machine"]["records"]["sessions"]["count"], 1)
             self.assertEqual(payload["layers"]["machine"]["records"]["observations"]["count"], 1)
+            self.assertEqual(payload["layers"]["machine"]["records"]["promotions"]["count"], 1)
+            self.assertEqual(payload["layers"]["machine"]["records"]["invalidations"]["count"], 1)
             self.assertEqual(payload["layers"]["machine"]["events"]["count"], 1)
             self.assertEqual(payload["layers"]["machine"]["runs"]["count"], 1)
             self.assertEqual(payload["layers"]["machine"]["runs"]["recent"][0]["command"], "context:verify")
@@ -80,6 +94,7 @@ class MemoryStateTest(unittest.TestCase):
             self.assertIsNotNone(payload["layers"]["session"]["latest_markdown"])
             self.assertEqual(payload["exports"]["json"], "meta/context-spine/memory-state.json")
             self.assertEqual(payload["exports"]["html"], "meta/context-spine/memory-state.html")
+            self.assertEqual(payload["summary"]["machine_record_total"], 4)
             self.assertEqual(payload["summary"]["machine_event_total"], 1)
 
     def test_render_memory_state_html_includes_layers(self):

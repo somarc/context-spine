@@ -8,6 +8,7 @@ from typing import Any
 
 
 EVENT_TYPES = {
+    "promotion",
     "verification",
     "edit-burst",
     "retrieval",

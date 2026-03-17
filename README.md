@@ -47,6 +47,8 @@ It is not a product scaffold. It is the working memory spine that sits next to t
 - session notes that let work resume without a recap meeting
 - a hot-memory index that points to what to open first right now
 - a generated memory-state JSON and HTML pair for machine query plus fast visual re-anchoring
+- a native-style `context:query` / `context:rehydrate` pair that emits compact JSON packets for restart-safe memory access
+- explicit `context:promote` / `context:invalidate` commands that make reconciliation durable instead of prompt-local
 - recent command/run history surfaced next to memory so verification does not disappear into terminal scrollback
 - optional high-signal events so meaningful edit bursts, retrieval passes, and decisions can be captured without logging everything
 - retrieval plumbing so those notes stay searchable instead of forgotten
@@ -172,6 +174,8 @@ The shortest useful path uses the `npm run context:*` wrappers:
 6. Refresh retrieval with `npm run context:refresh` when notes or docs change.
 7. Validate the operating contract with `npm run context:verify`.
 8. Generate the current machine and visual memory summary with `npm run context:state` when you want the layered state in one place.
+9. Emit a restart packet with `npm run context:rehydrate` or the fuller runtime view with `npm run context:query` when an external runtime needs current memory without taking over orchestration.
+10. Record durable reconciliation with `npm run context:promote` or `npm run context:invalidate` after you update the authoritative files.
 
 Useful next steps:
 
@@ -197,6 +201,10 @@ Direct-script equivalents remain available:
 - `python3 ./scripts/context-spine/upgrade.py --target /path/to/project`
 - `python3 ./scripts/context-spine/mem-session.py`
 - `python3 ./scripts/context-spine/mem-score.py`
+- `python3 ./scripts/context-spine/query.py`
+- `python3 ./scripts/context-spine/rehydrate.py`
+- `python3 ./scripts/context-spine/promote.py`
+- `python3 ./scripts/context-spine/invalidate.py`
 - `bash ./scripts/context-spine/qmd-refresh.sh --embed`
 - `bash ./scripts/context-spine/install-codex-skill.sh`
 

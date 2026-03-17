@@ -11,6 +11,10 @@ This repository is a boilerplate intelligence layer for future projects.
 - use `npm run context:verify` when you want one captured verification run instead of ad hoc test and maintenance scrollback
 - use `npm run context:event -- --type ... --summary ...` only for high-signal boundaries, not as a general activity log
 - run `npm run context:state` when you need a compact machine summary or a visual view of current memory layers
+- run `npm run context:query` when you need a JSON runtime view of active objective, working set, and recent evidence
+- run `npm run context:rehydrate` when you need the smaller restart packet for an external runtime or agent
+- run `npm run context:promote` after you update durable files and want the promotion recorded as a record plus event
+- run `npm run context:invalidate` after you mark an assumption or surface stale and want that invalidation recorded explicitly
 - if retrieval is newly initialized and results are sparse, run `npm run context:update` and then `npm run context:embed`
 - if you change `.pi/skills/`, run `npm run context:skill:install`
 
@@ -133,6 +137,7 @@ When memory freshness matters:
 - add new agent adapters under `.pi/` or `scripts/delegation/`
 - add project-specific retrieval or oracle integrations as adapters, not hard dependencies
 - prefer small scripts and explicit contracts over large prompt-only systems
+- keep native memory APIs request/response only; do not turn Context Spine into a resident control plane
 - do not hardcode personal paths or secrets into reusable tooling
 - prefer composing skills over expanding one skill into a fake all-in-one oracle
 - when a skill has a natural companion, say so explicitly inside the skill contract
