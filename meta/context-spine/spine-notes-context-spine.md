@@ -8,7 +8,7 @@ tags:
   - memory
 domain: repo-bootstrap
 type: spine-note
-as_of: 2026-03-16
+as_of: 2026-03-17
 source_of_truth:
   - /Users/mhess/aem/aem-code/context-spine/README.md
   - /Users/mhess/aem/aem-code/context-spine/AGENTS.md
@@ -26,6 +26,7 @@ source_of_truth:
   - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/memory-state.py
   - /Users/mhess/aem/aem-code/context-spine/docs/adr/0005-context-spine-design-compass.md
   - /Users/mhess/aem/aem-code/context-spine/docs/adr/0006-native-codex-memory-direction.md
+  - /Users/mhess/aem/aem-code/context-spine/docs/adr/0007-native-memory-apis-without-runtime-orchestration.md
   - /Users/mhess/aem/aem-code/context-spine/docs/runbooks/memory-state.md
 ---
 
@@ -33,7 +34,7 @@ source_of_truth:
 
 ## Summary
 
-As of 2026-03-16, this repository is the reusable boilerplate for bootstrapping repo-local memory, QMD-backed retrieval, evidence capture, explicit repo-local config, and verification surfaces in agent-assisted software projects.
+As of 2026-03-17, this repository is the reusable boilerplate for bootstrapping repo-local memory, QMD-backed retrieval, evidence capture, explicit repo-local config, and verification surfaces in agent-assisted software projects.
 
 ## Current State
 
@@ -59,6 +60,7 @@ As of 2026-03-16, this repository is the reusable boilerplate for bootstrapping 
 - The repo now has an explicit design compass for future evolution: protect inspectability, memory-class separation, and simplicity, and reject moves toward prompt soup, control-plane behavior, or confidence theater.
 - The repo now has a proposed native-memory direction: layered memory, automatic evidence capture, stronger structured schemas, first-class APIs, and less ceremony, while keeping file-level project truth intact.
 - That native-memory direction now makes a sharper distinction between internal and external contracts: the memory may become native and agent-centric internally, but the human-facing output should visually explain what matters and why.
+- The native-memory direction is now bounded more concretely: capture, query, promote, invalidate, and reconcile are allowed core API families, but runtime orchestration, agent dispatch, scheduling, and hidden prompt-owned project truth are not.
 - Session, observation, and evidence helpers now emit machine-readable records under `meta/context-spine/records/` alongside the existing markdown surfaces.
 - `context:state` now emits a machine-readable JSON summary plus a generated HTML explainer so the current memory layers can be consumed by Codex and read quickly by humans.
 - The state surface now also summarizes recent run history so verification and maintenance commands become visible memory, not just terminal output.
@@ -85,6 +87,7 @@ As of 2026-03-16, this repository is the reusable boilerplate for bootstrapping 
 - Keep revision-safety mechanics scoped to generated aids instead of extending them into human-authored truth surfaces.
 - Use the design compass as the harder boundary for future "native memory" ambitions so Context Spine can improve without losing its purpose.
 - Treat native-memory evolution as a dual-surface problem: human-readable file truth plus machine-usable structured capture, never one replacing the other.
+- Keep native memory APIs scoped to memory services; if a future proposal needs a control plane, scheduler, worker bus, or runtime-owned prompt store, it belongs in an external adapter or runtime instead.
 - Keep `context:state` as a thin generated summary of existing memory, not as a replacement for the baseline, ADRs, runbooks, or curated explainers.
 - Prefer enriching managed run capture over adding more manual notes when the missing truth is really command, test, git, or diff provenance.
 - Keep the event stream sparse and high-signal; if it starts looking like shell history, remove or simplify it.
