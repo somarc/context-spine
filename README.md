@@ -48,6 +48,7 @@ It is not a product scaffold. It is the working memory spine that sits next to t
 - a hot-memory index that points to what to open first right now
 - a generated memory-state JSON and HTML pair for machine query plus fast visual re-anchoring
 - recent command/run history surfaced next to memory so verification does not disappear into terminal scrollback
+- optional high-signal events so meaningful edit bursts, retrieval passes, and decisions can be captured without logging everything
 - retrieval plumbing so those notes stay searchable instead of forgotten
 - a place to tie decisions back to code, tests, commands, and docs
 
@@ -175,6 +176,7 @@ The shortest useful path uses the `npm run context:*` wrappers:
 Useful next steps:
 
 - record observations with [scripts/context-spine/mem-log.py](./scripts/context-spine/mem-log.py)
+- capture a meaningful event with `npm run context:event -- --type decision --summary "..."` when work outside the `context:*` wrappers materially changes understanding
 - read or create a visual explainer when a subsystem is easier to absorb visually
 - keep one durable external note per major deep dive, audit, or execution baseline
 - set repo policy explicitly in [meta/context-spine/context-spine.json](./meta/context-spine/context-spine.json)
@@ -274,6 +276,12 @@ npm run context:verify
 ```
 
 That now runs the stdlib test suite, doctor, scorecard generation, and bundled skill validation through a single managed runtime entrypoint. The result is captured as one structured verification run with git state, diff summary, and per-step outcomes.
+
+When work happens outside the managed `context:*` wrappers, prefer sparse event capture instead of session-note sprawl:
+
+```bash
+npm run context:event -- --type edit-burst --summary "Refined memory-state HTML and added event stream support" --files scripts/context-spine/memory-state.py,scripts/context-spine/memory_events.py
+```
 
 If you want to prove the installed Codex skill copies still match the repo source, run:
 

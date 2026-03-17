@@ -9,6 +9,7 @@ This repository is a boilerplate intelligence layer for future projects.
 - open `meta/context-spine/spine-notes-context-spine.md` first for the current baseline
 - create a session note for meaningful work with `npm run context:session`
 - use `npm run context:verify` when you want one captured verification run instead of ad hoc test and maintenance scrollback
+- use `npm run context:event -- --type ... --summary ...` only for high-signal boundaries, not as a general activity log
 - run `npm run context:state` when you need a compact machine summary or a visual view of current memory layers
 - if retrieval is newly initialized and results are sparse, run `npm run context:update` and then `npm run context:embed`
 - if you change `.pi/skills/`, run `npm run context:skill:install`
@@ -123,6 +124,7 @@ When memory freshness matters:
 
 - keep architecture, boundaries, baseline notes, ADRs, and runbooks durable
 - treat sessions and observations as rolling working memory, not permanent literature
+- treat events as sparse machine-facing provenance for meaningful work boundaries, not a tail of everything the agent did
 - roll stable conclusions into durable notes or evidence packs
 - keep generated retrieval artifacts local and regenerable
 

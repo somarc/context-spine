@@ -45,6 +45,7 @@ The JSON and HTML surfaces include:
 - latest baseline note
 - counts for ADRs, runbooks, diagrams, and evidence packs
 - record counts for session, observation, and evidence machine surfaces
+- recent high-signal events like `verification`, `edit-burst`, `retrieval`, and `decision`
 - recent run history from commands like `context:doctor`, `context:score`, and `context:state`
 - automatic git branch, head, dirty-worktree, and diff summaries from those runs
 - structured verification step results from `context:verify`
@@ -74,4 +75,5 @@ Context Spine still treats markdown and docs as the human-readable truth layer.
 - `memory-state.html` is a generated visual reading surface, not a curated explainer
 - it should not replace baselines, ADRs, runbooks, or evidence packs
 - it should stay structurally simple and easy to regenerate
+- the event layer should stay sparse; if it starts reading like shell history, it has drifted
 - if it becomes more important than the project-truth files it summarizes, the design has drifted

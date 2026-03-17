@@ -5,6 +5,7 @@ import subprocess
 from pathlib import Path
 
 from context_config import load_config, resolve_repo_path
+from memory_events import write_event
 from run_state import finish_run, start_run
 
 
@@ -82,6 +83,27 @@ def run_step(step: dict) -> dict:
     }
 
 
+def verification_event_payload(run_handle, steps: list[dict], failed: list[str], summary: str) -> dict:
+    return {
+        "summary": summary,
+        "source": "context-spine",
+        "source_command": "context:verify",
+        "status": "success" if not failed else "fail",
+        "run_id": run_handle.run_id,
+        "refs": [str(run_handle.path)],
+        "verification_steps": [
+            {
+                "name": step["name"],
+                "status": step["status"],
+                "summary": step["summary"],
+                "duration_seconds": step["duration_seconds"],
+            }
+            for step in steps
+        ],
+        "failed_steps": failed,
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run the standard Context Spine verification flow with structured capture.")
     parser.add_argument("--root", default="", help="Override memory root directory")
@@ -121,11 +143,18 @@ def main() -> int:
             "failed_steps": failed,
         },
     )
+    event_path = write_event(
+        memory_root,
+        "verification",
+        verification_event_payload(run_handle, steps, failed, summary),
+        event_id=f"verification-{run_handle.run_id}",
+    )
 
     print(f"Run ID: {run_handle.run_id}")
     print("===== CONTEXT VERIFY =====")
     for step in steps:
         print(f"[{step['status'].upper()}] {step['name']}: {step['summary']}")
+    print(f"Event: {event_path}")
     return 0 if not failed else 1
 
 

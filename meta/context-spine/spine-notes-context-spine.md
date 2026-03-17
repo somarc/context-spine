@@ -63,6 +63,7 @@ As of 2026-03-16, this repository is the reusable boilerplate for bootstrapping 
 - `context:state` now emits a machine-readable JSON summary plus a generated HTML explainer so the current memory layers can be consumed by Codex and read quickly by humans.
 - The state surface now also summarizes recent run history so verification and maintenance commands become visible memory, not just terminal output.
 - Run-state capture now records git branch/head, dirty-worktree counts, diff summaries, and managed verification step results automatically for Context Spine commands.
+- A new sparse event layer now exists for meaningful edit bursts, retrieval passes, decisions, invalidations, context shifts, and automatic verification outcomes.
 
 ## Decisions
 
@@ -86,6 +87,7 @@ As of 2026-03-16, this repository is the reusable boilerplate for bootstrapping 
 - Treat native-memory evolution as a dual-surface problem: human-readable file truth plus machine-usable structured capture, never one replacing the other.
 - Keep `context:state` as a thin generated summary of existing memory, not as a replacement for the baseline, ADRs, runbooks, or curated explainers.
 - Prefer enriching managed run capture over adding more manual notes when the missing truth is really command, test, git, or diff provenance.
+- Keep the event stream sparse and high-signal; if it starts looking like shell history, remove or simplify it.
 
 ## Open Questions
 

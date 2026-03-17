@@ -5,6 +5,7 @@ from pathlib import Path
 from helpers import load_script_module
 
 
+memory_events = load_script_module("memory_events_for_state", "memory_events.py")
 memory_records = load_script_module("memory_records_for_state", "memory_records.py")
 memory_state = load_script_module("memory_state", "memory-state.py")
 run_state = load_script_module("run_state_for_state", "run_state.py")
@@ -43,6 +44,12 @@ class MemoryStateTest(unittest.TestCase):
                 {"summary": "Observation record"},
                 record_id="observation-demo",
             )
+            memory_events.write_event(
+                memory_root,
+                "decision",
+                {"summary": "Promoted a durable boundary.", "source": "codex"},
+                event_id="decision-demo",
+            )
             handle = run_state.start_run(repo_root, memory_root, "context:verify")
             run_state.finish_run(
                 handle,
@@ -65,6 +72,7 @@ class MemoryStateTest(unittest.TestCase):
             self.assertEqual(payload["layers"]["project"]["evidence_pack_count"], 1)
             self.assertEqual(payload["layers"]["machine"]["records"]["sessions"]["count"], 1)
             self.assertEqual(payload["layers"]["machine"]["records"]["observations"]["count"], 1)
+            self.assertEqual(payload["layers"]["machine"]["events"]["count"], 1)
             self.assertEqual(payload["layers"]["machine"]["runs"]["count"], 1)
             self.assertEqual(payload["layers"]["machine"]["runs"]["recent"][0]["command"], "context:verify")
             self.assertEqual(payload["layers"]["machine"]["runs"]["recent"][0]["step_count"], 2)
@@ -72,6 +80,7 @@ class MemoryStateTest(unittest.TestCase):
             self.assertIsNotNone(payload["layers"]["session"]["latest_markdown"])
             self.assertEqual(payload["exports"]["json"], "meta/context-spine/memory-state.json")
             self.assertEqual(payload["exports"]["html"], "meta/context-spine/memory-state.html")
+            self.assertEqual(payload["summary"]["machine_event_total"], 1)
 
     def test_render_memory_state_html_includes_layers(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -86,6 +95,7 @@ class MemoryStateTest(unittest.TestCase):
             self.assertIn("Visual Memory State", html)
             self.assertIn("Generated Aids", html)
             self.assertIn("meta/context-spine/memory-state.html", html)
+            self.assertIn("High-Signal Events", html)
             self.assertIn("Recent Runtime Activity", html)
 
 

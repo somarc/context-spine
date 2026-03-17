@@ -12,6 +12,7 @@ from generated_artifact import (
     validate_json_artifact,
     validate_nonempty_text,
 )
+from memory_events import events_root, iter_event_paths, latest_events
 from memory_records import iter_record_paths, latest_record, records_root
 from run_state import finish_run, start_run
 
@@ -171,6 +172,31 @@ def run_state(memory_root: Path, repo_root: Path, limit: int = 6, exclude_run_id
     return {"count": len(items), "recent": [payload for _, payload in items[:limit]]}
 
 
+def event_state(memory_root: Path, repo_root: Path, limit: int = 6) -> dict:
+    recent = []
+    for path, payload in latest_events(memory_root, limit=limit):
+        recent.append(
+            {
+                "path": relative_repo_path(repo_root, path),
+                "event_id": payload.get("event_id", ""),
+                "event_type": payload.get("event_type", ""),
+                "recorded_at": payload.get("recorded_at"),
+                "summary": payload.get("summary", ""),
+                "source": payload.get("source", ""),
+                "status": payload.get("status", ""),
+                "run_id": payload.get("run_id", ""),
+                "file_count": len(payload.get("files", [])),
+                "ref_count": len(payload.get("refs", [])),
+                "tags": payload.get("tags", []),
+            }
+        )
+    return {
+        "count": len(iter_event_paths(memory_root)),
+        "root": relative_repo_path(repo_root, events_root(memory_root)),
+        "recent": recent,
+    }
+
+
 def freshness_status(exists: bool, age_days: float | None) -> str:
     if not exists:
         return "missing"
@@ -211,6 +237,7 @@ def build_state(
     session_records = record_category_state(memory_root, repo_root, "sessions")
     observation_records = record_category_state(memory_root, repo_root, "observations")
     evidence_records = record_category_state(memory_root, repo_root, "evidence")
+    events = event_state(memory_root, repo_root)
     runs = run_state(memory_root, repo_root, exclude_run_id=exclude_run_id)
     generated = {
         "hot_memory": generated_surface(memory_root / "hot-memory-index.md", repo_root),
@@ -243,6 +270,7 @@ def build_state(
                     "observations": observation_records,
                     "evidence": evidence_records,
                 },
+                "events": events,
                 "runs": runs,
             },
             "generated": generated,
@@ -250,6 +278,8 @@ def build_state(
         "summary": {
             "project_truth_surfaces": project_counts(repo_root),
             "machine_record_total": session_records["count"] + observation_records["count"] + evidence_records["count"],
+            "machine_event_total": events["count"],
+            "machine_capture_total": session_records["count"] + observation_records["count"] + evidence_records["count"] + events["count"],
             "run_total": runs["count"],
             "generated_health": summarize_generated_health(generated),
         },
@@ -320,6 +350,35 @@ def render_generated_card(label: str, payload: dict) -> str:
     )
 
 
+def render_event_card(payload: dict) -> str:
+    status = payload.get("status") or payload.get("event_type", "event")
+    badge_class = {
+        "success": "badge-fresh",
+        "fail": "badge-stale",
+        "verification": "badge-fresh",
+        "decision": "badge-neutral",
+        "edit-burst": "badge-aging",
+        "retrieval": "badge-neutral",
+        "invalidation": "badge-stale",
+        "context-shift": "badge-aging",
+    }.get(status, "badge-neutral")
+    meta_bits = [
+        f"Source: {payload.get('source') or 'unknown'}",
+        f"Files: {payload.get('file_count', 0)}",
+        f"Refs: {payload.get('ref_count', 0)}",
+    ]
+    return (
+        '<div class="surface">'
+        f'<div class="surface-head"><strong>{escape_html(payload.get("event_type", "event"))}</strong>'
+        f'<span class="badge {badge_class}">{escape_html(status)}</span></div>'
+        f'<p>{escape_html(payload.get("summary", ""))}</p>'
+        f'<p class="meta-line">{escape_html(" | ".join(meta_bits))}</p>'
+        f'<p class="meta-line">Recorded: {escape_html(payload.get("recorded_at", ""))}</p>'
+        f'{render_path_chip(str(payload.get("path", "")))}'
+        "</div>"
+    )
+
+
 def render_run_card(payload: dict) -> str:
     status = payload.get("status", "unknown")
     badge_class = {
@@ -374,6 +433,7 @@ def render_memory_state_html(payload: dict) -> str:
     project = payload["layers"]["project"]
     session = payload["layers"]["session"]
     machine = payload["layers"]["machine"]["records"]
+    events = payload["layers"]["machine"]["events"]
     runs = payload["layers"]["machine"]["runs"]
     generated = payload["layers"]["generated"]
     summary = payload["summary"]
@@ -381,7 +441,10 @@ def render_memory_state_html(payload: dict) -> str:
 
     session_markdown = render_optional_file(session.get("latest_markdown"), "Latest session markdown")
     baseline = render_optional_file(project.get("baseline"), "Baseline note")
-    machine_total = summary["machine_record_total"]
+    machine_total = summary["machine_capture_total"]
+    event_cards = "".join(render_event_card(item) for item in events["recent"]) or (
+        '<div class="surface surface-missing"><div class="surface-head"><strong>Recent events</strong><span class="badge badge-missing">missing</span></div><p>No high-signal events have been captured yet.</p></div>'
+    )
     generated_cards = "".join(
         render_generated_card(label.replace("_", " ").title(), item)
         for label, item in generated.items()
@@ -690,7 +753,7 @@ def render_memory_state_html(payload: dict) -> str:
           <div class="kpi machine">
             <span class="kpi-label">Machine Capture</span>
             <strong>{escape_html(machine_total)}</strong>
-            <p>Structured records across sessions, observations, and evidence, with {escape_html(summary["run_total"])} captured run(s).</p>
+            <p>Structured records and events, with {escape_html(summary["run_total"])} captured run(s).</p>
           </div>
           <div class="kpi generated">
             <span class="kpi-label">Generated Aids</span>
@@ -723,6 +786,7 @@ def render_memory_state_html(payload: dict) -> str:
               <li>{escape_html(machine["sessions"]["count"])} session record(s)</li>
               <li>{escape_html(machine["observations"]["count"])} observation record(s)</li>
               <li>{escape_html(machine["evidence"]["count"])} evidence record(s)</li>
+              <li>{escape_html(events["count"])} high-signal event(s)</li>
               <li>Generated aids summarized with freshness status</li>
               <li>Designed for query and visual explanation, not for durable truth by itself</li>
             </ul>
@@ -749,6 +813,17 @@ def render_memory_state_html(payload: dict) -> str:
         </div>
         <div class="surface-grid">
           {record_cards}
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-head">
+          <div class="eyebrow">High-Signal Events</div>
+          <h2>Sparse work events capture what mattered without becoming a log tail.</h2>
+          <p>Use explicit event capture for meaningful edit bursts, retrieval passes, decisions, invalidations, or context shifts.</p>
+        </div>
+        <div class="surface-grid">
+          {event_cards}
         </div>
       </section>
 

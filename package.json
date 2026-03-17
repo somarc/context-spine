@@ -10,6 +10,7 @@
     "context:refresh": "bash ./scripts/context-spine/refresh.sh",
     "context:config": "python3 ./scripts/context-spine/context-config.py --format json",
     "context:doctor": "python3 ./scripts/context-spine/doctor.py",
+    "context:event": "python3 ./scripts/context-spine/context-event.py",
     "context:gitignore": "python3 ./scripts/context-spine/configure-gitignore.py",
     "context:rollout": "python3 ./scripts/context-spine/rollout.py",
     "context:test": "python3 -m unittest discover -s tests -p 'test_*.py'",

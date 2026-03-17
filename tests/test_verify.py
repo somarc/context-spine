@@ -16,6 +16,23 @@ class VerifyHelpersTest(unittest.TestCase):
         self.assertEqual(verify.summarize_output("", "error\nboom\n", 1), "boom")
         self.assertEqual(verify.summarize_output("", "", 2), "Command exited with code 2.")
 
+    def test_verification_event_payload_condenses_steps(self):
+        class Handle:
+            run_id = "ctx-demo"
+            path = "/tmp/demo.json"
+
+        payload = verify.verification_event_payload(
+            Handle(),
+            [{"name": "tests", "status": "success", "summary": "OK", "duration_seconds": 0.2}],
+            [],
+            "Verification passed.",
+        )
+
+        self.assertEqual(payload["source_command"], "context:verify")
+        self.assertEqual(payload["status"], "success")
+        self.assertEqual(payload["run_id"], "ctx-demo")
+        self.assertEqual(payload["verification_steps"][0]["name"], "tests")
+
 
 if __name__ == "__main__":
     unittest.main()

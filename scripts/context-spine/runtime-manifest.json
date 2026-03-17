@@ -1,5 +1,5 @@
 {
-  "runtime_version": "2026.03.16.2",
+  "runtime_version": "2026.03.16.3",
   "compatibility": {
     "python": "3.10",
     "node": "20.0.0"
@@ -28,10 +28,12 @@
     "scripts/context-spine/configure-gitignore.py",
     "scripts/context-spine/context-config.py",
     "scripts/context-spine/context_config.py",
+    "scripts/context-spine/context-event.py",
     "scripts/context-spine/doctor.py",
     "scripts/context-spine/hot-memory.py",
     "scripts/context-spine/install-codex-skill.sh",
     "scripts/context-spine/mem-log.py",
+    "scripts/context-spine/memory_events.py",
     "scripts/context-spine/memory-state.py",
     "scripts/context-spine/memory_records.py",
     "scripts/context-spine/mem-search.py",
@@ -56,6 +58,7 @@
     "meta/context-spine/context-spine.json"
   ],
   "generated_aids": [
+    "meta/context-spine/events/",
     "meta/context-spine/runs/",
     "meta/context-spine/records/",
     "meta/context-spine/hot-memory-index.md",
