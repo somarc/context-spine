@@ -38,6 +38,7 @@ class InvalidateTest(unittest.TestCase):
             record = memory_records.load_record(result["record_path"])
             event = memory_events.load_event(result["event_path"])
 
+            self.assertEqual(result["invalidation_schema"], "context-spine.invalidation.v1")
             self.assertEqual(record["category"], "invalidations")
             self.assertEqual(record["subject"], "Prompt-owned global memory as durable project truth")
             self.assertEqual(record["replacement"], "docs/adr/0007-native-memory.md")

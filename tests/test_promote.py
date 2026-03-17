@@ -39,6 +39,7 @@ class PromoteTest(unittest.TestCase):
             record = memory_records.load_record(result["record_path"])
             event = memory_events.load_event(result["event_path"])
 
+            self.assertEqual(result["promotion_schema"], "context-spine.promotion.v1")
             self.assertEqual(record["category"], "promotions")
             self.assertEqual(record["surface_kind"], "adr")
             self.assertEqual(record["files"][0], "docs/adr/0007-native-memory.md")

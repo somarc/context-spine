@@ -46,6 +46,16 @@ def _dedupe(items: list[str]) -> list[str]:
     return deduped
 
 
+def sanitize(value: Any) -> Any:
+    if isinstance(value, Path):
+        return str(value)
+    if isinstance(value, dict):
+        return {str(key): sanitize(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [sanitize(item) for item in value]
+    return value
+
+
 def relative_repo_path(repo_root: Path, path: Path) -> str:
     try:
         return path.resolve().relative_to(repo_root.resolve()).as_posix()

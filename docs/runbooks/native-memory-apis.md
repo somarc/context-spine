@@ -69,6 +69,12 @@ python3 ./scripts/context-spine/invalidate.py --summary "Invalidated stale boots
 
 They do not edit the durable files for you. They record that you updated them and anchor the reconciliation trace to those files.
 
+For machine consumers:
+
+- `query` and `rehydrate` emit JSON by default
+- `promote` and `invalidate` emit stable JSON when called with `--format json`
+- `reconcile` is the caller-owned sequence of `query` or `rehydrate`, repo file updates, then `promote` or `invalidate`
+
 ## Boundaries
 
 - these commands summarize memory; they do not dispatch work
@@ -93,3 +99,16 @@ The reconciliation half exists so the same runtime can also say:
 - this durable surface was promoted
 - this assumption was invalidated or superseded
 - here are the files, evidence, and traces that justify that change
+
+## Adapter Loop
+
+Recommended external-runtime flow:
+
+1. call `context:query` or `context:rehydrate`
+2. consume the JSON packet and decide whether durable truth needs to change
+3. update the repo files directly in normal code or doc paths
+4. call `context:promote --format json` or `context:invalidate --format json`
+5. treat that pair as the explicit reconciliation writeback
+
+That is the full Phase 3 contract.
+It is intentionally request/response only.

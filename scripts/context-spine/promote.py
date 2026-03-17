@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 import argparse
+import json
 from pathlib import Path
 
 from context_config import load_config, resolve_repo_path
-from memory_reconciliation import PROMOTION_STATUSES, normalize_refs, write_reconciliation_trace
+from memory_reconciliation import PROMOTION_STATUSES, normalize_refs, sanitize, write_reconciliation_trace
 from run_state import finish_run, start_run
 
 
@@ -78,8 +79,12 @@ def record_promotion(
             },
         )
         return {
+            "promotion_schema": "context-spine.promotion.v1",
             "run_id": run_handle.run_id,
             "run_path": run_handle.path,
+            "surface_kind": surface_kind.strip() or "durable-memory",
+            "status": status,
+            "supersedes": superseded_refs,
             **trace,
         }
     except Exception as exc:
@@ -104,6 +109,7 @@ def main() -> int:
     parser.add_argument("--source", default="codex", help="Who or what emitted the promotion")
     parser.add_argument("--source-command", default="context:promote", help="Workflow or command label")
     parser.add_argument("--status", default="promoted", choices=sorted(PROMOTION_STATUSES), help="Promotion status")
+    parser.add_argument("--format", default="text", choices=["json", "text"], help="Output format")
     parser.add_argument("--root", default="", help="Override memory root directory")
     args = parser.parse_args()
 
@@ -124,12 +130,15 @@ def main() -> int:
         status=args.status,
     )
 
-    print(f"Run ID: {result['run_id']}")
-    print(f"Record: {result['record_path']}")
-    print(f"Event: {result['event_path']}")
-    print("Files:")
-    for path in result["files"]:
-        print(f"- {path}")
+    if args.format == "json":
+        print(json.dumps(sanitize(result), indent=2))
+    else:
+        print(f"Run ID: {result['run_id']}")
+        print(f"Record: {result['record_path']}")
+        print(f"Event: {result['event_path']}")
+        print("Files:")
+        for path in result["files"]:
+            print(f"- {path}")
     return 0
 
 
