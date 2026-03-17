@@ -5,6 +5,7 @@ import subprocess
 from pathlib import Path
 
 from context_config import load_config, resolve_repo_path
+from memory_records import write_record
 
 
 def default_memory_root() -> Path:
@@ -37,13 +38,16 @@ def main():
     args = parser.parse_args()
 
     now = dt.datetime.now()
+    now_utc = dt.datetime.now(dt.UTC).replace(microsecond=0)
     date_str = args.date or now.strftime("%Y-%m-%d")
     script_root = Path(__file__).resolve().parents[2]
     config = load_config(script_root)
     project_name = args.project or str(config.get("project", "project"))
     title = args.title or f"{date_str} - Session Summary"
 
-    memory_root = Path(args.root).expanduser() if args.root else resolve_repo_path(script_root, str(config.get("memory_root", default_memory_root())))
+    memory_root = (
+        Path(args.root).expanduser() if args.root else resolve_repo_path(script_root, str(config.get("memory_root", default_memory_root())))
+    ).resolve()
     repo_root = memory_root.parents[1] if memory_root.name == "context-spine" and memory_root.parent.name == "meta" else memory_root
     sessions_dir = memory_root / "sessions"
     sessions_dir.mkdir(parents=True, exist_ok=True)
@@ -96,7 +100,25 @@ def main():
         "- \n"
     )
     session_file.write_text(content, encoding="utf-8")
+    record_path = write_record(
+        memory_root,
+        "sessions",
+        {
+            "layer": "session",
+            "project": project_name,
+            "title": title,
+            "date": date_str,
+            "markdown_path": str(session_file),
+            "repo_root": str(repo_root),
+            "branch": branch,
+            "head": commit,
+            "worktree": dirty,
+        },
+        record_id=f"session-{date_str}-{branch}",
+        recorded_at=now_utc,
+    )
     print(f"Created session template at {session_file}")
+    print(f"Session record: {record_path}")
 
 
 if __name__ == "__main__":

@@ -8,6 +8,9 @@ This repository is a boilerplate intelligence layer for future projects.
 - run `npm run context:bootstrap` before broad repo-wide searching
 - open `meta/context-spine/spine-notes-context-spine.md` first for the current baseline
 - create a session note for meaningful work with `npm run context:session`
+- use `npm run context:verify` when you want one captured verification run instead of ad hoc test and maintenance scrollback
+- use `npm run context:event -- --type ... --summary ...` only for high-signal boundaries, not as a general activity log
+- run `npm run context:state` when you need a compact machine summary or a visual view of current memory layers
 - if retrieval is newly initialized and results are sparse, run `npm run context:update` and then `npm run context:embed`
 - if you change `.pi/skills/`, run `npm run context:skill:install`
 
@@ -17,6 +20,8 @@ This repository is a boilerplate intelligence layer for future projects.
 - keep code, docs, and evidence in sync
 - make project understanding durable and retrievable
 - support extensible local agent workflows without turning the repo into prompt soup
+
+When evolving Context Spine itself, preserve the design compass in `docs/adr/0005-context-spine-design-compass.md`.
 
 ## Core Roles
 
@@ -119,6 +124,7 @@ When memory freshness matters:
 
 - keep architecture, boundaries, baseline notes, ADRs, and runbooks durable
 - treat sessions and observations as rolling working memory, not permanent literature
+- treat events as sparse machine-facing provenance for meaningful work boundaries, not a tail of everything the agent did
 - roll stable conclusions into durable notes or evidence packs
 - keep generated retrieval artifacts local and regenerable
 
@@ -131,6 +137,7 @@ When memory freshness matters:
 - prefer composing skills over expanding one skill into a fake all-in-one oracle
 - when a skill has a natural companion, say so explicitly inside the skill contract
 - example: `elon-doctrine` should consider `principal-engineer-review` for system-shape questions, and `principal-engineer-review` should consider `elon-doctrine` for worthiness questions
+- do not let new memory features violate the design compass invariants or push the repo toward its anti-goals
 
 ## Safety
 

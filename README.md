@@ -46,6 +46,9 @@ It is not a product scaffold. It is the working memory spine that sits next to t
 - a baseline note that explains the repo in human terms
 - session notes that let work resume without a recap meeting
 - a hot-memory index that points to what to open first right now
+- a generated memory-state JSON and HTML pair for machine query plus fast visual re-anchoring
+- recent command/run history surfaced next to memory so verification does not disappear into terminal scrollback
+- optional high-signal events so meaningful edit bursts, retrieval passes, and decisions can be captured without logging everything
 - retrieval plumbing so those notes stay searchable instead of forgotten
 - a place to tie decisions back to code, tests, commands, and docs
 
@@ -119,6 +122,7 @@ Read the plain-language guide in [docs/runbooks/how-to-use-context-spine.md](./d
 - bundled Codex skill sources under [`.pi/skills/`](./.pi/skills/), including `context-spine` and `principal-engineer-review`
 - optional extension points under `.pi/`
 - structured run records under `meta/context-spine/runs/` for doctor, rollout, upgrade, and related maintenance commands
+- structured machine-memory records under `meta/context-spine/records/` plus a generated `context:state` view
 
 ## Core Model
 
@@ -167,10 +171,12 @@ The shortest useful path uses the `npm run context:*` wrappers:
 5. Create a session note with `npm run context:session`.
 6. Refresh retrieval with `npm run context:refresh` when notes or docs change.
 7. Validate the operating contract with `npm run context:verify`.
+8. Generate the current machine and visual memory summary with `npm run context:state` when you want the layered state in one place.
 
 Useful next steps:
 
 - record observations with [scripts/context-spine/mem-log.py](./scripts/context-spine/mem-log.py)
+- capture a meaningful event with `npm run context:event -- --type decision --summary "..."` when work outside the `context:*` wrappers materially changes understanding
 - read or create a visual explainer when a subsystem is easier to absorb visually
 - keep one durable external note per major deep dive, audit, or execution baseline
 - set repo policy explicitly in [meta/context-spine/context-spine.json](./meta/context-spine/context-spine.json)
@@ -269,7 +275,13 @@ Use one command to prove the runtime contract still holds:
 npm run context:verify
 ```
 
-That runs the stdlib test suite, doctor, scorecard generation, and bundled skill validation.
+That now runs the stdlib test suite, doctor, scorecard generation, and bundled skill validation through a single managed runtime entrypoint. The result is captured as one structured verification run with git state, diff summary, and per-step outcomes.
+
+When work happens outside the managed `context:*` wrappers, prefer sparse event capture instead of session-note sprawl:
+
+```bash
+npm run context:event -- --type edit-burst --summary "Refined memory-state HTML and added event stream support" --files scripts/context-spine/memory-state.py,scripts/context-spine/memory_events.py
+```
 
 If you want to prove the installed Codex skill copies still match the repo source, run:
 
@@ -352,6 +364,11 @@ Once you start adding memory surfaces, it is easy to add ceremony that feels sma
 - **No blind inference**
 
 Read the full doctrine in [docs/runbooks/elon-doctrine.md](./docs/runbooks/elon-doctrine.md).
+
+For the harder evolution guardrails, read [docs/adr/0005-context-spine-design-compass.md](./docs/adr/0005-context-spine-design-compass.md). It defines the non-negotiable invariants, anti-goals, and the bar a native Codex memory surface would need to clear before it should replace or absorb this model.
+
+For the fuller architecture direction, read [docs/adr/0006-native-codex-memory-direction.md](./docs/adr/0006-native-codex-memory-direction.md). It lays out how Context Spine could become universally useful as a Codex memory surface without turning into a control plane or a black-box memory product.
+That direction assumes the memory can become more native and agent-centric internally, while the human-facing contract becomes simpler: the system should visually explain itself well.
 
 ## Codex Skills
 

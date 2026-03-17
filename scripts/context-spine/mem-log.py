@@ -4,6 +4,7 @@ import datetime as dt
 from pathlib import Path
 
 from context_config import load_config, resolve_repo_path
+from memory_records import write_record
 
 
 def split_csv(value: str):
@@ -57,7 +58,7 @@ def main():
     config = load_config(repo_root)
     configured_root = resolve_repo_path(repo_root, str(config.get("memory_root", "meta/context-spine")))
     project_name = args.project or str(config.get("project", "project"))
-    memory_root = Path(args.root).expanduser() if args.root else configured_root
+    memory_root = (Path(args.root).expanduser() if args.root else configured_root).resolve()
     observations_file = memory_root / "observations" / f"{date_str}.md"
     ensure_frontmatter(observations_file, date_str, project_name)
 
@@ -99,7 +100,34 @@ def main():
     with observations_file.open("a", encoding="utf-8") as handle:
         handle.write("\n".join(lines) + "\n\n")
 
+    record_path = write_record(
+        memory_root,
+        "observations",
+        {
+            "layer": "observation",
+            "project": project_name,
+            "date": date_str,
+            "time": time_str,
+            "summary": args.summary,
+            "entry_type": args.type,
+            "markdown_path": str(observations_file),
+            "tags": tags,
+            "truth": args.truth,
+            "evidence": evidence,
+            "constraints": constraints,
+            "assumptions": assumptions,
+            "qmd": qmd_items,
+            "files": files,
+            "details": args.details,
+            "action": args.action,
+            "session": args.session,
+        },
+        record_id=f"observation-{date_str}-{time_str}",
+        recorded_at=dt.datetime.now(dt.UTC).replace(microsecond=0),
+    )
+
     print(f"Appended observation to {observations_file}")
+    print(f"Observation record: {record_path}")
 
 
 if __name__ == "__main__":
