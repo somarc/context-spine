@@ -22,6 +22,8 @@ source_of_truth:
   - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/runtime_manifest.py
   - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/run_state.py
   - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/generated_artifact.py
+  - /Users/mhess/aem/aem-code/context-spine/docs/adr/0005-context-spine-design-compass.md
+  - /Users/mhess/aem/aem-code/context-spine/docs/adr/0006-native-codex-memory-direction.md
 ---
 
 # Context Spine Baseline
@@ -51,6 +53,9 @@ As of 2026-03-16, this repository is the reusable boilerplate for bootstrapping 
 - Maintenance commands now emit run IDs and write structured JSON run records under `meta/context-spine/runs/`.
 - Codex skill sync now validates source and installed digests instead of only checking syntax.
 - Generated aids now publish through transient candidate artifacts and promote only after validation passes, so failed refreshes do not overwrite the active reading path.
+- The repo now has an explicit design compass for future evolution: protect inspectability, memory-class separation, and simplicity, and reject moves toward prompt soup, control-plane behavior, or confidence theater.
+- The repo now has a proposed native-memory direction: layered memory, automatic evidence capture, stronger structured schemas, first-class APIs, and less ceremony, while keeping file-level project truth intact.
+- That native-memory direction now makes a sharper distinction between internal and external contracts: the memory may become native and agent-centric internally, but the human-facing output should visually explain what matters and why.
 
 ## Decisions
 
@@ -70,6 +75,8 @@ As of 2026-03-16, this repository is the reusable boilerplate for bootstrapping 
 - Keep E.L.O.N. explicit so future changes are judged by value, legibility, utility x impact, and reduced blind inference.
 - Keep the runtime manifest as the shared contract for upgrade-safe runtime files instead of duplicating file lists across scripts.
 - Keep revision-safety mechanics scoped to generated aids instead of extending them into human-authored truth surfaces.
+- Use the design compass as the harder boundary for future "native memory" ambitions so Context Spine can improve without losing its purpose.
+- Treat native-memory evolution as a dual-surface problem: human-readable file truth plus machine-usable structured capture, never one replacing the other.
 
 ## Open Questions
 

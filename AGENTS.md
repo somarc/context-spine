@@ -18,6 +18,8 @@ This repository is a boilerplate intelligence layer for future projects.
 - make project understanding durable and retrievable
 - support extensible local agent workflows without turning the repo into prompt soup
 
+When evolving Context Spine itself, preserve the design compass in `docs/adr/0005-context-spine-design-compass.md`.
+
 ## Core Roles
 
 - `Codex` is the primary orchestrator for implementation, verification, and final acceptance.
@@ -131,6 +133,7 @@ When memory freshness matters:
 - prefer composing skills over expanding one skill into a fake all-in-one oracle
 - when a skill has a natural companion, say so explicitly inside the skill contract
 - example: `elon-doctrine` should consider `principal-engineer-review` for system-shape questions, and `principal-engineer-review` should consider `elon-doctrine` for worthiness questions
+- do not let new memory features violate the design compass invariants or push the repo toward its anti-goals
 
 ## Safety
 

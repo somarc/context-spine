@@ -353,6 +353,11 @@ Once you start adding memory surfaces, it is easy to add ceremony that feels sma
 
 Read the full doctrine in [docs/runbooks/elon-doctrine.md](./docs/runbooks/elon-doctrine.md).
 
+For the harder evolution guardrails, read [docs/adr/0005-context-spine-design-compass.md](./docs/adr/0005-context-spine-design-compass.md). It defines the non-negotiable invariants, anti-goals, and the bar a native Codex memory surface would need to clear before it should replace or absorb this model.
+
+For the fuller architecture direction, read [docs/adr/0006-native-codex-memory-direction.md](./docs/adr/0006-native-codex-memory-direction.md). It lays out how Context Spine could become universally useful as a Codex memory surface without turning into a control plane or a black-box memory product.
+That direction assumes the memory can become more native and agent-centric internally, while the human-facing contract becomes simpler: the system should visually explain itself well.
+
 ## Codex Skills
 
 This repo ships project-owned Codex skill sources under [`.pi/skills/`](./.pi/skills/), including:

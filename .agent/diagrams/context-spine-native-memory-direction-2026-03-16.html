@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Context Spine Native Memory Direction</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Azeret+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f6f2ea;
+        --bg-strong: #efe6d8;
+        --surface: rgba(255, 252, 247, 0.9);
+        --surface-strong: rgba(255, 252, 247, 0.97);
+        --text: #2f271f;
+        --text-dim: #6f6255;
+        --border: rgba(47, 39, 31, 0.12);
+        --accent: #0f766e;
+        --accent-soft: rgba(15, 118, 110, 0.11);
+        --warm: #b45309;
+        --warm-soft: rgba(180, 83, 9, 0.12);
+        --rose: #9f1239;
+        --rose-soft: rgba(159, 18, 57, 0.1);
+        --shadow: 0 22px 58px rgba(68, 51, 32, 0.12);
+        --grid: rgba(120, 102, 80, 0.08);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        color: var(--text);
+        font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+        background:
+          radial-gradient(circle at top right, rgba(15, 118, 110, 0.12), transparent 26%),
+          radial-gradient(circle at left center, rgba(180, 83, 9, 0.08), transparent 20%),
+          linear-gradient(var(--grid) 1px, transparent 1px),
+          linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+          linear-gradient(180deg, #fcfaf5 0%, var(--bg) 100%);
+        background-size: auto, auto, 26px 26px, 26px 26px, auto;
+      }
+
+      main {
+        width: min(1240px, calc(100vw - 36px));
+        margin: 20px auto 64px;
+      }
+
+      .panel,
+      .hero,
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(10px);
+      }
+
+      .hero {
+        padding: 32px;
+        margin-bottom: 22px;
+      }
+
+      .eyebrow,
+      .label {
+        font-family: "Azeret Mono", monospace;
+        font-size: 12px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--accent);
+      }
+
+      .hero-grid,
+      .grid-2,
+      .grid-3,
+      .layer-grid,
+      .phase-grid,
+      .capture-grid {
+        display: grid;
+        gap: 18px;
+      }
+
+      .hero-grid {
+        grid-template-columns: 1.15fr 0.85fr;
+        align-items: start;
+      }
+
+      .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .layer-grid { grid-template-columns: 1fr 0.9fr 1fr; }
+      .phase-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .capture-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+
+      h1, h2, h3, h4 { margin: 0; }
+
+      h1 {
+        font-size: clamp(3rem, 6vw, 5rem);
+        line-height: 0.9;
+        max-width: 9ch;
+      }
+
+      h2 {
+        font-size: 1.55rem;
+        line-height: 1.15;
+      }
+
+      h3 {
+        font-size: 1.08rem;
+        line-height: 1.25;
+      }
+
+      p {
+        margin: 0;
+        color: var(--text-dim);
+        line-height: 1.68;
+      }
+
+      .lede {
+        margin-top: 18px;
+        max-width: 68ch;
+        font-size: 1.08rem;
+      }
+
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .pill {
+        padding: 9px 12px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.6);
+        font-family: "Azeret Mono", monospace;
+        font-size: 0.79rem;
+      }
+
+      .hero-side {
+        display: grid;
+        gap: 14px;
+      }
+
+      .callout,
+      .card,
+      .layer,
+      .phase,
+      .capture,
+      .rail {
+        padding: 20px;
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        background: var(--surface-strong);
+      }
+
+      .callout {
+        background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.78));
+      }
+
+      .panel {
+        padding: 26px;
+        margin-top: 22px;
+      }
+
+      .section-head {
+        margin-bottom: 18px;
+        display: grid;
+        gap: 8px;
+      }
+
+      ul {
+        margin: 12px 0 0;
+        padding-left: 18px;
+      }
+
+      li {
+        color: var(--text-dim);
+        line-height: 1.6;
+      }
+
+      li + li { margin-top: 7px; }
+
+      code {
+        font-family: "Azeret Mono", monospace;
+        font-size: 0.9em;
+        padding: 0.1em 0.35em;
+        border-radius: 0.45em;
+        background: rgba(47, 39, 31, 0.07);
+        color: var(--text);
+      }
+
+      .layer {
+        min-height: 240px;
+        position: relative;
+      }
+
+      .layer.project {
+        background: linear-gradient(180deg, rgba(15, 118, 110, 0.12), rgba(255, 252, 247, 0.9));
+      }
+
+      .layer.session {
+        background: linear-gradient(180deg, rgba(180, 83, 9, 0.12), rgba(255, 252, 247, 0.9));
+      }
+
+      .layer.operator {
+        background: linear-gradient(180deg, rgba(159, 18, 57, 0.1), rgba(255, 252, 247, 0.9));
+      }
+
+      .layer-arrow {
+        display: grid;
+        place-items: center;
+        font-family: "Azeret Mono", monospace;
+        color: rgba(47, 39, 31, 0.4);
+        font-size: 1.2rem;
+      }
+
+      .capture {
+        min-height: 180px;
+        position: relative;
+      }
+
+      .capture::after {
+        content: "→";
+        position: absolute;
+        right: -14px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-family: "Azeret Mono", monospace;
+        color: rgba(47, 39, 31, 0.34);
+      }
+
+      .capture:last-child::after { content: ""; }
+
+      .phase {
+        min-height: 240px;
+      }
+
+      .good { background: var(--accent-soft); }
+      .warn { background: var(--warm-soft); }
+      .bad { background: var(--rose-soft); }
+
+      .footer-note {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border);
+        font-family: "Azeret Mono", monospace;
+        font-size: 0.82rem;
+        color: var(--text-dim);
+      }
+
+      @media (max-width: 980px) {
+        main {
+          width: min(100vw - 16px, 100%);
+          margin: 12px auto 32px;
+        }
+
+        .hero,
+        .panel,
+        .card {
+          padding: 20px;
+          border-radius: 22px;
+        }
+
+        .hero-grid,
+        .grid-2,
+        .grid-3,
+        .layer-grid,
+        .phase-grid,
+        .capture-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .capture::after {
+          content: "↓";
+          right: auto;
+          left: 50%;
+          top: auto;
+          bottom: -18px;
+          transform: translateX(-50%);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <div class="eyebrow">Context Spine · Native Memory Direction · ADR 0006</div>
+        <div class="hero-grid">
+          <div>
+            <h1>Make memory native without making it opaque.</h1>
+            <p class="lede">
+              Context Spine already has the right instincts for a Codex memory surface: explicit truth,
+              durable structure, repo-local inspectability, and evidence-backed understanding. The next step
+              is not to turn it into a control plane. The next step is to add a stronger machine layer around
+              the same human-readable core.
+            </p>
+            <div class="pill-row">
+              <div class="pill">Automatic capture</div>
+              <div class="pill">Layered memory</div>
+              <div class="pill">API + file duality</div>
+              <div class="pill">Structured schemas</div>
+              <div class="pill">Less ceremony</div>
+            </div>
+          </div>
+          <div class="hero-side">
+            <div class="callout">
+              <div class="label">What stays true</div>
+              <p>
+                Files remain the project-truth layer. Native memory should index, accelerate,
+                and reconcile those surfaces, not replace them with hidden state.
+              </p>
+            </div>
+            <div class="callout">
+              <div class="label">Human contract</div>
+              <p>
+                The memory can be native and agent-centric internally. The user-facing requirement is
+                simpler: Codex should visually explain what it knows, why it believes it, and what is uncertain.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-head">
+          <div class="label">Interface Shift</div>
+          <h2>The memory is for Codex. The explanation is for the human.</h2>
+          <p>
+            That changes the target shape. Native memory does not need to expose every internal record as a file
+            if it can render a trustworthy visual explanation with evidence and source-of-truth references.
+          </p>
+        </div>
+        <div class="grid-2">
+          <article class="card good">
+            <div class="label">Internal</div>
+            <h3>Codex-owned memory substrate</h3>
+            <ul>
+              <li>structured state</li>
+              <li>indexes and APIs</li>
+              <li>capture records</li>
+              <li>layered retrieval</li>
+            </ul>
+          </article>
+          <article class="card warn">
+            <div class="label">External</div>
+            <h3>Human-facing visual explanation</h3>
+            <ul>
+              <li>what matters now</li>
+              <li>what changed</li>
+              <li>what evidence supports it</li>
+              <li>what remains uncertain</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-head">
+          <div class="label">Good / Bad / Ugly</div>
+          <h2>Why Context Spine is a strong prototype, but not the final native form</h2>
+        </div>
+        <div class="grid-3">
+          <article class="card good">
+            <h3>Good</h3>
+            <ul>
+              <li>Explicit truth model across code, docs, tests, and evidence</li>
+              <li>Repo-local inspectability</li>
+              <li>Durable vs rolling vs generated memory separation</li>
+              <li>Skills as interpreters, not as the memory itself</li>
+            </ul>
+          </article>
+          <article class="card warn">
+            <h3>Bad</h3>
+            <ul>
+              <li>Too much normal-use discipline still depends on people remembering the loop</li>
+              <li>Too file- and wrapper-shaped for a native runtime surface</li>
+              <li>Mostly scoped to one repo at a time</li>
+              <li>Structured schemas are still thinner than a native system needs</li>
+            </ul>
+          </article>
+          <article class="card bad">
+            <h3>Ugly</h3>
+            <ul>
+              <li>It could turn into ritual instead of utility</li>
+              <li>It could become polished confidence theater</li>
+              <li>It could harden one operator style into a universal doctrine</li>
+              <li>It could quietly drift toward prompt soup or control-plane behavior</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-head">
+          <div class="label">Layered Memory</div>
+          <h2>Universal usefulness depends on explicit memory layers</h2>
+          <p>
+            Native-quality memory cannot stop at one repo. It needs bounded layers that can be queried
+            independently and connected deliberately.
+          </p>
+        </div>
+        <div class="layer-grid">
+          <article class="layer session">
+            <div class="label">Layer 1</div>
+            <h3>Session memory</h3>
+            <ul>
+              <li>current task</li>
+              <li>branch and git state</li>
+              <li>recent commands and tests</li>
+              <li>suspect assumptions and blockers</li>
+            </ul>
+          </article>
+          <div class="layer-arrow">↔</div>
+          <article class="layer project">
+            <div class="label">Layer 2</div>
+            <h3>Project memory</h3>
+            <ul>
+              <li>baseline notes</li>
+              <li>ADRs and runbooks</li>
+              <li>evidence packs and explainers</li>
+              <li>source-of-truth references</li>
+            </ul>
+          </article>
+        </div>
+        <div class="grid-2" style="margin-top: 18px;">
+          <article class="layer operator">
+            <div class="label">Layer 3</div>
+            <h3>Operator / organization memory</h3>
+            <ul>
+              <li>cross-repo heuristics</li>
+              <li>shared playbooks</li>
+              <li>portable durable notes</li>
+              <li>domain overlays such as AEM and EDS</li>
+            </ul>
+          </article>
+          <article class="card">
+            <div class="label">Boundary</div>
+            <h3>Project memory stays repo-local by default</h3>
+            <p>
+              Broader memory should attach through adapters. The repo must not be polluted by
+              hidden global state just because a native runtime exists.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-head">
+          <div class="label">Capture Loop</div>
+          <h2>Reduce ceremony by capturing better evidence automatically</h2>
+        </div>
+        <div class="capture-grid">
+          <article class="capture">
+            <div class="label">Input</div>
+            <h3>Git + diffs</h3>
+            <p>Branch state, changed files, and meaningful deltas should be available without manual copying.</p>
+          </article>
+          <article class="capture">
+            <div class="label">Input</div>
+            <h3>Commands + tests</h3>
+            <p>Verification events should flow into memory with provenance, not just disappear into terminal history.</p>
+          </article>
+          <article class="capture">
+            <div class="label">Input</div>
+            <h3>Tool events</h3>
+            <p>Edits, runs, and agent actions should produce structured records where they materially change understanding.</p>
+          </article>
+          <article class="capture">
+            <div class="label">Machine layer</div>
+            <h3>Evidence + session records</h3>
+            <p>Native memory should store structured capture records that support retrieval and promotion.</p>
+          </article>
+          <article class="capture">
+            <div class="label">Human layer</div>
+            <h3>Durable truth</h3>
+            <p>Only curated understanding gets promoted into baselines, runbooks, ADRs, and explainers.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-head">
+          <div class="label">Dual Surface</div>
+          <h2>Keep human-readable project truth and add machine-usable structure around it</h2>
+        </div>
+        <div class="grid-2">
+          <article class="card">
+            <div class="label">Human surfaces</div>
+            <h3>What people reopen</h3>
+            <ul>
+              <li>markdown baselines</li>
+              <li>ADRs and runbooks</li>
+              <li>visual explainers</li>
+              <li>curated evidence packs</li>
+              <li>generated aids that guide reading but do not claim truth</li>
+            </ul>
+          </article>
+          <article class="card">
+            <div class="label">Machine surfaces</div>
+            <h3>What Codex queries and reconciles</h3>
+            <ul>
+              <li>session snapshots</li>
+              <li>evidence records</li>
+              <li>promotion records</li>
+              <li>artifact records</li>
+              <li>memory-layer and source-reference metadata</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-head">
+          <div class="label">API Families</div>
+          <h2>What a native interface would actually expose</h2>
+        </div>
+        <div class="grid-3">
+          <article class="card">
+            <h3><code>capture</code></h3>
+            <p>Record git state, diffs, commands, tests, and tool events with provenance.</p>
+          </article>
+          <article class="card">
+            <h3><code>query</code></h3>
+            <p>Rank memory across session, project, and broader overlays without flattening them into one blob.</p>
+          </article>
+          <article class="card">
+            <h3><code>promote</code></h3>
+            <p>Turn working knowledge into durable project truth with explicit evidence links.</p>
+          </article>
+          <article class="card">
+            <h3><code>invalidate</code></h3>
+            <p>Mark stale or superseded assumptions explicitly instead of quietly leaving both stories live.</p>
+          </article>
+          <article class="card">
+            <h3><code>reconcile</code></h3>
+            <p>Compare memory against code, docs, tests, and evidence to surface drift.</p>
+          </article>
+          <article class="card">
+            <h3><code>export</code></h3>
+            <p>Make memory portable across repos, agents, and broader environments without losing inspectability.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-head">
+          <div class="label">Phases</div>
+          <h2>How this can evolve without breaking the soul of the system</h2>
+        </div>
+        <div class="phase-grid">
+          <article class="phase">
+            <div class="label">Phase 1</div>
+            <h3>Better local memory discipline</h3>
+            <ul>
+              <li>stronger evidence and promotion schemas</li>
+              <li>more auto-capture from existing wrappers</li>
+              <li>safer generated aids</li>
+              <li>less manual upkeep in ordinary loops</li>
+            </ul>
+          </article>
+          <article class="phase">
+            <div class="label">Phase 2</div>
+            <h3>First-class local memory APIs</h3>
+            <ul>
+              <li>local query and capture interfaces</li>
+              <li>explicit invalidation and supersession records</li>
+              <li>better ranking across session and project layers</li>
+              <li>structured exports</li>
+            </ul>
+          </article>
+          <article class="phase">
+            <div class="label">Phase 3</div>
+            <h3>Layered memory beyond a single repo</h3>
+            <ul>
+              <li>user-level overlays</li>
+              <li>organizational adapters</li>
+              <li>cross-repo linking</li>
+              <li>portable memory references</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-head">
+          <div class="label">Guardrails</div>
+          <h2>What this direction must not turn into</h2>
+        </div>
+        <div class="grid-2">
+          <article class="card bad">
+            <h3>Never become</h3>
+            <ul>
+              <li>a transcript archive</li>
+              <li>a control plane</li>
+              <li>prompt soup</li>
+              <li>a black-box memory product</li>
+              <li>confidence theater</li>
+            </ul>
+          </article>
+          <article class="card good">
+            <h3>Must stay</h3>
+            <ul>
+              <li>inspectable without a special runtime</li>
+              <li>clear about durable vs rolling vs generated memory</li>
+              <li>evidence-backed</li>
+              <li>generic at the core, domain-specific at the edge</li>
+              <li>simpler in daily use over time</li>
+            </ul>
+          </article>
+        </div>
+        <div class="footer-note">
+          Paired durable note: <code>docs/adr/0006-native-codex-memory-direction.md</code>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
