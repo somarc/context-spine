@@ -1,5 +1,5 @@
 {
-  "runtime_version": "2026.03.16.3",
+  "runtime_version": "2026.03.17.1",
   "compatibility": {
     "python": "3.10",
     "node": "20.0.0"
@@ -8,6 +8,7 @@
     "scripts/context-spine/runtime-manifest.json",
     "scripts/context-spine/runtime_manifest.py",
     "scripts/context-spine/run_state.py",
+    "scripts/context-spine/query_core.py",
     "scripts/context-spine/generated_artifact.py"
   ],
   "safe_additive_files": [
@@ -19,6 +20,7 @@
     "docs/runbooks/elon-doctrine.md",
     "docs/runbooks/how-to-use-context-spine.md",
     "docs/runbooks/memory-state.md",
+    "docs/runbooks/native-memory-apis.md",
     "docs/runbooks/multi-repo-rollout.md",
     "docs/runbooks/pi-extension-points.md",
     "docs/runbooks/project-drop-in.md",
@@ -36,6 +38,9 @@
     "scripts/context-spine/memory_events.py",
     "scripts/context-spine/memory-state.py",
     "scripts/context-spine/memory_records.py",
+    "scripts/context-spine/query.py",
+    "scripts/context-spine/query_core.py",
+    "scripts/context-spine/rehydrate.py",
     "scripts/context-spine/mem-search.py",
     "scripts/context-spine/qmd-quick.sh",
     "scripts/context-spine/refresh.sh",
