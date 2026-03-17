@@ -13,6 +13,8 @@ This repository is a boilerplate intelligence layer for future projects.
 - run `npm run context:state` when you need a compact machine summary or a visual view of current memory layers
 - run `npm run context:query` when you need a JSON runtime view of active objective, working set, and recent evidence
 - run `npm run context:rehydrate` when you need the smaller restart packet for an external runtime or agent
+- run `npm run context:promote` after you update durable files and want the promotion recorded as a record plus event
+- run `npm run context:invalidate` after you mark an assumption or surface stale and want that invalidation recorded explicitly
 - if retrieval is newly initialized and results are sparse, run `npm run context:update` and then `npm run context:embed`
 - if you change `.pi/skills/`, run `npm run context:skill:install`
 

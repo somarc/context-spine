@@ -1,5 +1,5 @@
 {
-  "runtime_version": "2026.03.17.1",
+  "runtime_version": "2026.03.17.2",
   "compatibility": {
     "python": "3.10",
     "node": "20.0.0"
@@ -9,6 +9,7 @@
     "scripts/context-spine/runtime_manifest.py",
     "scripts/context-spine/run_state.py",
     "scripts/context-spine/query_core.py",
+    "scripts/context-spine/memory_reconciliation.py",
     "scripts/context-spine/generated_artifact.py"
   ],
   "safe_additive_files": [
@@ -36,8 +37,11 @@
     "scripts/context-spine/install-codex-skill.sh",
     "scripts/context-spine/mem-log.py",
     "scripts/context-spine/memory_events.py",
+    "scripts/context-spine/memory_reconciliation.py",
     "scripts/context-spine/memory-state.py",
     "scripts/context-spine/memory_records.py",
+    "scripts/context-spine/invalidate.py",
+    "scripts/context-spine/promote.py",
     "scripts/context-spine/query.py",
     "scripts/context-spine/query_core.py",
     "scripts/context-spine/rehydrate.py",

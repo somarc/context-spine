@@ -17,6 +17,15 @@ from memory_records import iter_record_paths, latest_record, records_root
 from run_state import finish_run, start_run
 
 
+MACHINE_RECORD_CATEGORIES = (
+    "sessions",
+    "observations",
+    "evidence",
+    "promotions",
+    "invalidations",
+)
+
+
 def default_repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
@@ -234,9 +243,10 @@ def build_state(
     html_path: Path | None = None,
     exclude_run_id: str = "",
 ) -> dict:
-    session_records = record_category_state(memory_root, repo_root, "sessions")
-    observation_records = record_category_state(memory_root, repo_root, "observations")
-    evidence_records = record_category_state(memory_root, repo_root, "evidence")
+    machine_records = {
+        category: record_category_state(memory_root, repo_root, category)
+        for category in MACHINE_RECORD_CATEGORIES
+    }
     events = event_state(memory_root, repo_root)
     runs = run_state(memory_root, repo_root, exclude_run_id=exclude_run_id)
     generated = {
@@ -258,18 +268,14 @@ def build_state(
         "layers": {
             "session": {
                 "latest_markdown": latest_session_markdown(memory_root, repo_root),
-                "records": session_records,
+                "records": machine_records["sessions"],
             },
             "project": {
                 "baseline": latest_baseline(memory_root, repo_root),
                 **project_counts(repo_root),
             },
             "machine": {
-                "records": {
-                    "sessions": session_records,
-                    "observations": observation_records,
-                    "evidence": evidence_records,
-                },
+                "records": machine_records,
                 "events": events,
                 "runs": runs,
             },
@@ -277,9 +283,9 @@ def build_state(
         },
         "summary": {
             "project_truth_surfaces": project_counts(repo_root),
-            "machine_record_total": session_records["count"] + observation_records["count"] + evidence_records["count"],
+            "machine_record_total": sum(item["count"] for item in machine_records.values()),
             "machine_event_total": events["count"],
-            "machine_capture_total": session_records["count"] + observation_records["count"] + evidence_records["count"] + events["count"],
+            "machine_capture_total": sum(item["count"] for item in machine_records.values()) + events["count"],
             "run_total": runs["count"],
             "generated_health": summarize_generated_health(generated),
         },
@@ -356,6 +362,7 @@ def render_event_card(payload: dict) -> str:
         "success": "badge-fresh",
         "fail": "badge-stale",
         "verification": "badge-fresh",
+        "promotion": "badge-fresh",
         "decision": "badge-neutral",
         "edit-burst": "badge-aging",
         "retrieval": "badge-neutral",
@@ -786,6 +793,8 @@ def render_memory_state_html(payload: dict) -> str:
               <li>{escape_html(machine["sessions"]["count"])} session record(s)</li>
               <li>{escape_html(machine["observations"]["count"])} observation record(s)</li>
               <li>{escape_html(machine["evidence"]["count"])} evidence record(s)</li>
+              <li>{escape_html(machine["promotions"]["count"])} promotion record(s)</li>
+              <li>{escape_html(machine["invalidations"]["count"])} invalidation record(s)</li>
               <li>{escape_html(events["count"])} high-signal event(s)</li>
               <li>Generated aids summarized with freshness status</li>
               <li>Designed for query and visual explanation, not for durable truth by itself</li>
