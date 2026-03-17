@@ -18,6 +18,8 @@ class ConfigureGitignoreTest(unittest.TestCase):
 
         self.assertIn("mode: tracked", updated)
         self.assertIn("node_modules/", updated)
+        self.assertIn("meta/context-spine/memory-state.html", updated)
+        self.assertIn("meta/context-spine/records/", updated)
 
         removed = configure_gitignore.remove_block(updated)
         self.assertEqual(removed, original)

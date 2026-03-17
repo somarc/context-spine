@@ -16,6 +16,7 @@
     "context:upgrade": "python3 ./scripts/context-spine/upgrade.py",
     "context:session": "python3 ./scripts/context-spine/mem-session.py",
     "context:score": "python3 ./scripts/context-spine/mem-score.py",
+    "context:state": "python3 ./scripts/context-spine/memory-state.py",
     "context:update": "bash ./scripts/context-spine/qmd-refresh.sh",
     "context:embed": "bash ./scripts/context-spine/qmd-refresh.sh --embed",
     "context:verify": "npm run context:test && npm run context:doctor && npm run context:score && npm run context:skill:validate",

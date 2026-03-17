@@ -46,6 +46,8 @@ It is not a product scaffold. It is the working memory spine that sits next to t
 - a baseline note that explains the repo in human terms
 - session notes that let work resume without a recap meeting
 - a hot-memory index that points to what to open first right now
+- a generated memory-state JSON and HTML pair for machine query plus fast visual re-anchoring
+- recent command/run history surfaced next to memory so verification does not disappear into terminal scrollback
 - retrieval plumbing so those notes stay searchable instead of forgotten
 - a place to tie decisions back to code, tests, commands, and docs
 
@@ -119,6 +121,7 @@ Read the plain-language guide in [docs/runbooks/how-to-use-context-spine.md](./d
 - bundled Codex skill sources under [`.pi/skills/`](./.pi/skills/), including `context-spine` and `principal-engineer-review`
 - optional extension points under `.pi/`
 - structured run records under `meta/context-spine/runs/` for doctor, rollout, upgrade, and related maintenance commands
+- structured machine-memory records under `meta/context-spine/records/` plus a generated `context:state` view
 
 ## Core Model
 
@@ -167,6 +170,7 @@ The shortest useful path uses the `npm run context:*` wrappers:
 5. Create a session note with `npm run context:session`.
 6. Refresh retrieval with `npm run context:refresh` when notes or docs change.
 7. Validate the operating contract with `npm run context:verify`.
+8. Generate the current machine and visual memory summary with `npm run context:state` when you want the layered state in one place.
 
 Useful next steps:
 

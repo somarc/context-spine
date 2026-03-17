@@ -90,4 +90,50 @@ cat > "$out_file" <<EOF
 - ${written:-<none>}
 EOF
 
+export CONTEXT_SPINE_ROOT="$ROOT"
+export CONTEXT_SPINE_MEMORY_ROOT="$ROOT/meta/context-spine"
+export CONTEXT_SPINE_EVIDENCE_JOB="$job"
+export CONTEXT_SPINE_EVIDENCE_SUMMARY="$summary"
+export CONTEXT_SPINE_EVIDENCE_LOG="$log_file"
+export CONTEXT_SPINE_EVIDENCE_MD="$out_file"
+export CONTEXT_SPINE_EVIDENCE_DECISION="$decision"
+export CONTEXT_SPINE_EVIDENCE_EVIDENCE="$evidence"
+export CONTEXT_SPINE_EVIDENCE_FILES="$files"
+export CONTEXT_SPINE_EVIDENCE_NEXT="$next_actions"
+export CONTEXT_SPINE_EVIDENCE_OUTPUT="${written:-<none>}"
+record_path="$(python3 - <<'PY'
+import datetime as dt
+import os
+import sys
+from pathlib import Path
+
+root = Path(os.environ["CONTEXT_SPINE_ROOT"])
+sys.path.insert(0, str(root / "scripts" / "context-spine"))
+
+from memory_records import write_record  # noqa: E402
+
+memory_root = Path(os.environ["CONTEXT_SPINE_MEMORY_ROOT"])
+path = write_record(
+    memory_root,
+    "evidence",
+    {
+        "layer": "evidence",
+        "job": os.environ["CONTEXT_SPINE_EVIDENCE_JOB"],
+        "summary": os.environ["CONTEXT_SPINE_EVIDENCE_SUMMARY"],
+        "log_path": os.environ["CONTEXT_SPINE_EVIDENCE_LOG"],
+        "markdown_path": os.environ["CONTEXT_SPINE_EVIDENCE_MD"],
+        "decision": os.environ["CONTEXT_SPINE_EVIDENCE_DECISION"],
+        "evidence": os.environ["CONTEXT_SPINE_EVIDENCE_EVIDENCE"],
+        "files": os.environ["CONTEXT_SPINE_EVIDENCE_FILES"],
+        "next_actions": os.environ["CONTEXT_SPINE_EVIDENCE_NEXT"],
+        "output_artifact": os.environ["CONTEXT_SPINE_EVIDENCE_OUTPUT"],
+    },
+    record_id=f"evidence-{os.environ['CONTEXT_SPINE_EVIDENCE_JOB']}",
+    recorded_at=dt.datetime.now(dt.UTC).replace(microsecond=0),
+)
+print(path)
+PY
+)"
+
 echo "EVIDENCE_PACK:$out_file"
+echo "EVIDENCE_RECORD:$record_path"

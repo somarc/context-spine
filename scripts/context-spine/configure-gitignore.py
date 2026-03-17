@@ -12,7 +12,10 @@ RULES = {
     "tracked": [
         "meta/context-spine/.qmd/",
         "meta/context-spine/runs/",
+        "meta/context-spine/records/",
         "meta/context-spine/hot-memory-index.md",
+        "meta/context-spine/memory-state.json",
+        "meta/context-spine/memory-state.html",
         "meta/context-spine/memory-scorecard.md",
         "meta/context-spine/doctor-report.md",
         "meta/context-spine/doctor-report.json",
