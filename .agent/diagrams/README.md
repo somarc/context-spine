@@ -39,15 +39,17 @@ If you only open one diagram first, use this order:
    - best read for human/operator value and design stance
 3. `context-spine-doctor-2026-03-15.html`
    - best read for hygiene and drift control
-4. `context-spine-upgrade-path-2026-03-15.html`
+4. `context-spine-runtime-contract-2026-03-16.html`
+   - best read when you need to understand the new runtime manifest, skill verification, and run-state model
+5. `context-spine-upgrade-path-2026-03-15.html`
    - best read when updating an older install
-5. `context-spine-pi-extension-points-2026-03-15.html`
+6. `context-spine-pi-extension-points-2026-03-15.html`
    - best read when deciding what belongs in `.pi/`
-6. `context-spine-skill-stack-2026-03-15.html`
+7. `context-spine-skill-stack-2026-03-15.html`
    - best read when deciding how the maintenance, promotion, and rollout skills fit together
-7. `context-spine-agent-working-set-2026-03-15.html`
+8. `context-spine-agent-working-set-2026-03-15.html`
    - best read when deciding how an agent should open the repo without guessing
-8. `context-spine-elon-doctrine-2026-03-15.html`
+9. `context-spine-elon-doctrine-2026-03-15.html`
    - best read when deciding whether a change is actually valuable or just more complexity
 
 ## Current Catalog
@@ -57,6 +59,7 @@ If you only open one diagram first, use this order:
 | `context-spine-overview-2026-03-11.html` | new reader, maintainer | the whole model | "What is Context Spine and how is it shaped?" | current |
 | `context-spine-human-review-2026-03-11.html` | human operator, reviewer | why this exists and why it matters | "Why is this worth using in a real project?" | current |
 | `context-spine-doctor-2026-03-15.html` | maintainer, lead | repo hygiene and drift control | "How do we know the memory spine still maps to project truth?" | current |
+| `context-spine-runtime-contract-2026-03-16.html` | maintainer, agent user | the new runtime guarantees | "How did Context Spine become more auditable and deterministic?" | current |
 | `context-spine-upgrade-path-2026-03-15.html` | maintainer of older installs | existing-project upgrades | "How do we move older repos forward safely?" | current |
 | `context-spine-pi-extension-points-2026-03-15.html` | maintainer, agent user | optional extension design | "What should `.pi/` contain, and what should stay out?" | current |
 | `context-spine-skill-stack-2026-03-15.html` | maintainer, agent user | the new orchestration layer | "How do maintenance, promotion, and rollout fit around the core scripts?" | current |

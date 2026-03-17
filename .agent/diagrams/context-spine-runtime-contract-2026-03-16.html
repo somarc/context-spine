@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Context Spine Runtime Contract</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #edf3fb;
+        --surface: rgba(255, 255, 255, 0.9);
+        --surface-strong: rgba(255, 255, 255, 0.96);
+        --text: #14273d;
+        --text-dim: #607289;
+        --border: rgba(20, 39, 61, 0.12);
+        --accent: #0b6fa4;
+        --accent-soft: rgba(11, 111, 164, 0.11);
+        --safe: #176d58;
+        --safe-soft: rgba(23, 109, 88, 0.12);
+        --warn: #a35f13;
+        --warn-soft: rgba(163, 95, 19, 0.12);
+        --shadow: 0 24px 64px rgba(25, 52, 81, 0.12);
+        --grid: rgba(11, 111, 164, 0.08);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        color: var(--text);
+        font-family: "IBM Plex Sans", system-ui, sans-serif;
+        background:
+          linear-gradient(var(--grid) 1px, transparent 1px),
+          linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+          radial-gradient(circle at top right, rgba(11, 111, 164, 0.12), transparent 24%),
+          linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
+        background-size: 28px 28px, 28px 28px, auto, auto;
+      }
+
+      main {
+        width: min(1220px, calc(100vw - 40px));
+        margin: 26px auto 72px;
+      }
+
+      .hero,
+      .panel,
+      .card,
+      .rail {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(12px);
+      }
+
+      .hero {
+        padding: 34px;
+        display: grid;
+        gap: 24px;
+        margin-bottom: 24px;
+      }
+
+      .eyebrow,
+      .kicker,
+      .meta-label {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 12px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--accent);
+      }
+
+      .hero-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 22px;
+      }
+
+      h1, h2, h3, h4 {
+        margin: 0;
+        font-weight: 600;
+      }
+
+      h1 {
+        font-size: clamp(3rem, 6vw, 5.2rem);
+        line-height: 0.92;
+        max-width: 10.5ch;
+      }
+
+      .lede {
+        max-width: 68ch;
+        font-size: 1.1rem;
+        line-height: 1.72;
+        color: var(--text-dim);
+      }
+
+      .hero-note {
+        display: grid;
+        gap: 14px;
+        align-content: start;
+      }
+
+      .hero-callout {
+        padding: 18px 20px;
+        border-radius: 22px;
+        background: var(--surface-strong);
+        border: 1px solid var(--border);
+      }
+
+      .hero-callout p {
+        margin: 8px 0 0;
+        line-height: 1.6;
+        color: var(--text-dim);
+      }
+
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .pill {
+        padding: 9px 12px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.7);
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.82rem;
+      }
+
+      .panel {
+        padding: 28px;
+        margin-top: 24px;
+      }
+
+      .grid-3,
+      .grid-2,
+      .flow-grid,
+      .metric-grid {
+        display: grid;
+        gap: 18px;
+      }
+
+      .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .metric-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 18px; }
+      .flow-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 18px; }
+
+      .card,
+      .rail {
+        padding: 22px;
+      }
+
+      .card p,
+      .rail p,
+      li {
+        color: var(--text-dim);
+        line-height: 1.66;
+      }
+
+      .metric {
+        padding: 18px;
+        border-radius: 22px;
+        border: 1px solid var(--border);
+        background: var(--surface-strong);
+      }
+
+      .metric strong {
+        display: block;
+        margin-top: 10px;
+        font-size: 1.8rem;
+        color: var(--text);
+      }
+
+      .flow-step {
+        position: relative;
+        padding: 18px;
+        border-radius: 22px;
+        border: 1px solid var(--border);
+        background: var(--surface-strong);
+        min-height: 192px;
+      }
+
+      .flow-step::after {
+        content: "→";
+        position: absolute;
+        right: -14px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 1.2rem;
+        color: rgba(20, 39, 61, 0.35);
+      }
+
+      .flow-step:last-child::after { content: ""; }
+
+      .flow-step h3 {
+        margin-bottom: 10px;
+        font-size: 1.08rem;
+      }
+
+      .before-after {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+        margin-top: 18px;
+      }
+
+      .state-box {
+        padding: 20px;
+        border-radius: 22px;
+        border: 1px solid var(--border);
+      }
+
+      .state-box.before { background: var(--warn-soft); }
+      .state-box.after { background: var(--safe-soft); }
+
+      ul {
+        margin: 12px 0 0;
+        padding-left: 18px;
+      }
+
+      li + li { margin-top: 8px; }
+
+      code {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.9em;
+        padding: 0.15em 0.42em;
+        border-radius: 0.45em;
+        background: rgba(20, 39, 61, 0.07);
+        color: var(--text);
+      }
+
+      .rail {
+        display: grid;
+        gap: 14px;
+      }
+
+      .file-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .file-item {
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.72);
+        border: 1px solid var(--border);
+      }
+
+      .file-item strong {
+        display: block;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.88rem;
+        color: var(--text);
+      }
+
+      .file-item span {
+        display: block;
+        margin-top: 6px;
+        font-size: 0.94rem;
+        color: var(--text-dim);
+      }
+
+      .footer-note {
+        margin-top: 18px;
+        padding-top: 18px;
+        border-top: 1px solid var(--border);
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.84rem;
+        color: var(--text-dim);
+      }
+
+      @media (max-width: 980px) {
+        main {
+          width: min(100vw - 18px, 100%);
+          margin: 14px auto 34px;
+        }
+
+        .hero,
+        .panel,
+        .card,
+        .rail {
+          padding: 20px;
+          border-radius: 22px;
+        }
+
+        .hero-grid,
+        .grid-3,
+        .grid-2,
+        .metric-grid,
+        .flow-grid,
+        .before-after {
+          grid-template-columns: 1fr;
+        }
+
+        .flow-step::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -18px; transform: translateX(-50%); }
+        .flow-step:last-child::after { content: ""; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <div class="eyebrow">Context Spine · Runtime Contract Upgrade · 6e590f6</div>
+        <div class="hero-grid">
+          <div>
+            <h1>Make the memory system prove its own runtime.</h1>
+            <p class="lede">
+              This change set made Context Spine more like an auditable runtime and less like a pile of helpful scripts.
+              The core shift is simple: the repo now has a versioned runtime contract, deterministic skill sync validation,
+              and structured run records for the maintenance commands that keep trust surfaces current.
+            </p>
+            <div class="pill-row">
+              <div class="pill">Runtime manifest</div>
+              <div class="pill">Skill digests</div>
+              <div class="pill">Run IDs</div>
+              <div class="pill">Structured run state</div>
+            </div>
+          </div>
+          <div class="hero-note">
+            <div class="hero-callout">
+              <div class="meta-label">What changed materially</div>
+              <p>
+                <code>doctor</code>, <code>hot-memory</code>, <code>rollout</code>, and <code>upgrade</code>
+                now leave an explicit trace. Skill install and verification now check normalized directory digests,
+                so repo skill source and installed Codex copies can be proven identical.
+              </p>
+            </div>
+            <div class="hero-callout">
+              <div class="meta-label">Why it matters</div>
+              <p>
+                Context Spine already cared about evidence. This makes the runtime itself evidence-bearing:
+                versioned, inspectable, and able to answer “what exactly ran?” without relying on chat memory.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="kicker">Before / After</div>
+        <div class="before-after">
+          <div class="state-box before">
+            <h2>Before</h2>
+            <ul>
+              <li>Skill sync validated syntax, but not source-to-installed equality.</li>
+              <li>No single runtime manifest described version, compatibility, or shared runtime surfaces.</li>
+              <li>Maintenance commands generated aids, but did not emit a durable run identity or structured state record.</li>
+            </ul>
+          </div>
+          <div class="state-box after">
+            <h2>After</h2>
+            <ul>
+              <li><code>runtime-manifest.json</code> defines the shared runtime contract.</li>
+              <li><code>context:skill:verify-installed</code> proves installed skill copies match repo source digests.</li>
+              <li>Maintenance commands emit run IDs and write JSON records under <code>meta/context-spine/runs/</code>.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="kicker">Flow</div>
+        <div class="flow-grid">
+          <div class="flow-step">
+            <div class="meta-label">1. Contract</div>
+            <h3>Runtime manifest becomes the shared truth</h3>
+            <p>
+              <code>scripts/context-spine/runtime-manifest.json</code> declares the runtime version,
+              compatibility expectations, generated aids, skill names, and core runtime files.
+            </p>
+          </div>
+          <div class="flow-step">
+            <div class="meta-label">2. Execution</div>
+            <h3>Maintenance commands start with a run handle</h3>
+            <p>
+              <code>doctor</code>, <code>hot-memory</code>, <code>rollout</code>, and <code>upgrade</code>
+              create a run ID immediately and attach runtime metadata before they emit reports.
+            </p>
+          </div>
+          <div class="flow-step">
+            <div class="meta-label">3. Verification</div>
+            <h3>Skill install now compares digests</h3>
+            <p>
+              Source skill directories under <code>.pi/skills/</code> are compared to installed
+              copies in <code>~/.codex/skills/</code> using normalized directory digests.
+            </p>
+          </div>
+          <div class="flow-step">
+            <div class="meta-label">4. Evidence</div>
+            <h3>Generated artifacts become traceable</h3>
+            <p>
+              Reports still exist, but now they can be tied back to a structured JSON run record,
+              giving Context Spine a better answer to “what happened, when, and under which contract?”
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="kicker">The Three Additions</div>
+        <div class="grid-3">
+          <article class="card">
+            <div class="meta-label">Addition A</div>
+            <h2>Versioned runtime manifest</h2>
+            <p>
+              The new manifest is the boilerplate-side contract for shared runtime surfaces. It reduces drift between
+              <code>doctor</code>, <code>upgrade</code>, gitignore policy, and future automation by keeping the runtime
+              description in one place instead of spreading it across scripts.
+            </p>
+            <ul>
+              <li>runtime version</li>
+              <li>compatibility metadata</li>
+              <li>runtime files</li>
+              <li>generated aid classes</li>
+            </ul>
+          </article>
+          <article class="card">
+            <div class="meta-label">Addition B</div>
+            <h2>Source / installed digest verification</h2>
+            <p>
+              This closes a real trust gap. Syntax-only validation could not prove that the repo skill source and the
+              installed Codex skill copy were actually the same. Digest comparison now gives a binary answer.
+            </p>
+            <ul>
+              <li><code>validate-codex-skill.py --compare</code></li>
+              <li><code>install-codex-skill.sh --verify-installed</code></li>
+              <li><code>npm run context:skill:verify-installed</code></li>
+            </ul>
+          </article>
+          <article class="card">
+            <div class="meta-label">Addition C</div>
+            <h2>Run IDs and structured run state</h2>
+            <p>
+              The maintenance layer now carries its own execution trail. Each run gets a stable ID, summary, status,
+              runtime version, and artifact list. That makes generated aids auditable instead of orphaned.
+            </p>
+            <ul>
+              <li>JSON records under <code>meta/context-spine/runs/</code></li>
+              <li>run ID emitted in terminal output</li>
+              <li>artifacts linked in structured state</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="kicker">Operational Surfaces</div>
+        <div class="grid-2">
+          <div class="rail">
+            <h2>Commands that now leave structured traces</h2>
+            <div class="file-list">
+              <div class="file-item">
+                <strong>context:doctor</strong>
+                <span>Loads config and runtime manifest, emits a run ID, writes report plus run record.</span>
+              </div>
+              <div class="file-item">
+                <strong>hot-memory.py</strong>
+                <span>Generates the working-set index and records the run metadata that produced it.</span>
+              </div>
+              <div class="file-item">
+                <strong>rollout.py</strong>
+                <span>Aggregates multi-repo status and records the run contract for the rollout report.</span>
+              </div>
+              <div class="file-item">
+                <strong>upgrade.py</strong>
+                <span>Evaluates upgrade-safe changes under a versioned contract and records the run summary.</span>
+              </div>
+            </div>
+          </div>
+          <div class="rail">
+            <h2>Key files added or materially changed</h2>
+            <div class="file-list">
+              <div class="file-item">
+                <strong>scripts/context-spine/runtime-manifest.json</strong>
+                <span>New versioned runtime contract.</span>
+              </div>
+              <div class="file-item">
+                <strong>scripts/context-spine/runtime_manifest.py</strong>
+                <span>Manifest loader plus normalized file and directory digests.</span>
+              </div>
+              <div class="file-item">
+                <strong>scripts/context-spine/run_state.py</strong>
+                <span>Run handle creation and structured JSON persistence.</span>
+              </div>
+              <div class="file-item">
+                <strong>scripts/context-spine/install-codex-skill.sh</strong>
+                <span>Now verifies installed skill copies against source digests.</span>
+              </div>
+              <div class="file-item">
+                <strong>scripts/context-spine/validate-codex-skill.py</strong>
+                <span>Now validates and compares skill directory digests.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="kicker">Measured Outcome</div>
+        <div class="metric-grid">
+          <div class="metric">
+            <div class="meta-label">Trust</div>
+            <strong>Higher</strong>
+            <p>Repo skill source and installed skill copies can now be proven equal instead of assumed equal.</p>
+          </div>
+          <div class="metric">
+            <div class="meta-label">Determinism</div>
+            <strong>Explicit</strong>
+            <p>Runtime version and core runtime file set now live under one manifest instead of being inferred.</p>
+          </div>
+          <div class="metric">
+            <div class="meta-label">Auditability</div>
+            <strong>Persistent</strong>
+            <p>Maintenance commands now have durable run identity and structured evidence-bearing state.</p>
+          </div>
+        </div>
+        <div class="footer-note">
+          Landed in commit <code>6e590f6</code> · “Add versioned runtime contract and skill digest verification”
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
