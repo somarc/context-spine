@@ -43,8 +43,18 @@ class MemoryStateTest(unittest.TestCase):
                 {"summary": "Observation record"},
                 record_id="observation-demo",
             )
-            handle = run_state.start_run(repo_root, memory_root, "context:doctor")
-            run_state.finish_run(handle, status="success", summary="Doctor completed.")
+            handle = run_state.start_run(repo_root, memory_root, "context:verify")
+            run_state.finish_run(
+                handle,
+                status="success",
+                summary="Verify completed.",
+                extra={
+                    "steps": [
+                        {"name": "tests", "status": "success"},
+                        {"name": "doctor", "status": "success"},
+                    ]
+                },
+            )
 
             payload = memory_state.build_state(repo_root, memory_root)
 
@@ -56,7 +66,8 @@ class MemoryStateTest(unittest.TestCase):
             self.assertEqual(payload["layers"]["machine"]["records"]["sessions"]["count"], 1)
             self.assertEqual(payload["layers"]["machine"]["records"]["observations"]["count"], 1)
             self.assertEqual(payload["layers"]["machine"]["runs"]["count"], 1)
-            self.assertEqual(payload["layers"]["machine"]["runs"]["recent"][0]["command"], "context:doctor")
+            self.assertEqual(payload["layers"]["machine"]["runs"]["recent"][0]["command"], "context:verify")
+            self.assertEqual(payload["layers"]["machine"]["runs"]["recent"][0]["step_count"], 2)
             self.assertTrue(payload["layers"]["generated"]["hot_memory"]["exists"])
             self.assertIsNotNone(payload["layers"]["session"]["latest_markdown"])
             self.assertEqual(payload["exports"]["json"], "meta/context-spine/memory-state.json")

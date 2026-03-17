@@ -273,7 +273,7 @@ Use one command to prove the runtime contract still holds:
 npm run context:verify
 ```
 
-That runs the stdlib test suite, doctor, scorecard generation, and bundled skill validation.
+That now runs the stdlib test suite, doctor, scorecard generation, and bundled skill validation through a single managed runtime entrypoint. The result is captured as one structured verification run with git state, diff summary, and per-step outcomes.
 
 If you want to prove the installed Codex skill copies still match the repo source, run:
 

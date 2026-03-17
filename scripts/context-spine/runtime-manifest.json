@@ -40,6 +40,7 @@
     "scripts/context-spine/rollout.py",
     "scripts/context-spine/setup.sh",
     "scripts/context-spine/upgrade.py",
+    "scripts/context-spine/verify.py",
     "scripts/context-spine/validate-codex-skill.py"
   ],
   "merge_review_files": [

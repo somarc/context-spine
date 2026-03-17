@@ -46,6 +46,8 @@ The JSON and HTML surfaces include:
 - counts for ADRs, runbooks, diagrams, and evidence packs
 - record counts for session, observation, and evidence machine surfaces
 - recent run history from commands like `context:doctor`, `context:score`, and `context:state`
+- automatic git branch, head, dirty-worktree, and diff summaries from those runs
+- structured verification step results from `context:verify`
 - freshness snapshots for generated aids like hot memory and scorecards
 
 The default output paths are:

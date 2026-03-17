@@ -8,6 +8,7 @@ This repository is a boilerplate intelligence layer for future projects.
 - run `npm run context:bootstrap` before broad repo-wide searching
 - open `meta/context-spine/spine-notes-context-spine.md` first for the current baseline
 - create a session note for meaningful work with `npm run context:session`
+- use `npm run context:verify` when you want one captured verification run instead of ad hoc test and maintenance scrollback
 - run `npm run context:state` when you need a compact machine summary or a visual view of current memory layers
 - if retrieval is newly initialized and results are sparse, run `npm run context:update` and then `npm run context:embed`
 - if you change `.pi/skills/`, run `npm run context:skill:install`

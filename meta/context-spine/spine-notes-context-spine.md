@@ -62,6 +62,7 @@ As of 2026-03-16, this repository is the reusable boilerplate for bootstrapping 
 - Session, observation, and evidence helpers now emit machine-readable records under `meta/context-spine/records/` alongside the existing markdown surfaces.
 - `context:state` now emits a machine-readable JSON summary plus a generated HTML explainer so the current memory layers can be consumed by Codex and read quickly by humans.
 - The state surface now also summarizes recent run history so verification and maintenance commands become visible memory, not just terminal output.
+- Run-state capture now records git branch/head, dirty-worktree counts, diff summaries, and managed verification step results automatically for Context Spine commands.
 
 ## Decisions
 
@@ -84,6 +85,7 @@ As of 2026-03-16, this repository is the reusable boilerplate for bootstrapping 
 - Use the design compass as the harder boundary for future "native memory" ambitions so Context Spine can improve without losing its purpose.
 - Treat native-memory evolution as a dual-surface problem: human-readable file truth plus machine-usable structured capture, never one replacing the other.
 - Keep `context:state` as a thin generated summary of existing memory, not as a replacement for the baseline, ADRs, runbooks, or curated explainers.
+- Prefer enriching managed run capture over adding more manual notes when the missing truth is really command, test, git, or diff provenance.
 
 ## Open Questions
 

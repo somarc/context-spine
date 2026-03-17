@@ -134,6 +134,10 @@ def run_state(memory_root: Path, repo_root: Path, limit: int = 6, exclude_run_id
             continue
         if exclude_run_id and payload.get("run_id") == exclude_run_id:
             continue
+        automatic_capture = payload.get("automatic_capture", {})
+        classification = automatic_capture.get("classification", {})
+        git_snapshot = automatic_capture.get("git_finish") or automatic_capture.get("git_start") or {}
+        step_results = payload.get("extra", {}).get("steps", [])
         stamp = safe_mtime(path)
         items.append(
             (
@@ -147,6 +151,18 @@ def run_state(memory_root: Path, repo_root: Path, limit: int = 6, exclude_run_id
                     "finished_at": payload.get("finished_at"),
                     "summary": payload.get("summary", ""),
                     "artifact_count": len(payload.get("artifacts", [])),
+                    "family": classification.get("family", ""),
+                    "signals": classification.get("signals", []),
+                    "git": {
+                        "available": git_snapshot.get("available", False),
+                        "branch": git_snapshot.get("branch", ""),
+                        "head_short": git_snapshot.get("head_short", ""),
+                        "dirty": git_snapshot.get("dirty", False),
+                        "changed_path_count": git_snapshot.get("changed_path_count", 0),
+                        "diff_vs_head": git_snapshot.get("diff_vs_head", {}),
+                    },
+                    "step_count": len(step_results),
+                    "failed_step_count": sum(1 for step in step_results if step.get("status") != "success"),
                 },
             )
         )
@@ -313,11 +329,41 @@ def render_run_card(payload: dict) -> str:
         "running": "badge-neutral",
     }.get(status, "badge-neutral")
     summary = payload.get("summary") or "No summary recorded."
+    git = payload.get("git", {})
+    git_line = ""
+    if git.get("available"):
+        dirty_label = "dirty" if git.get("dirty") else "clean"
+        git_line = (
+            f'<p class="meta-line">Git: {escape_html(git.get("branch", "unknown"))} @ '
+            f'{escape_html(git.get("head_short", ""))} | {escape_html(dirty_label)} '
+            f'({escape_html(git.get("changed_path_count", 0))} path(s))</p>'
+        )
+    diff = git.get("diff_vs_head", {}) if isinstance(git, dict) else {}
+    diff_line = ""
+    if diff and diff.get("raw"):
+        diff_line = f'<p class="meta-line">Diff vs HEAD: {escape_html(diff.get("raw", ""))}</p>'
+    signals = payload.get("signals", [])
+    signal_line = ""
+    if payload.get("family") or signals:
+        signal_line = (
+            f'<p class="meta-line">Family: {escape_html(payload.get("family", "general"))} | '
+            f'Signals: {escape_html(", ".join(signals) if signals else "none")}</p>'
+        )
+    step_line = ""
+    if payload.get("step_count", 0):
+        step_line = (
+            f'<p class="meta-line">Steps: {escape_html(payload.get("step_count", 0))} | '
+            f'Failures: {escape_html(payload.get("failed_step_count", 0))}</p>'
+        )
     return (
         '<div class="surface">'
         f'<div class="surface-head"><strong>{escape_html(payload.get("command", "run"))}</strong>'
         f'<span class="badge {badge_class}">{escape_html(status)}</span></div>'
         f'<p>{escape_html(summary)}</p>'
+        f"{signal_line}"
+        f"{git_line}"
+        f"{diff_line}"
+        f"{step_line}"
         f'<p class="meta-line">Artifacts: {escape_html(payload.get("artifact_count", 0))} | Started: {escape_html(payload.get("started_at", ""))}</p>'
         f'{render_path_chip(str(payload.get("path", "")))}'
         "</div>"
