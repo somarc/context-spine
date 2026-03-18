@@ -7,7 +7,7 @@ description: Recover current project truth, bootstrap durable repo-local memory,
 
 ## Overview
 
-Use this skill to recover current project truth, make it durable, and keep retrieval grounded in evidence rather than recall. Prefer repo-local memory, QMD-first retrieval, and command-backed evidence over prompt-only context.
+Use this skill to recover current project truth, make it durable, and keep retrieval grounded in evidence rather than recall. Prefer repo-local memory, direct evidence from code/tests/commands, and supported retrieval adapters such as QMD only when they compress discovery better than raw local access.
 
 > Context Spine is not valuable because it stores more notes. It is valuable when it becomes the thinnest possible operating layer for current truth. If you keep it lean, evidence-based, and invalidation-aware, it is a very strong tool. If it drifts into ceremony, it dies.
 
@@ -21,6 +21,7 @@ Optimize for flow as well: hydrate from the deepest relevant sources, move only 
 1. Detect the operating mode: `active-delivery`, `existing`, `partial`, `missing`, `promotion`, or `skill-maintenance`.
 1. Prefer repo-local wrappers over ad hoc shell when they exist.
 1. Open only the smallest high-signal working set first: a baseline `spine-notes-*.md`, the latest session, `hot-memory-index.md`, and the most relevant ADR or runbook.
+1. Treat retrieval engines as supporting adapters, not as the memory contract. QMD remains a supported retrieval surface; reach for it when you need cross-repo discovery, broad corpus sweep, or restart triage, but do not force the working set through retrieval when live repo evidence is already local and smaller.
 1. If freshness, project pivots, or contradictory evidence matter, read `references/spine-of-time.md`.
 1. If the problem feels information-dense, contradictory, or mentally slippery, read `references/flow-and-cognition.md`.
 1. Re-anchor any proposed change in code, tests, or command output. Do not treat code, docs, notes, and evidence as interchangeable.
@@ -66,8 +67,10 @@ Optimize for flow as well: hydrate from the deepest relevant sources, move only 
 
 ### Existing Context Spine repo
 
-- Prefer `npm run context:init`, `context:update`, `context:embed`, `context:bootstrap`, `context:session`, and `context:score` when available.
+- Prefer `npm run context:bootstrap`, `context:session`, `context:update`, and `context:score` when available.
 - Fall back to direct `scripts/context-spine/*` entrypoints when wrappers do not exist.
+- Use `context:init` for first install or collection repair, not as the default first move in an already-healthy repo.
+- Use `context:embed` only when vector retrieval materially matters and the local runtime supports it; partial lexical hydration is degraded but still usable.
 - If retrieval is stale or newly initialized, refresh it before broad file search.
 - If the baseline note is missing, create it before expanding the rest of the memory layer.
 
@@ -99,6 +102,8 @@ Optimize for flow as well: hydrate from the deepest relevant sources, move only 
 ## Output Expectations
 
 - State the detected mode and topology explicitly.
+- Make the agent contract visible: bootstrap, working set, direct evidence, and the durable artifact that would need repair if current memory is misleading.
+- Make the human contract visible when helpful: visual explanation, evidence trail, and source-of-truth references instead of raw internal memory mechanics.
 - Separate:
   - `ACTIVE_OBJECTIVE`
   - `AUTHORITATIVE_SURFACES`

@@ -97,6 +97,18 @@ print_session_preview() {
   fi
 }
 
+ensure_repo_local_qmd_entries() {
+  local output=""
+  if output="$(bash "$ROOT/scripts/context-spine/init-qmd.sh" 2>&1)"; then
+    return 0
+  fi
+  echo "QMD collections: failed to ensure repo-local entries" >&2
+  if [[ -n "$output" ]]; then
+    printf '%s\n' "$output" >&2
+  fi
+  return 1
+}
+
 LOCAL_INDEX_DIR="$MEM_ROOT/.qmd"
 LOCAL_INDEX_PATH="$LOCAL_INDEX_DIR/index.sqlite"
 if [[ -z "${INDEX_PATH:-}" ]]; then
@@ -184,7 +196,7 @@ fi
 if command -v qmd >/dev/null 2>&1; then
   echo "QMD: available"
   echo "QMD collections: ensuring repo-local entries"
-  bash "$ROOT/scripts/context-spine/init-qmd.sh" >/dev/null
+  ensure_repo_local_qmd_entries
   echo "Result: ready"
   if [[ -f "$PACKAGE_JSON" ]]; then
     echo "Lean path: npm run context:setup for first install, npm run context:refresh after note/doc changes."

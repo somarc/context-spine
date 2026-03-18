@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import datetime as dt
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -33,20 +34,15 @@ def summarize_output(stdout: str, stderr: str, returncode: int) -> str:
 
 
 def verify_steps(repo_root: Path) -> list[dict]:
-    return [
+    steps = [
         {
             "name": "tests",
             "command": ["python3", "-m", "unittest", "discover", "-s", "tests", "-p", "test_*.py"],
             "cwd": repo_root,
         },
         {
-            "name": "doctor",
-            "command": ["python3", "./scripts/context-spine/doctor.py"],
-            "cwd": repo_root,
-        },
-        {
-            "name": "score",
-            "command": ["python3", "./scripts/context-spine/mem-score.py"],
+            "name": "bootstrap",
+            "command": ["bash", "./scripts/context-spine/bootstrap.sh"],
             "cwd": repo_root,
         },
         {
@@ -55,6 +51,37 @@ def verify_steps(repo_root: Path) -> list[dict]:
             "cwd": repo_root,
         },
     ]
+    if shutil.which("qmd"):
+        steps.extend(
+            [
+                {
+                    "name": "retrieval_lexical",
+                    "command": ["bash", "./scripts/context-spine/refresh.sh"],
+                    "cwd": repo_root,
+                },
+                {
+                    "name": "retrieval_embed",
+                    "command": ["bash", "./scripts/context-spine/qmd-refresh.sh", "--embed"],
+                    "cwd": repo_root,
+                    "optional_on_failure": True,
+                },
+            ]
+        )
+    steps.extend(
+        [
+            {
+                "name": "doctor",
+                "command": ["python3", "./scripts/context-spine/doctor.py"],
+                "cwd": repo_root,
+            },
+            {
+                "name": "score",
+                "command": ["python3", "./scripts/context-spine/mem-score.py"],
+                "cwd": repo_root,
+            },
+        ]
+    )
+    return steps
 
 
 def run_step(step: dict) -> dict:
@@ -67,12 +94,15 @@ def run_step(step: dict) -> dict:
         check=False,
     )
     finished = dt.datetime.now(dt.UTC)
-    status = "success" if result.returncode == 0 else "fail"
+    status = "success"
+    if result.returncode != 0:
+        status = "warn" if step.get("optional_on_failure") else "fail"
     return {
         "name": step["name"],
         "command": step["command"],
         "cwd": str(step["cwd"]),
         "status": status,
+        "optional_on_failure": bool(step.get("optional_on_failure")),
         "returncode": result.returncode,
         "started_at": started.replace(microsecond=0).isoformat(),
         "finished_at": finished.replace(microsecond=0).isoformat(),
@@ -83,12 +113,19 @@ def run_step(step: dict) -> dict:
     }
 
 
-def verification_event_payload(run_handle, steps: list[dict], failed: list[str], summary: str) -> dict:
+def verification_event_payload(
+    run_handle,
+    steps: list[dict],
+    failed: list[str],
+    warned: list[str],
+    summary: str,
+    status: str,
+) -> dict:
     return {
         "summary": summary,
         "source": "context-spine",
         "source_command": "context:verify",
-        "status": "success" if not failed else "fail",
+        "status": status,
         "run_id": run_handle.run_id,
         "refs": [str(run_handle.path)],
         "verification_steps": [
@@ -97,10 +134,12 @@ def verification_event_payload(run_handle, steps: list[dict], failed: list[str],
                 "status": step["status"],
                 "summary": step["summary"],
                 "duration_seconds": step["duration_seconds"],
+                "optional_on_failure": step.get("optional_on_failure", False),
             }
             for step in steps
         ],
         "failed_steps": failed,
+        "warned_steps": warned,
     }
 
 
@@ -125,13 +164,20 @@ def main() -> int:
     )
 
     steps = [run_step(step) for step in verify_steps(repo_root)]
-    failed = [step["name"] for step in steps if step["status"] != "success"]
-    status = "success" if not failed else "fail"
-    summary = (
-        "Verification passed across tests, doctor, score, and skill validation."
-        if not failed
-        else f"Verification failed in {len(failed)} step(s): {', '.join(failed)}."
-    )
+    failed = [step["name"] for step in steps if step["status"] == "fail"]
+    warned = [step["name"] for step in steps if step["status"] == "warn"]
+    if failed:
+        status = "fail"
+        summary = f"Verification failed in {len(failed)} required step(s): {', '.join(failed)}."
+    elif warned:
+        status = "warn"
+        summary = (
+            "Verification passed on the core path, but optional capability checks warned in "
+            f"{len(warned)} step(s): {', '.join(warned)}."
+        )
+    else:
+        status = "success"
+        summary = "Verification passed across tests, bootstrap, lexical retrieval, doctor, score, and skill validation."
 
     finish_run(
         run_handle,
@@ -141,12 +187,13 @@ def main() -> int:
         extra={
             "steps": steps,
             "failed_steps": failed,
+            "warned_steps": warned,
         },
     )
     event_path = write_event(
         memory_root,
         "verification",
-        verification_event_payload(run_handle, steps, failed, summary),
+        verification_event_payload(run_handle, steps, failed, warned, summary, status),
         event_id=f"verification-{run_handle.run_id}",
     )
 

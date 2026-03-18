@@ -6,7 +6,7 @@ Make explicit what `Context Spine` builds on so teams understand the shoulders i
 
 ## Recommended Wrapper Path
 
-The lean path uses `npm run context:setup`, `npm run context:bootstrap`, and `npm run context:refresh`. For that path, verify these commands first:
+The lean path uses `npm run context:setup`, `npm run context:bootstrap`, and `npm run context:refresh`. That default path expects lexical retrieval only. Use `npm run context:embed` when you want to attempt vector hydration explicitly. For the lean path, verify these commands first:
 
 ```bash
 git --version
@@ -59,11 +59,14 @@ brew install sqlite
 
 - `qmd`
   - this is the retrieval layer that turns repo memory, docs, and vault notes into one query plane
+  - lexical retrieval is the default supported path; vector hydration is useful but optional
 - an external durable note system
   - Obsidian is a strong fit, but the key requirement is linked, durable, searchable notes outside the repo
 
 ## Optional but High-Value
 
+- Obsidian CLI
+  - useful if you want command-line workflows for external durable notes, but not required for Context Spine core
 - local agent runtime extensions under `.pi/`
 - `ollama` or another local model backend
 - `tmux` for bounded parallel work
@@ -83,6 +86,10 @@ Context Spine deliberately builds on existing tools instead of reinventing them:
 ## Principle
 
 Context Spine is an intelligence layer, not a replacement stack. Its value comes from connecting these surfaces into one operating loop.
+
+## Runtime Note
+
+On some macOS hosts, QMD vector hydration can depend on the local runtime and SQLite extension-loading behavior. Treat lexical refresh as the safe default. Treat `context:embed` as an explicit capability check, not as a prerequisite for adopting Context Spine.
 
 ## Sources
 

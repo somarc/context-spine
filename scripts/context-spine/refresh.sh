@@ -2,19 +2,24 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-RUN_EMBED=1
+RUN_EMBED=0
 
 usage() {
   cat <<'EOF'
-Usage: refresh.sh [--no-embed]
+Usage: refresh.sh [--with-embed] [--no-embed]
 
 Refresh QMD retrieval for repo-local Context Spine surfaces.
-By default this runs both `qmd update` and `qmd embed`.
+By default this runs lexical refresh only (`qmd update`).
+Use `--with-embed` when you want to attempt vector hydration explicitly.
 EOF
 }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    --with-embed)
+      RUN_EMBED=1
+      shift
+      ;;
     --no-embed)
       RUN_EMBED=0
       shift

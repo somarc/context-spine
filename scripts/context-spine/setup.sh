@@ -3,16 +3,18 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 RUN_BOOTSTRAP=1
-RUN_EMBED=1
+RUN_EMBED=0
 
 usage() {
   cat <<'EOF'
-Usage: setup.sh [--skip-bootstrap] [--no-embed]
+Usage: setup.sh [--skip-bootstrap] [--with-embed] [--no-embed]
 
 Fast first-time path for Context Spine:
   1. wire repo-local QMD collections
-  2. refresh retrieval
+  2. refresh lexical retrieval
   3. open the working set via bootstrap
+
+Use `--with-embed` only when you want to attempt vector hydration explicitly.
 EOF
 }
 
@@ -20,6 +22,10 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --skip-bootstrap)
       RUN_BOOTSTRAP=0
+      shift
+      ;;
+    --with-embed)
+      RUN_EMBED=1
       shift
       ;;
     --no-embed)
@@ -42,11 +48,11 @@ echo "===== CONTEXT SETUP ====="
 echo "Root: $ROOT"
 
 if command -v qmd >/dev/null 2>&1; then
-  echo "Retrieval: configuring repo-local QMD collections and refreshing the index"
+  echo "Retrieval: configuring repo-local QMD collections and refreshing lexical search"
   if [[ "$RUN_EMBED" -eq 1 ]]; then
-    bash "$ROOT/scripts/context-spine/refresh.sh"
+    bash "$ROOT/scripts/context-spine/refresh.sh" --with-embed
   else
-    bash "$ROOT/scripts/context-spine/refresh.sh" --no-embed
+    bash "$ROOT/scripts/context-spine/refresh.sh"
   fi
 else
   echo "Retrieval: qmd not found; continuing without repo-local search"

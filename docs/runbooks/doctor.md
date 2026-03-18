@@ -114,14 +114,14 @@ Run the doctor:
 ## Relationship To Other Commands
 
 - `context:setup`
-  First-time path that wires retrieval and opens the working set.
+  First-time path that wires lexical retrieval and opens the working set.
 - `context:bootstrap`
   Starts a session from high-signal artifacts.
 - `context:refresh`
-  Rebuilds retrieval after notes or docs change.
+  Rebuilds lexical retrieval after notes or docs change.
 - `context:score`
-  Measures retrieval habit quality.
+  Measures spine strength across contract clarity, recovery, proof, retrieval readiness, and legibility.
 - `context:doctor`
-  Measures whether the memory surfaces still map cleanly to current project truth.
+  Measures whether the memory surfaces still map cleanly to current project truth and reports retrieval state honestly.
 - `context:upgrade`
   Plans or applies safe additive upgrades for older Context Spine installs in other repos.

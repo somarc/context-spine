@@ -75,7 +75,8 @@ qmd collection add /path/to/project/docs --name project-docs --mask "**/*.md"
 qmd collection add /path/to/external-vault --name project-vault --mask "**/*.md"
 ```
 
-Use `npm run context:refresh` whenever durable notes or docs are added.
+Use `npm run context:refresh` whenever durable notes or docs are added and you want lexical retrieval refreshed.
+Use `npm run context:embed` when you want to attempt vector hydration explicitly.
 Use `bash ./scripts/context-spine/qmd-refresh.sh --embed` only when you want the low-level direct script.
 
 If the config names differ from the boilerplate defaults, keep `context-spine.json` authoritative and let the scripts read from it instead of hardcoding local variants.
@@ -98,6 +99,8 @@ Recommended note types:
 - audits
 - runbooks
 
+Obsidian is a strong companion for this external layer, and Obsidian CLI is a useful optional adapter if you want command-line workflows around those notes. It is not required for a valid Context Spine install.
+
 After the drop-in, classify memory immediately:
 
 - durable: baseline notes, ADRs, runbooks, curated evidence, selected diagrams
@@ -109,7 +112,7 @@ If the repo is in `local` gitignore mode, treat `meta/context-spine/` as private
 Do not let the initial install imply that every future session artifact belongs in long-lived git history.
 
 After installation, run `python3 ./scripts/context-spine/doctor.py` once so the repo starts with an explicit hygiene report instead of silent drift.
-If the repo includes `package.json`, also run `npm run context:verify` once so the config, tests, scorecard, and skill surfaces are validated together.
+If the repo includes `package.json`, also run `npm run context:verify` once so the config, tests, bootstrap path, lexical retrieval, scorecard, and skill surfaces are validated together.
 
 After installation, hand the team this reading order:
 

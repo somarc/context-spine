@@ -41,17 +41,19 @@ If you only open one diagram first, use this order:
    - best read for hygiene and drift control
 4. `context-spine-native-memory-direction-2026-03-16.html`
    - best read when deciding what Context Spine should become if it evolves toward native Codex memory
-5. `context-spine-runtime-contract-2026-03-16.html`
+5. `context-spine-agent-native-contract-2026-03-17.html`
+   - best read when deciding what the agent should treat as primary memory and what humans should get back
+6. `context-spine-runtime-contract-2026-03-16.html`
    - best read when you need to understand the new runtime manifest, skill verification, and run-state model
-6. `context-spine-upgrade-path-2026-03-15.html`
+7. `context-spine-upgrade-path-2026-03-15.html`
    - best read when updating an older install
-7. `context-spine-pi-extension-points-2026-03-15.html`
+8. `context-spine-pi-extension-points-2026-03-15.html`
    - best read when deciding what belongs in `.pi/`
-8. `context-spine-skill-stack-2026-03-15.html`
+9. `context-spine-skill-stack-2026-03-15.html`
    - best read when deciding how the maintenance, promotion, and rollout skills fit together
-9. `context-spine-agent-working-set-2026-03-15.html`
+10. `context-spine-agent-working-set-2026-03-15.html`
    - best read when deciding how an agent should open the repo without guessing
-10. `context-spine-elon-doctrine-2026-03-15.html`
+11. `context-spine-elon-doctrine-2026-03-15.html`
    - best read when deciding whether a change is actually valuable or just more complexity
 
 ## Current Catalog
@@ -62,6 +64,7 @@ If you only open one diagram first, use this order:
 | `context-spine-human-review-2026-03-11.html` | human operator, reviewer | why this exists and why it matters | "Why is this worth using in a real project?" | current |
 | `context-spine-doctor-2026-03-15.html` | maintainer, lead | repo hygiene and drift control | "How do we know the memory spine still maps to project truth?" | current |
 | `context-spine-native-memory-direction-2026-03-16.html` | maintainer, platform thinker | the future shape | "How could Context Spine become universally useful as a Codex memory surface?" | current |
+| `context-spine-agent-native-contract-2026-03-17.html` | maintainer, agent user, human operator | the primary contract | "What should the agent treat as memory, and what should humans get back?" | current |
 | `context-spine-runtime-contract-2026-03-16.html` | maintainer, agent user | the new runtime guarantees | "How did Context Spine become more auditable and deterministic?" | current |
 | `context-spine-upgrade-path-2026-03-15.html` | maintainer of older installs | existing-project upgrades | "How do we move older repos forward safely?" | current |
 | `context-spine-pi-extension-points-2026-03-15.html` | maintainer, agent user | optional extension design | "What should `.pi/` contain, and what should stay out?" | current |

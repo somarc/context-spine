@@ -71,6 +71,9 @@ It must not silently rewrite durable truth surfaces or depend on hidden mutable 
 `query` may rank, summarize, filter, correlate, and explain memory.
 It may return source references, evidence, and uncertainty.
 
+`query` may use QMD or other supported retrieval backends underneath.
+Those backends remain supporting surfaces, not the definition of the memory contract and not a justification for runtime orchestration.
+
 `query` must not:
 
 - create or schedule workers
@@ -127,5 +130,6 @@ Those concerns may exist in external runtimes that use Context Spine, but not in
 - Context Spine can grow first-class memory APIs without becoming a runtime platform
 - the repo keeps inspectable project truth while gaining stronger structured capture
 - automatic capture becomes easier to justify because its storage contract stays explicit
+- supported retrieval surfaces such as QMD can remain bundled without becoming the definition of the system
 - PI-backed runtimes can use Context Spine as a memory substrate, but Context Spine does not need to imitate their orchestration model
 - future proposals should be rejected if they add runtime coordination without materially improving truth, evidence, or drift resistance

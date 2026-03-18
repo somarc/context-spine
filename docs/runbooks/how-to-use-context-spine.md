@@ -23,8 +23,10 @@ In practice, people use Context Spine for five common jobs:
 1. start work faster by reading the current baseline note and latest session summary
 2. capture what changed in a form that survives context resets and teammate handoffs
 3. link decisions back to code, tests, logs, or commands instead of vague memory
-4. refresh retrieval so future searches find the right notes quickly
+4. refresh lexical retrieval so future searches find the right notes quickly
 5. keep long-horizon knowledge outside the repo while keeping short-horizon working memory close to the code
+
+Use [external-durable-notes.md](./external-durable-notes.md) when you need a clean split between repo truth and long-horizon notes.
 
 For agents, the key surface is not just the baseline note. It is the combination of:
 
@@ -32,6 +34,8 @@ For agents, the key surface is not just the baseline note. It is the combination
 - the latest session
 - the hot-memory working set
 - the current source-of-truth files named in the baseline
+
+Retrieval is secondary to that working set. If the relevant code, docs, tests, or command output are already local and bounded, the agent should read those directly. Use QMD or another retrieval layer when the corpus is broad enough that discovery would otherwise dominate the session.
 
 ## Core Surfaces
 
@@ -65,7 +69,8 @@ Use this when starting meaningful work:
 6. update the session note with what changed, what was verified, and what remains open
 7. add an observation if something non-trivial was learned
 8. run `npm run context:refresh` if notes or docs changed
-9. run `npm run context:doctor` when the repo's trusted reading path changed
+9. run `npm run context:embed` only when you want to attempt vector hydration explicitly
+10. run `npm run context:doctor` when the repo's trusted reading path changed
 
 ## A Good Session Note
 
@@ -131,6 +136,7 @@ Once a week is usually enough:
 - check whether session notes are being created for real work
 - roll stable architecture or boundary knowledge out of sessions and into durable notes
 - refresh retrieval if docs or notes changed
+- run `context:embed` only when vectors materially help and the local runtime supports them
 - run the memory score if you want a lightweight health check
 - run the doctor if the repo now feels harder to trust than it should
 
@@ -155,15 +161,23 @@ Use the repo as a disciplined project memory system:
 - keep session notes current
 - store visual explainers and ADRs
 - use QMD or another retrieval layer to search notes and docs
+- keep the deepest and longest-horizon notes in an external durable note system when they do not belong in repo history
 
 ### With Codex
 
 Codex gets better results because the repo already has structure:
 
 - bootstrap points at the right files
-- retrieval has a smaller, higher-signal search space
+- retrieval has a smaller, higher-signal search space when discovery is needed
 - session notes reduce repetitive restatement
 - decisions and evidence are easier to trust
+- verification can now prove the core path separately from optional embed capability
+
+The intended contract is:
+
+- agents get native-style memory through bootstrap, session state, hot memory, and durable evidence
+- humans get visual explanations, evidence trails, and source-of-truth references
+- retrieval adapters such as QMD stay helpful but optional
 
 Codex is an accelerator here, not the main character.
 
