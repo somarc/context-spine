@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Context Spine Agent-Native Contract</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f8f5ef;
+        --paper: rgba(255, 252, 246, 0.92);
+        --paper-strong: rgba(255, 252, 246, 0.98);
+        --ink: #251b15;
+        --muted: #695a4f;
+        --line: rgba(37, 27, 21, 0.12);
+        --teal: #0f766e;
+        --teal-soft: rgba(15, 118, 110, 0.12);
+        --amber: #b45309;
+        --amber-soft: rgba(180, 83, 9, 0.12);
+        --rose: #9f1239;
+        --rose-soft: rgba(159, 18, 57, 0.1);
+        --shadow: 0 24px 60px rgba(72, 48, 28, 0.12);
+        --grid: rgba(121, 97, 71, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        font-family: "Instrument Serif", Georgia, serif;
+        background:
+          radial-gradient(circle at top right, rgba(15, 118, 110, 0.12), transparent 24%),
+          radial-gradient(circle at left center, rgba(180, 83, 9, 0.09), transparent 20%),
+          linear-gradient(var(--grid) 1px, transparent 1px),
+          linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+          linear-gradient(180deg, #fdfbf7 0%, var(--bg) 100%);
+        background-size: auto, auto, 24px 24px, 24px 24px, auto;
+      }
+
+      main {
+        width: min(1200px, calc(100vw - 32px));
+        margin: 18px auto 56px;
+      }
+
+      .hero,
+      .panel,
+      .card,
+      .rail,
+      .step {
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        background: var(--paper);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(10px);
+      }
+
+      .hero {
+        padding: 34px;
+      }
+
+      .eyebrow,
+      .mini,
+      .badge {
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      .eyebrow,
+      .mini {
+        font-size: 12px;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+      }
+
+      .eyebrow {
+        color: var(--teal);
+      }
+
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        font-weight: 400;
+      }
+
+      h1 {
+        margin-top: 8px;
+        font-size: clamp(3.2rem, 6vw, 5.2rem);
+        line-height: 0.92;
+        max-width: 9ch;
+      }
+
+      h2 {
+        font-size: 2rem;
+        line-height: 1;
+      }
+
+      h3 {
+        font-size: 1.3rem;
+        line-height: 1.1;
+      }
+
+      p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 1.02rem;
+        line-height: 1.62;
+      }
+
+      .hero-grid,
+      .grid-2,
+      .grid-3,
+      .flow,
+      .rails {
+        display: grid;
+        gap: 18px;
+      }
+
+      .hero-grid {
+        grid-template-columns: 1.1fr 0.9fr;
+        align-items: start;
+      }
+
+      .grid-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .grid-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .hero-copy {
+        display: grid;
+        gap: 16px;
+      }
+
+      .hero-side {
+        display: grid;
+        gap: 14px;
+      }
+
+      .badge-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.56);
+        font-size: 0.77rem;
+        color: var(--ink);
+      }
+
+      .badge strong {
+        color: var(--teal);
+      }
+
+      .callout {
+        padding: 18px 20px;
+        border-radius: 24px;
+        border: 1px solid var(--line);
+        background: var(--paper-strong);
+      }
+
+      .callout.teal {
+        background: linear-gradient(180deg, var(--teal-soft), rgba(255, 252, 246, 0.92));
+      }
+
+      .callout.amber {
+        background: linear-gradient(180deg, var(--amber-soft), rgba(255, 252, 246, 0.92));
+      }
+
+      .callout.rose {
+        background: linear-gradient(180deg, var(--rose-soft), rgba(255, 252, 246, 0.92));
+      }
+
+      .panel {
+        margin-top: 22px;
+        padding: 28px;
+      }
+
+      .section-head {
+        display: grid;
+        gap: 8px;
+        margin-bottom: 18px;
+      }
+
+      .card,
+      .rail,
+      .step {
+        padding: 20px;
+      }
+
+      .card ul,
+      .rail ul {
+        margin: 14px 0 0;
+        padding-left: 18px;
+      }
+
+      li {
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      li + li {
+        margin-top: 7px;
+      }
+
+      .flow {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        align-items: stretch;
+      }
+
+      .step {
+        position: relative;
+        min-height: 210px;
+        background: var(--paper-strong);
+      }
+
+      .step::after {
+        content: "→";
+        position: absolute;
+        right: -14px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-family: "JetBrains Mono", monospace;
+        color: rgba(37, 27, 21, 0.34);
+      }
+
+      .step:last-child::after {
+        content: "";
+      }
+
+      .step strong,
+      .rail strong,
+      .card strong {
+        color: var(--ink);
+      }
+
+      .step-agent {
+        background: linear-gradient(180deg, rgba(15, 118, 110, 0.11), rgba(255, 252, 246, 0.96));
+      }
+
+      .step-human {
+        background: linear-gradient(180deg, rgba(180, 83, 9, 0.11), rgba(255, 252, 246, 0.96));
+      }
+
+      .step-risk {
+        background: linear-gradient(180deg, rgba(159, 18, 57, 0.1), rgba(255, 252, 246, 0.96));
+      }
+
+      .mini {
+        color: var(--muted);
+      }
+
+      .rails {
+        grid-template-columns: 1.15fr 0.85fr;
+      }
+
+      .rail.primary {
+        background: linear-gradient(180deg, rgba(15, 118, 110, 0.09), rgba(255, 252, 246, 0.97));
+      }
+
+      .rail.secondary {
+        background: linear-gradient(180deg, rgba(180, 83, 9, 0.09), rgba(255, 252, 246, 0.97));
+      }
+
+      .rail.warning {
+        background: linear-gradient(180deg, rgba(159, 18, 57, 0.08), rgba(255, 252, 246, 0.97));
+      }
+
+      code {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.85em;
+        color: var(--ink);
+        background: rgba(37, 27, 21, 0.06);
+        padding: 0.1em 0.35em;
+        border-radius: 0.45em;
+      }
+
+      .footer-note {
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.8rem;
+        line-height: 1.65;
+      }
+
+      @media (max-width: 960px) {
+        main {
+          width: min(100vw - 16px, 100%);
+          margin: 12px auto 32px;
+        }
+
+        .hero,
+        .panel {
+          padding: 20px;
+          border-radius: 22px;
+        }
+
+        .hero-grid,
+        .grid-2,
+        .grid-3,
+        .flow,
+        .rails {
+          grid-template-columns: 1fr;
+        }
+
+        .step::after {
+          content: "↓";
+          right: auto;
+          left: 50%;
+          top: auto;
+          bottom: -18px;
+          transform: translateX(-50%);
+        }
+
+        .step:last-child::after {
+          content: "";
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <div class="eyebrow">Context Spine Contract</div>
+            <h1>Native memory for the agent. Visual explanation for the human.</h1>
+            <p>
+              Context Spine should treat retrieval as a supported subsystem, not as the thing the
+              memory surface fundamentally is. The agent should get a restart-safe working set and
+              direct evidence. The human should get an honest visual explanation with links back to
+              source truth. The whole system remains a project memory substrate, not a control
+              plane.
+            </p>
+            <div class="badge-row">
+              <div class="badge"><strong>Primary</strong> bootstrap + working set + evidence</div>
+              <div class="badge"><strong>Human</strong> visual-first output</div>
+              <div class="badge"><strong>Supported</strong> QMD / lexical / vector retrieval</div>
+              <div class="badge"><strong>Boundary</strong> memory substrate, not control plane</div>
+            </div>
+          </div>
+          <div class="hero-side">
+            <div class="callout teal">
+              <div class="mini">Agent contract</div>
+              <p>
+                Open the repo, recover the working set, inspect local truth surfaces directly, and
+                promote or invalidate memory deliberately when the model changes.
+              </p>
+            </div>
+            <div class="callout amber">
+              <div class="mini">Human contract</div>
+              <p>
+                Do not make the operator reason about indexes, embeddings, or internal records if a
+                visual explainer and evidence trail can communicate the same thing more cleanly.
+              </p>
+            </div>
+            <div class="callout rose">
+              <div class="mini">Design warning</div>
+              <p>
+                If vector hydration or one search backend goes red, agent memory quality should
+                degrade gracefully instead of collapsing.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-head">
+          <div class="eyebrow">Primary Agent Path</div>
+          <h2>The memory path should survive without a perfect retrieval backend</h2>
+          <p>
+            This is the sequence the agent should rely on first. Retrieval helps when discovery is
+            the bottleneck, but the core path is bootstrap to evidence to explicit reconciliation.
+          </p>
+        </div>
+        <div class="flow">
+          <article class="step step-agent">
+            <div class="mini">01</div>
+            <h3>Bootstrap</h3>
+            <p>Use <code>context:bootstrap</code> to recover the baseline, hot memory, latest session, and reading order.</p>
+          </article>
+          <article class="step step-agent">
+            <div class="mini">02</div>
+            <h3>Working Set</h3>
+            <p>Read the baseline, current session, hot-memory index, and the explicit <code>source_of_truth</code> files.</p>
+          </article>
+          <article class="step step-agent">
+            <div class="mini">03</div>
+            <h3>Direct Evidence</h3>
+            <p>Prefer code, docs, tests, git state, and command output when those surfaces are already local and bounded.</p>
+          </article>
+          <article class="step step-human">
+            <div class="mini">04</div>
+            <h3>Explain</h3>
+            <p>Return a visual explanation, evidence trail, and source references so a human can verify the model without decoding internals.</p>
+          </article>
+          <article class="step step-risk">
+            <div class="mini">05</div>
+            <h3>Reconcile</h3>
+            <p>Use <code>context:promote</code> or <code>context:invalidate</code> when durable memory needs to change. Do not leave new truth trapped in runtime state.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-head">
+          <div class="eyebrow">Primary Versus Secondary</div>
+          <h2>What defines the contract, and what remains a supported retrieval layer</h2>
+        </div>
+        <div class="rails">
+          <article class="rail primary">
+            <div class="mini">Core memory</div>
+            <h3>Agent-native surfaces</h3>
+            <ul>
+              <li><strong>Baseline notes</strong> define the stable project reading path.</li>
+              <li><strong>Session notes</strong> preserve short-horizon state and verification.</li>
+              <li><strong>Hot memory</strong> compresses the current working set.</li>
+              <li><strong>ADRs, runbooks, and diagrams</strong> keep durable truth inspectable.</li>
+              <li><strong>Structured records</strong> support query, promotion, and reconciliation.</li>
+            </ul>
+          </article>
+          <article class="rail secondary">
+            <div class="mini">Support layer</div>
+            <h3>Supported retrieval layer</h3>
+            <ul>
+              <li><strong>QMD</strong> remains a supported retrieval surface for broad discovery and human lookup.</li>
+              <li><strong>Lexical search</strong> keeps the system usable when vectors are unavailable.</li>
+              <li><strong>Vector search</strong> improves recall but is not the definition of the memory surface.</li>
+              <li><strong>Embeddings</strong> should improve the experience, not gate the basic contract.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-head">
+          <div class="eyebrow">When To Reach For Retrieval</div>
+          <h2>Use retrieval when discovery is the expensive part</h2>
+        </div>
+        <div class="grid-3">
+          <article class="card">
+            <div class="mini">Good fit</div>
+            <h3>Cold start or handoff</h3>
+            <p>Many candidate notes, multiple repos, and low confidence about where the relevant thread lives.</p>
+          </article>
+          <article class="card">
+            <div class="mini">Good fit</div>
+            <h3>Broad corpus sweep</h3>
+            <p>Questions that span notes, docs, skills, or external durable memory where brute-force direct reads would waste time.</p>
+          </article>
+          <article class="card">
+            <div class="mini">Not the first move</div>
+            <h3>Bounded live repo work</h3>
+            <p>When the file set is already small and the authoritative code/docs/tests are in hand, direct reading wins on trust and latency.</p>
+          </article>
+        </div>
+        <div class="footer-note">
+          Suggested anchor files: <code>README.md</code>, <code>docs/adr/0006-native-codex-memory-direction.md</code>,
+          <code>meta/context-spine/spine-notes-context-spine.md</code>, and
+          <code>.pi/skills/context-spine/SKILL.md</code>.
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

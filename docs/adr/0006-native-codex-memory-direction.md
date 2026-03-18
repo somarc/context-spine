@@ -65,6 +65,29 @@ It should index, interpret, and accelerate them.
 
 The internal memory substrate may be more native, structured, or runtime-backed than the current repo file model as long as project truth still resolves back to inspectable source surfaces when needed.
 
+### 2.5 Treat Retrieval Backends As Adapters, Not As The Memory Contract
+
+Native memory for Codex should not be defined by any single retrieval backend.
+
+QMD, BM25 indexes, vector stores, and embedding pipelines are supported accelerators for:
+
+- cold-start discovery
+- cross-repo lookup
+- broad corpus sweep
+- human search ergonomics
+
+They are not the primary contract the agent should depend on.
+
+When code, docs, tests, git state, and command evidence are already local and bounded, the agent should prefer those direct surfaces over mediated retrieval.
+
+This means the system should remain meaningfully usable when retrieval is only partially hydrated:
+
+- lexical retrieval working without vectors is degraded, not dead
+- agent memory quality should not collapse because one embedding path is unavailable
+- the durable reading path should still resolve through bootstrap, working-set files, and source-of-truth references
+
+Retrieval engines should be replaceable implementation details around the memory layer, not the identity of the memory layer itself. QMD remains a supported retrieval surface within that boundary; it is not deprecated by this decision.
+
 ### 3. Add Explicit Layered Memory
 
 Native-quality memory needs more than one layer.
@@ -210,6 +233,15 @@ The user should reliably get:
 - evidence-backed reasoning
 - clear uncertainty
 - source-of-truth links when needed
+
+The user should also not need to care whether retrieval happens through:
+
+- QMD
+- lexical search
+- vector search
+- a future query API
+
+Those are internal accelerators. The human-facing requirement is that the system explains itself visually and truthfully.
 
 ## Minimal API Families
 

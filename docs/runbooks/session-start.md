@@ -24,4 +24,5 @@ Before ending the session:
 - record the last command that verified something important
 - log at least one observation if something non-trivial changed
 - run `npm run context:refresh` if durable notes or docs were added
+- run `npm run context:embed` only when vector hydration is worth the extra runtime and the host supports it
 - run `npm run context:doctor` when the repo now feels harder to trust than it should

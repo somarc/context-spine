@@ -35,12 +35,13 @@ Use this mode when the repo already contains `meta/context-spine/` and `scripts/
 
 Preferred command order:
 
-1. `npm run context:init`
-2. `npm run context:update`
-3. `npm run context:embed`
-4. `npm run context:bootstrap`
-5. `npm run context:session` if the latest session is missing or stale
-6. `npm run context:score` after structural changes
+1. `npm run context:bootstrap`
+2. `npm run context:session` if the latest session is missing or stale
+3. `npm run context:update` when notes/docs changed or retrieval is stale enough to mislead search
+4. `npm run context:embed` only when vector retrieval materially matters and the local runtime supports it
+5. `npm run context:score` after structural changes
+
+Use `npm run context:init` only for first install or collection repair.
 
 Fallbacks when no `package.json` wrapper exists:
 
@@ -95,6 +96,13 @@ Use this evidence ladder:
 1. inference
 
 When they disagree, reconcile the mismatch explicitly.
+
+## Retrieval Discipline
+
+- Direct evidence outranks retrieval. If the relevant code, tests, docs, or command output are already local and bounded, read them directly.
+- Use QMD or other supported retrieval adapters for cold-start discovery, cross-repo sweep, broad corpus triage, or human lookup.
+- Do not force an agent through a retrieval backend merely because one exists; the memory contract is the working set plus evidence, not the index technology.
+- Treat lexical-only retrieval as a degraded-but-usable state. Missing vector hydration is a capability gap, not automatic failure of the memory layer.
 
 ## Invalidation Discipline
 

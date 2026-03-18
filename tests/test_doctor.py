@@ -2,6 +2,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import doctor
 import context_config
@@ -50,6 +51,45 @@ class DoctorConfigTest(unittest.TestCase):
 
             self.assertEqual(result.status, doctor.PASS)
             self.assertIn("Explicit Context Spine config is present.", result.summary)
+
+    def test_check_retrieval_warns_without_qmd(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            memory_root = Path(tmpdir)
+            with mock.patch.object(doctor.shutil, "which", return_value=None):
+                result = doctor.check_retrieval(memory_root)
+
+            self.assertEqual(result.status, doctor.WARN)
+            self.assertIn("QMD is not installed", result.summary)
+
+    def test_check_retrieval_warns_when_latest_embed_probe_failed(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            memory_root = Path(tmpdir)
+            local_index = memory_root / ".qmd" / "index.sqlite"
+            local_index.parent.mkdir(parents=True, exist_ok=True)
+            local_index.write_text("", encoding="utf-8")
+
+            run_path = memory_root / "runs" / "2026-03-17" / "verify.json"
+            run_path.parent.mkdir(parents=True, exist_ok=True)
+            run_path.write_text(
+                json.dumps(
+                    {
+                        "command": "context:verify",
+                        "extra": {
+                            "steps": [
+                                {"name": "retrieval_embed", "status": "warn", "summary": "sqlite-vec unavailable"}
+                            ]
+                        },
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            with mock.patch.object(doctor.shutil, "which", return_value="/usr/bin/qmd"):
+                result = doctor.check_retrieval(memory_root)
+
+            self.assertEqual(result.status, doctor.WARN)
+            self.assertIn("latest embed capability probe warned", result.summary)
 
 
 if __name__ == "__main__":

@@ -2,6 +2,7 @@
 import argparse
 import datetime as dt
 import json
+import shutil
 import subprocess
 import sys
 from dataclasses import dataclass, field
@@ -142,6 +143,43 @@ def latest_session_file(memory_root: Path) -> Path | None:
         return None
     files = sorted(sessions_dir.glob("*-session.md"))
     return files[-1] if files else None
+
+
+def latest_run_payload(memory_root: Path, command: str) -> dict | None:
+    run_root = memory_root / "runs"
+    if not run_root.is_dir():
+        return None
+    latest_payload: dict | None = None
+    latest_stamp = -1.0
+    for path in run_root.rglob("*.json"):
+        if not path.is_file():
+            continue
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            continue
+        if payload.get("command") != command:
+            continue
+        if payload.get("status") == "running":
+            continue
+        try:
+            stamp = path.stat().st_mtime
+        except OSError:
+            continue
+        if stamp > latest_stamp:
+            latest_stamp = stamp
+            latest_payload = payload
+    return latest_payload
+
+
+def verification_step(run_payload: dict | None, step_name: str) -> dict | None:
+    if not run_payload:
+        return None
+    steps = run_payload.get("extra", {}).get("steps", [])
+    for step in steps:
+        if step.get("name") == step_name:
+            return step
+    return None
 
 
 def session_date_from_name(path: Path) -> dt.date | None:
@@ -509,6 +547,56 @@ def check_generated(memory_root: Path) -> list[CheckResult]:
     return results
 
 
+def check_retrieval(memory_root: Path) -> CheckResult:
+    local_index = memory_root / ".qmd" / "index.sqlite"
+    details: list[str] = [f"Local index path: {local_index}"]
+    actions: list[str] = []
+
+    if not shutil.which("qmd"):
+        return CheckResult(
+            slug="retrieval-surface",
+            title="Retrieval surface",
+            status=WARN,
+            summary="QMD is not installed, so repo-local search and deep-context retrieval are unavailable.",
+            details=details,
+            actions=["Install QMD and run `npm run context:setup` when you want repo-local search and deep-context recall."],
+        )
+
+    if not local_index.exists():
+        return CheckResult(
+            slug="retrieval-surface",
+            title="Retrieval surface",
+            status=WARN,
+            summary="QMD is available, but the repo-local lexical index has not been initialized yet.",
+            details=details,
+            actions=["Run `npm run context:setup` or `npm run context:update` to build the repo-local lexical index."],
+        )
+
+    status = PASS
+    summary = "Lexical retrieval is available."
+    verify_payload = latest_run_payload(memory_root, "context:verify")
+    embed_step = verification_step(verify_payload, "retrieval_embed")
+
+    if embed_step is None:
+        details.append("Vector hydration is not proven by doctor. Run `npm run context:verify` or `npm run context:embed` for an explicit embedding check.")
+    else:
+        details.append(f"Latest embed probe: {embed_step.get('status', 'unknown')}")
+        details.append(f"Embed summary: {embed_step.get('summary', 'No summary recorded.')}")
+        if embed_step.get("status") != "success":
+            status = WARN
+            summary = "Lexical retrieval is available, but the latest embed capability probe warned."
+            actions.append("Treat vector retrieval as optional until `context:verify` or `context:embed` records a successful embed probe.")
+
+    return CheckResult(
+        slug="retrieval-surface",
+        title="Retrieval surface",
+        status=status,
+        summary=summary,
+        details=details,
+        actions=actions,
+    )
+
+
 def check_docs(repo_root: Path) -> CheckResult:
     docs_root = repo_root / "docs"
     if not docs_root.is_dir():
@@ -719,6 +807,7 @@ def main() -> int:
         check_runtime_manifest(repo_root),
         check_baseline(repo_root, memory_root, preferred_baseline),
         check_session(repo_root, memory_root),
+        check_retrieval(memory_root),
         *check_generated(memory_root),
         check_docs(repo_root),
         check_visuals(repo_root),
