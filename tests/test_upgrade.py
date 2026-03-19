@@ -16,6 +16,7 @@ class UpgradeTest(unittest.TestCase):
             result = upgrade.evaluate(target_root, ROOT, apply_safe=False, gitignore_mode="")
 
             self.assertIn("meta/context-spine/context-spine.json", result.safe_missing)
+            self.assertIn("scripts/context-spine/pull-and-rollout.py", result.safe_missing)
             self.assertIn("scripts/context-spine/setup.sh", result.safe_missing)
             self.assertIn("scripts/context-spine/refresh.sh", result.safe_missing)
 

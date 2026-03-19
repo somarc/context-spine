@@ -15,6 +15,7 @@
     "context:rollout": "python3 ./scripts/context-spine/rollout.py",
     "context:test": "python3 -m unittest discover -s tests -p 'test_*.py'",
     "context:upgrade": "python3 ./scripts/context-spine/upgrade.py",
+    "context:upgrade:pull-and-rollout": "python3 ./scripts/context-spine/pull-and-rollout.py",
     "context:session": "python3 ./scripts/context-spine/mem-session.py",
     "context:score": "python3 ./scripts/context-spine/mem-score.py",
     "context:state": "python3 ./scripts/context-spine/memory-state.py",

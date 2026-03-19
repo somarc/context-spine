@@ -1,5 +1,5 @@
 {
-  "runtime_version": "2026.03.17.2",
+  "runtime_version": "2026.03.19.1",
   "compatibility": {
     "python": "3.10",
     "node": "20.0.0"
@@ -42,6 +42,7 @@
     "scripts/context-spine/memory_records.py",
     "scripts/context-spine/invalidate.py",
     "scripts/context-spine/promote.py",
+    "scripts/context-spine/pull-and-rollout.py",
     "scripts/context-spine/query.py",
     "scripts/context-spine/query_core.py",
     "scripts/context-spine/rehydrate.py",

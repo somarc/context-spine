@@ -136,6 +136,7 @@ QMD is supported and useful here, but it is not the identity of the system. Cont
 | `npm run context:state` | Generate machine summary plus visual memory state |
 | `npm run context:promote` | Record a durable promotion into project truth |
 | `npm run context:invalidate` | Record that prior memory is now stale or superseded |
+| `npm run context:upgrade:pull-and-rollout -- --target /path/to/repo` | Update this Context Spine checkout from git, then run upgrade or rollout against target repos |
 
 Advanced retrieval primitives remain available as `context:init`, `context:update`, and `context:embed` when you need direct control.
 
