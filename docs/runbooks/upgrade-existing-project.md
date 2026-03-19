@@ -32,6 +32,33 @@ That writes a markdown report to:
 /path/to/project/meta/context-spine/upgrade-report.md
 ```
 
+If you keep a maintained checkout of the boilerplate repo, the one-command path is:
+
+```bash
+npm run context:upgrade:pull-and-rollout -- --target /path/to/project --apply-safe
+```
+
+That does two things in order:
+
+1. runs `git pull --ff-only` in the current Context Spine source checkout
+2. runs `context:upgrade` against the target repo using that refreshed checkout as the source of truth
+
+For several repos at once:
+
+```bash
+npm run context:upgrade:pull-and-rollout -- --repos /path/to/repo-a /path/to/repo-b --apply-safe
+```
+
+That switches to the rollout path automatically.
+
+If you are invoking the wrapper from a vendored project copy instead of the maintained boilerplate checkout, point it at the canonical source repo explicitly:
+
+```bash
+python3 ./scripts/context-spine/pull-and-rollout.py \
+  --source-root /path/to/context-spine \
+  --target /path/to/project
+```
+
 ## Apply Only The Low-Risk Pieces
 
 If you want to scaffold only the safe additive files:
@@ -72,10 +99,11 @@ Those files often carry repo-specific truth, commands, or reading paths.
 3. Apply the safe additive files if they are missing.
 4. Review the shared entrypoint files one by one instead of overwriting project-owned behavior.
 5. Add any new wrapper commands manually if the target repo uses `npm run context:*`, especially `context:setup` and `context:refresh`.
-6. Merge `meta/context-spine/context-spine.json` deliberately if the target repo already has project-specific names or paths.
-7. If the repo uses a custom baseline file name, keep it and merge the generic baseline detection changes into bootstrap and related docs.
-8. Run `context:doctor` and `context:score` in the target repo after the merge.
-9. If the target repo has the wrapper scripts, run `context:verify` so the upgrade is backed by tests and skill validation instead of file diff review alone.
+6. If you use `context:upgrade:pull-and-rollout`, keep the source checkout on the branch whose runtime you intend to propagate.
+7. Merge `meta/context-spine/context-spine.json` deliberately if the target repo already has project-specific names or paths.
+8. If the repo uses a custom baseline file name, keep it and merge the generic baseline detection changes into bootstrap and related docs.
+9. Run `context:doctor` and `context:score` in the target repo after the merge.
+10. If the target repo has the wrapper scripts, run `context:verify` so the upgrade is backed by tests and skill validation instead of file diff review alone.
 
 ## Gitignore Mode
 

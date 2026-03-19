@@ -70,6 +70,7 @@ Optimize for flow as well: hydrate from the deepest relevant sources, move only 
 ### Existing Context Spine repo
 
 - Prefer `npm run context:bootstrap`, `context:session`, `context:update`, and `context:score` when available.
+- If you maintain a canonical Context Spine source checkout and need to move target repos forward, prefer `npm run context:upgrade:pull-and-rollout -- --target <repo>` or `--repos <repo-a> <repo-b> ...`.
 - Fall back to direct `scripts/context-spine/*` entrypoints when wrappers do not exist.
 - Use `context:init` for first install or collection repair, not as the default first move in an already-healthy repo.
 - Use `context:embed` only when vector retrieval materially matters and the local runtime supports it; partial lexical hydration is degraded but still usable.
