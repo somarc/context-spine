@@ -24,6 +24,8 @@ The repo-local runtime contract lives in `context-spine.json`.
 
 ## Layout
 
+- `AGENTS.md` — subtree agent guidance for this memory layer
+- `SKILLS.md` — local skill and command map for Context Spine work
 - `spine-notes-context-spine.md` — durable current workspace baseline note
 - `observations/` — rolling observations, decisions, and questions
 - `sessions/` — rolling session summaries for active continuity
