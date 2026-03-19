@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Context Spine Field Guide</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23162332'/%3E%3Cpath d='M18 18h28v7H25v14h17v7H18z' fill='%23d8ac5b'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f5f0e8;
+      --bg-grid: rgba(27, 41, 58, 0.06);
+      --surface: rgba(255, 251, 246, 0.84);
+      --surface-strong: rgba(255, 253, 250, 0.94);
+      --surface-deep: #eee4d4;
+      --border: rgba(22, 35, 50, 0.10);
+      --border-strong: rgba(22, 35, 50, 0.20);
+      --text: #162332;
+      --text-dim: #5f6b77;
+      --navy: #21364c;
+      --navy-dim: rgba(33, 54, 76, 0.10);
+      --gold: #b6812a;
+      --gold-dim: rgba(182, 129, 42, 0.12);
+      --sage: #5f7a5c;
+      --sage-dim: rgba(95, 122, 92, 0.12);
+      --crimson: #8f3f37;
+      --crimson-dim: rgba(143, 63, 55, 0.12);
+      --teal: #275f69;
+      --teal-dim: rgba(39, 95, 105, 0.12);
+      --shadow: 0 24px 70px rgba(22, 35, 50, 0.10);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --font-display: "Instrument Serif", Georgia, serif;
+      --font-body: "IBM Plex Sans", "Segoe UI", sans-serif;
+      --font-mono: "IBM Plex Mono", "SFMono-Regular", monospace;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #141719;
+        --bg-grid: rgba(255, 245, 230, 0.05);
+        --surface: rgba(27, 31, 34, 0.86);
+        --surface-strong: rgba(34, 39, 43, 0.95);
+        --surface-deep: #1e2428;
+        --border: rgba(255, 245, 230, 0.08);
+        --border-strong: rgba(255, 245, 230, 0.15);
+        --text: #f1e8dd;
+        --text-dim: #a7a097;
+        --navy: #94b7d6;
+        --navy-dim: rgba(148, 183, 214, 0.14);
+        --gold: #d8ac5b;
+        --gold-dim: rgba(216, 172, 91, 0.14);
+        --sage: #9fbe98;
+        --sage-dim: rgba(159, 190, 152, 0.14);
+        --crimson: #d78c82;
+        --crimson-dim: rgba(215, 140, 130, 0.14);
+        --teal: #84c8d2;
+        --teal-dim: rgba(132, 200, 210, 0.14);
+        --shadow: 0 28px 80px rgba(0, 0, 0, 0.30);
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: var(--font-body);
+      background:
+        radial-gradient(circle at top left, var(--gold-dim), transparent 32%),
+        radial-gradient(circle at bottom right, var(--sage-dim), transparent 35%),
+        linear-gradient(180deg, rgba(255,255,255,0.08), transparent 28%),
+        var(--bg);
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--bg-grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+      background-size: 36px 36px;
+      opacity: 0.45;
+      pointer-events: none;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.28), transparent 88%);
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      width: min(1440px, calc(100vw - 40px));
+      margin: 0 auto;
+      padding: 36px 0 64px;
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 28px;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 24px;
+      align-self: start;
+      padding: 22px 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      background: var(--surface);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--gold);
+      margin-bottom: 12px;
+    }
+
+    .sidebar h2 {
+      margin: 0 0 10px;
+      font-size: 28px;
+      line-height: 1;
+      font-weight: 400;
+      font-family: var(--font-display);
+    }
+
+    .sidebar p {
+      margin: 0 0 18px;
+      color: var(--text-dim);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .toc {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .toc a {
+      display: block;
+      padding: 10px 12px;
+      color: var(--text);
+      text-decoration: none;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      background: rgba(255,255,255,0.04);
+      font-size: 13px;
+      line-height: 1.35;
+      transition: transform 160ms ease, background-color 160ms ease, border-color 160ms ease;
+    }
+
+    .toc a:hover {
+      transform: translateX(3px);
+      background: var(--navy-dim);
+      border-color: var(--border);
+    }
+
+    .sidebar .micro {
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    .main {
+      display: grid;
+      gap: 22px;
+    }
+
+    .card, .hero {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+      animation: fade-up 480ms ease both;
+      animation-delay: calc(var(--i, 0) * 70ms);
+    }
+
+    .hero {
+      overflow: hidden;
+      position: relative;
+      padding: 34px 34px 30px;
+      background:
+        linear-gradient(135deg, var(--surface-strong), rgba(255,255,255,0.55)),
+        var(--surface);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -120px -140px auto;
+      width: 360px;
+      height: 360px;
+      border-radius: 999px;
+      background: radial-gradient(circle, var(--gold-dim) 0%, transparent 68%);
+      pointer-events: none;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+      gap: 26px;
+      align-items: end;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-family: var(--font-display);
+      font-size: clamp(54px, 7vw, 88px);
+      line-height: 0.92;
+      letter-spacing: -0.04em;
+      font-weight: 400;
+      max-width: 10ch;
+    }
+
+    .lede {
+      max-width: 66ch;
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.65;
+      color: var(--text-dim);
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 22px 0 0;
+    }
+
+    .badge {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      padding: 8px 11px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface-deep);
+      color: var(--text);
+    }
+
+    .hero-note {
+      padding: 18px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, var(--navy-dim), transparent);
+      border: 1px solid color-mix(in srgb, var(--navy) 24%, var(--border));
+      display: grid;
+      gap: 12px;
+    }
+
+    .hero-note .kicker {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--navy);
+    }
+
+    .hero-note p {
+      margin: 0;
+      line-height: 1.6;
+      color: var(--text-dim);
+      font-size: 14px;
+    }
+
+    .section {
+      padding: 28px;
+    }
+
+    .section-head {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+
+    .section-title {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: clamp(32px, 4vw, 48px);
+      line-height: 0.98;
+      font-weight: 400;
+    }
+
+    .section-subtitle {
+      max-width: 54ch;
+      color: var(--text-dim);
+      font-size: 15px;
+      line-height: 1.7;
+      margin: 0;
+    }
+
+    .two-col, .three-col, .four-col {
+      display: grid;
+      gap: 16px;
+    }
+
+    .two-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .three-col { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .four-col { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .mini-card {
+      padding: 18px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      background: var(--surface-strong);
+      min-height: 100%;
+    }
+
+    .mini-card strong,
+    .mini-card h3 {
+      display: block;
+      margin: 0 0 10px;
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    .mini-card p,
+    .mini-card li {
+      margin: 0;
+      color: var(--text-dim);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .mini-card ul {
+      padding-left: 18px;
+      margin: 0;
+      display: grid;
+      gap: 8px;
+    }
+
+    .label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .label::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: currentColor;
+    }
+
+    .navy { color: var(--navy); }
+    .gold { color: var(--gold); }
+    .sage { color: var(--sage); }
+    .crimson { color: var(--crimson); }
+    .teal { color: var(--teal); }
+
+    .stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .stack-layer {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 16px;
+      align-items: stretch;
+      padding: 18px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      background: var(--surface-strong);
+    }
+
+    .stack-layer .layer-title {
+      font-family: var(--font-display);
+      font-size: 24px;
+      line-height: 0.95;
+      margin: 0 0 8px;
+      font-weight: 400;
+    }
+
+    .stack-layer .layer-copy {
+      margin: 0;
+      color: var(--text-dim);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-content: start;
+    }
+
+    .chip {
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface-deep);
+      color: var(--text);
+    }
+
+    .loop {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      position: relative;
+    }
+
+    .loop::before {
+      content: "";
+      position: absolute;
+      top: 26px;
+      left: 5%;
+      right: 5%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
+      z-index: 0;
+    }
+
+    .loop-step {
+      position: relative;
+      z-index: 1;
+      padding: 18px 16px 16px;
+      border: 1px solid var(--border);
+      background: var(--surface-strong);
+      border-radius: var(--radius-lg);
+    }
+
+    .loop-step .step-no {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      margin-bottom: 12px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--gold-dim);
+      color: var(--gold);
+      border: 1px solid color-mix(in srgb, var(--gold) 34%, var(--border));
+    }
+
+    .loop-step h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      line-height: 1.3;
+    }
+
+    .loop-step p {
+      margin: 0;
+      color: var(--text-dim);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border-spacing: 0;
+      overflow: hidden;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      background: var(--surface-strong);
+    }
+
+    th, td {
+      padding: 15px 16px;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    th {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      background: var(--surface-deep);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.92em;
+      background: var(--surface-deep);
+      border: 1px solid var(--border);
+      padding: 0.14em 0.38em;
+      border-radius: 8px;
+    }
+
+    .contrast {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .contrast .mini-card {
+      border-width: 1.5px;
+    }
+
+    .contrast .mini-card.bad {
+      border-color: color-mix(in srgb, var(--crimson) 40%, var(--border));
+      background: linear-gradient(180deg, var(--crimson-dim), transparent);
+    }
+
+    .contrast .mini-card.good {
+      border-color: color-mix(in srgb, var(--sage) 40%, var(--border));
+      background: linear-gradient(180deg, var(--sage-dim), transparent);
+    }
+
+    .quote {
+      padding: 20px 22px;
+      border-left: 4px solid var(--gold);
+      background: linear-gradient(90deg, var(--gold-dim), transparent);
+      border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+      color: var(--text);
+      font-size: 18px;
+      line-height: 1.7;
+      font-family: var(--font-display);
+    }
+
+    .footer-note {
+      padding: 24px 28px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .footer-note p {
+      margin: 0;
+      color: var(--text-dim);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 1120px) {
+      .page {
+        grid-template-columns: 1fr;
+        width: min(100vw - 24px, 1080px);
+      }
+
+      .sidebar {
+        position: static;
+      }
+
+      .toc {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .hero-grid,
+      .two-col,
+      .three-col,
+      .four-col,
+      .contrast,
+      .loop,
+      .stack-layer {
+        grid-template-columns: 1fr;
+      }
+
+      .loop::before {
+        display: none;
+      }
+    }
+
+    @media (max-width: 720px) {
+      body {
+        background-size: auto, auto, auto, auto;
+      }
+
+      .page {
+        width: min(100vw - 16px, 1080px);
+        padding-top: 16px;
+      }
+
+      .hero,
+      .section,
+      .sidebar {
+        padding: 20px;
+      }
+
+      .toc {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 52px;
+      }
+
+      .stack-layer {
+        padding: 16px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .card, .hero { animation: none; }
+      .toc a { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <aside class="sidebar">
+      <div class="eyebrow">Field Guide</div>
+      <h2>Context Spine</h2>
+      <p>A first-read visual explanation of what the system is, how to use it, and how to make it work well with coding agents.</p>
+      <nav class="toc">
+        <a href="#frame">What It Is</a>
+        <a href="#stack">Mental Model</a>
+        <a href="#surfaces">Operating Surfaces</a>
+        <a href="#loop">Normal Loop</a>
+        <a href="#agents">Agent Pattern</a>
+        <a href="#adoption">Adoption Ladder</a>
+        <a href="#signals">Signals and Anti-Patterns</a>
+      </nav>
+      <div class="micro">
+        Best read when you need one artifact that explains Context Spine to a human, a Codex user, or another agent-oriented maintainer without making them spelunk the whole repo first.
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="hero" style="--i:0">
+        <div class="hero-grid">
+          <div>
+            <div class="eyebrow">Project Memory Surface</div>
+            <h1>Context Spine is the layer that makes a repo resumable again.</h1>
+            <p class="lede">
+              It is not a prompt archive and not an orchestration plane. It is a disciplined memory contract:
+              keep the baseline, current thread, evidence, and reading path legible enough that a human, Codex,
+              Claude Code, or the next maintainer can restart without paying the full rediscovery tax.
+            </p>
+            <div class="badge-row">
+              <span class="badge">repo-local truth</span>
+              <span class="badge">retrieval optional</span>
+              <span class="badge">human + agent legibility</span>
+              <span class="badge">explicit promote / invalidate</span>
+            </div>
+          </div>
+          <div class="hero-note">
+            <div class="kicker">Design Stance</div>
+            <p><strong>Keep the operating layer thin.</strong> Context Spine should compress recovery and handoff, not become another system the team has to babysit.</p>
+            <p><strong>Truth flows upward.</strong> Runtime, code, tests, logs, docs, then durable notes. Retrieval helps discovery but does not replace the working set.</p>
+            <p><strong>Humans and agents get different affordances.</strong> Agents need a bounded packet. Humans need a clear reading path and good visual explainers.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="frame" class="card section" style="--i:1">
+        <div class="section-head">
+          <div>
+            <div class="label navy">Frame</div>
+            <h2 class="section-title">What it is, and what it refuses to become.</h2>
+          </div>
+          <p class="section-subtitle">The system works when it stays boring in the right places: file-backed, inspectable, evidence-linked, and conservative about automation.</p>
+        </div>
+        <div class="contrast">
+          <article class="mini-card good">
+            <div class="label sage">Context Spine Is</div>
+            <ul>
+              <li>A restart surface: baseline note, latest session, hot-memory, evidence, and source-of-truth references.</li>
+              <li>A reconciliation discipline: when project truth changes, durable memory gets promoted or invalidated explicitly.</li>
+              <li>A legibility layer for both people and coding agents.</li>
+              <li>A small runtime contract around bootstrap, query, rehydrate, doctor, score, verify, promote, and invalidate.</li>
+            </ul>
+          </article>
+          <article class="mini-card bad">
+            <div class="label crimson">Context Spine Is Not</div>
+            <ul>
+              <li>Not a substitute for code, tests, logs, or docs.</li>
+              <li>Not a daemon, worker bus, or hidden memory database.</li>
+              <li>Not a reason to keep every thought forever.</li>
+              <li>Not a retrieval-first system where QMD or embeddings become the identity of the project memory model.</li>
+            </ul>
+          </article>
+        </div>
+        <div class="quote" style="margin-top:18px">
+          The point is not “more notes.” The point is less rediscovery, less re-explaining, and less blind inference.
+        </div>
+      </section>
+
+      <section id="stack" class="card section" style="--i:2">
+        <div class="section-head">
+          <div>
+            <div class="label gold">Mental Model</div>
+            <h2 class="section-title">Think in layers, not in one giant memory blob.</h2>
+          </div>
+          <p class="section-subtitle">The elegant way to use Context Spine is to separate evidence, durable memory, rolling memory, and adapters. Each layer has a different job.</p>
+        </div>
+        <div class="stack">
+          <div class="stack-layer">
+            <div>
+              <div class="label crimson">1. Evidence</div>
+              <h3 class="layer-title">Live repo truth</h3>
+              <p class="layer-copy">What actually happened or currently exists. This layer outranks everything above it.</p>
+            </div>
+            <div class="chip-row">
+              <span class="chip">code</span>
+              <span class="chip">tests</span>
+              <span class="chip">commands</span>
+              <span class="chip">logs</span>
+              <span class="chip">runtime output</span>
+              <span class="chip">docs that own behavior</span>
+            </div>
+          </div>
+          <div class="stack-layer">
+            <div>
+              <div class="label navy">2. Durable Memory</div>
+              <h3 class="layer-title">Project model</h3>
+              <p class="layer-copy">The stable reading path: what the repo is, what parts matter, and how the project should be conceptualized over time.</p>
+            </div>
+            <div class="chip-row">
+              <span class="chip">spine-notes-*.md</span>
+              <span class="chip">ADR</span>
+              <span class="chip">runbooks</span>
+              <span class="chip">visual explainers</span>
+              <span class="chip">curated evidence packs</span>
+            </div>
+          </div>
+          <div class="stack-layer">
+            <div>
+              <div class="label sage">3. Rolling Memory</div>
+              <h3 class="layer-title">Current thread</h3>
+              <p class="layer-copy">The short-horizon continuity layer that lets the next restart land in the middle of active work instead of rebuilding context from zero.</p>
+            </div>
+            <div class="chip-row">
+              <span class="chip">latest session</span>
+              <span class="chip">observations</span>
+              <span class="chip">hot-memory-index</span>
+              <span class="chip">next actions</span>
+            </div>
+          </div>
+          <div class="stack-layer">
+            <div>
+              <div class="label teal">4. Adapters</div>
+              <h3 class="layer-title">Recovery helpers</h3>
+              <p class="layer-copy">Commands and retrieval surfaces that make the memory usable without changing what counts as truth.</p>
+            </div>
+            <div class="chip-row">
+              <span class="chip">bootstrap</span>
+              <span class="chip">query</span>
+              <span class="chip">rehydrate</span>
+              <span class="chip">doctor</span>
+              <span class="chip">score</span>
+              <span class="chip">verify</span>
+              <span class="chip">QMD</span>
+              <span class="chip">skills</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="surfaces" class="card section" style="--i:3">
+        <div class="section-head">
+          <div>
+            <div class="label teal">Surfaces</div>
+            <h2 class="section-title">The real operating surfaces</h2>
+          </div>
+          <p class="section-subtitle">These are the files and commands that actually carry the system. If they drift, Context Spine stops paying for itself.</p>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Surface</th>
+              <th>Why it exists</th>
+              <th>Human first move</th>
+              <th>Agent first move</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>meta/context-spine/spine-notes-*.md</code></td>
+              <td>Baseline project model and durable reading path.</td>
+              <td>Open it to understand the repo shape.</td>
+              <td>Use it as the durable anchor in bootstrap and query.</td>
+            </tr>
+            <tr>
+              <td><code>meta/context-spine/sessions/</code></td>
+              <td>Current continuity and explicit next actions.</td>
+              <td>Read the latest session before asking for a recap.</td>
+              <td>Use it to infer active objective and immediate next action.</td>
+            </tr>
+            <tr>
+              <td><code>meta/context-spine/hot-memory-index.md</code></td>
+              <td>Curated working set for right-now reopening.</td>
+              <td>Open the recommended files first.</td>
+              <td>Treat it as a compression layer, not as authority.</td>
+            </tr>
+            <tr>
+              <td><code>docs/adr/</code>, <code>docs/runbooks/</code>, <code>.agent/diagrams/</code></td>
+              <td>Durable boundaries, operating knowledge, and visual system shape.</td>
+              <td>Use one explainer plus the key runbook.</td>
+              <td>Use as supporting authority after code and current evidence.</td>
+            </tr>
+            <tr>
+              <td><code>context:query</code> / <code>context:rehydrate</code></td>
+              <td>Machine-readable recovery packets.</td>
+              <td>Usually not needed unless you want the runtime view.</td>
+              <td>Best spawn-time packet for Codex / Claude / other coding agents.</td>
+            </tr>
+            <tr>
+              <td><code>context:promote</code> / <code>context:invalidate</code></td>
+              <td>Explicit durable-memory reconciliation.</td>
+              <td>Use when a big truth changed.</td>
+              <td>Use after file changes, not instead of file changes.</td>
+            </tr>
+            <tr>
+              <td><code>QMD</code></td>
+              <td>Discovery and retrieval acceleration.</td>
+              <td>Use when corpus size makes manual reopening slow.</td>
+              <td>Use after the working set is bounded, not before.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="loop" class="card section" style="--i:4">
+        <div class="section-head">
+          <div>
+            <div class="label gold">Normal Loop</div>
+            <h2 class="section-title">How to actually operate it</h2>
+          </div>
+          <p class="section-subtitle">The loop is intentionally simple. The system loses value when this becomes ceremony.</p>
+        </div>
+        <div class="loop">
+          <article class="loop-step">
+            <div class="step-no">01</div>
+            <h3>Bootstrap</h3>
+            <p>Run <code>context:setup</code> once, then <code>context:bootstrap</code> on restart. Open the baseline, the latest session, and the hot-memory working set.</p>
+          </article>
+          <article class="loop-step">
+            <div class="step-no">02</div>
+            <h3>Work from evidence</h3>
+            <p>Read code, tests, logs, commands, and owning docs before synthesizing. Memory is downstream of the repo, not a replacement for it.</p>
+          </article>
+          <article class="loop-step">
+            <div class="step-no">03</div>
+            <h3>Capture what matters</h3>
+            <p>Update the session, add an observation if needed, and keep the newest facts connected to evidence instead of letting them live only in scrollback.</p>
+          </article>
+          <article class="loop-step">
+            <div class="step-no">04</div>
+            <h3>Verify and reconcile</h3>
+            <p>Run <code>context:doctor</code>, <code>context:score</code>, or <code>context:verify</code> when the reading path or trust level changed. Promote or invalidate durable memory explicitly.</p>
+          </article>
+          <article class="loop-step">
+            <div class="step-no">05</div>
+            <h3>Refresh retrieval</h3>
+            <p>Use <code>context:refresh</code> or <code>context:update</code> after docs and notes change. Use embedding only when it materially helps, not by reflex.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="agents" class="card section" style="--i:5">
+        <div class="section-head">
+          <div>
+            <div class="label navy">Agent Pattern</div>
+            <h2 class="section-title">How to leverage it with Codex, Claude, or another coding agent</h2>
+          </div>
+          <p class="section-subtitle">The agent contract should be stable even when the tool changes. Codex and Claude have different runtimes, but both benefit from the same memory discipline.</p>
+        </div>
+        <div class="three-col" style="margin-bottom:16px">
+          <article class="mini-card">
+            <div class="label navy">Agent gets</div>
+            <ul>
+              <li>a smaller, higher-signal working set</li>
+              <li>explicit next actions instead of vague restart prose</li>
+              <li>fewer blind assumptions about repo shape</li>
+              <li>reconciliation commands for durable memory changes</li>
+            </ul>
+          </article>
+          <article class="mini-card">
+            <div class="label gold">Human gets</div>
+            <ul>
+              <li>a readable baseline and latest session</li>
+              <li>one visual entrypoint when the system is complex</li>
+              <li>evidence trails instead of magical agent claims</li>
+              <li>a repo that can be resumed without oral history</li>
+            </ul>
+          </article>
+          <article class="mini-card">
+            <div class="label teal">Shared rule</div>
+            <ul>
+              <li>truth still starts in code, tests, commands, and logs</li>
+              <li>retrieval stays supportive, not sovereign</li>
+              <li>promotion and invalidation stay explicit</li>
+              <li>the memory layer should stay thin</li>
+            </ul>
+          </article>
+        </div>
+        <div class="contrast">
+          <article class="mini-card bad">
+            <div class="label crimson">Weak Agent Pattern</div>
+            <ul>
+              <li>Start with a broad search over the whole corpus.</li>
+              <li>Treat old notes as equal to current runtime evidence.</li>
+              <li>Let every subagent write its own durable memory.</li>
+              <li>Assume “latest” from retrieval instead of dated files or commands.</li>
+            </ul>
+          </article>
+          <article class="mini-card good">
+            <div class="label sage">Strong Agent Pattern</div>
+            <ul>
+              <li>Bootstrap into the bounded working set first.</li>
+              <li>Use <code>context:query</code> or <code>context:rehydrate</code> as the spawn-time packet.</li>
+              <li>Let the parent agent stay the single writer for durable memory.</li>
+              <li>Promote or invalidate after actual file changes and verification.</li>
+            </ul>
+          </article>
+        </div>
+        <div class="two-col" style="margin-top:16px">
+          <article class="mini-card">
+            <div class="label teal">Codex / Claude Workflow</div>
+            <ul>
+              <li>Bootstrap or rehydrate.</li>
+              <li>Open the baseline, latest session, hot-memory, and source-of-truth files.</li>
+              <li>Do the coding task from live evidence.</li>
+              <li>Use bounded subagents only for narrow retrieval, review, or isolated edits.</li>
+              <li>Write session and reconciliation outputs at the parent level.</li>
+            </ul>
+          </article>
+          <article class="mini-card">
+            <div class="label gold">Best Leverage</div>
+            <ul>
+              <li>Use Context Spine to reduce restart cost, not to replace engineering judgment.</li>
+              <li>Use it hardest when a repo is old, multi-surface, frequently handed off, or agent-assisted.</li>
+              <li>Pair it with visual explainers when humans need the shape fast.</li>
+              <li>Keep the contract generic enough that changing agent runtime does not require rewriting the memory model.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="adoption" class="card section" style="--i:6">
+        <div class="section-head">
+          <div>
+            <div class="label sage">Adoption Ladder</div>
+            <h2 class="section-title">Use only as much as the repo can keep healthy</h2>
+          </div>
+          <p class="section-subtitle">Context Spine becomes elegant when the amount of process matches the complexity of the project.</p>
+        </div>
+        <div class="four-col">
+          <article class="mini-card">
+            <div class="label gold">Level 1</div>
+            <strong>Minimal</strong>
+            <p>One baseline note, one session directory, one bootstrap command. Enough for solo restart quality.</p>
+          </article>
+          <article class="mini-card">
+            <div class="label navy">Level 2</div>
+            <strong>Team-ready</strong>
+            <p>Add ADRs, runbooks, observations, and one visual explainer. Enough for handoffs and onboarding.</p>
+          </article>
+          <article class="mini-card">
+            <div class="label teal">Level 3</div>
+            <strong>Agent-ready</strong>
+            <p>Add query, rehydrate, verify, promote, invalidate, and a stable skill surface. Enough for coding agents to use the repo without guessing.</p>
+          </article>
+          <article class="mini-card">
+            <div class="label sage">Level 4</div>
+            <strong>Fleet-ready</strong>
+            <p>Add rollout and upgrade paths so several repos can stay current without bluntly overwriting local customizations.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="signals" class="card section" style="--i:7">
+        <div class="section-head">
+          <div>
+            <div class="label crimson">Signals</div>
+            <h2 class="section-title">How to know it is helping, and how to know it is drifting</h2>
+          </div>
+          <p class="section-subtitle">A good memory surface makes the repo feel easier to re-enter. A bad one becomes another stale layer to distrust.</p>
+        </div>
+        <div class="two-col">
+          <article class="mini-card">
+            <div class="label sage">Healthy Signals</div>
+            <ul>
+              <li>Restarts begin from the right files without debate.</li>
+              <li>People ask for fewer “what were we doing?” recaps.</li>
+              <li>Agent outputs cite concrete files, tests, and commands.</li>
+              <li>Durable notes evolve only when the project model really changes.</li>
+              <li>Visual explainers reduce explanation time instead of duplicating it.</li>
+            </ul>
+          </article>
+          <article class="mini-card">
+            <div class="label crimson">Anti-Patterns</div>
+            <ul>
+              <li>Sessions turn into transcript dumps.</li>
+              <li>Retrieval becomes the default even when the needed files are already obvious.</li>
+              <li>Every note is treated as equally authoritative.</li>
+              <li>The memory layer gets bigger, but restart quality does not improve.</li>
+              <li>Subagents write parallel truths that nobody reconciles.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="card footer-note" style="--i:8">
+        <div class="label gold">Bottom Line</div>
+        <p>
+          If you want one sentence to carry forward: <strong>Context Spine is the thin memory contract that sits between the repo’s live evidence and the human or agent trying to restart work.</strong>
+        </p>
+        <p>
+          Use it to make the working set obvious, the evidence trail inspectable, and the durable project model explicit. Use retrieval, subagents, and visual explainers in support of that contract, not as substitutes for it.
+        </p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
