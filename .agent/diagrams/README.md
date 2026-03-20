@@ -33,33 +33,36 @@ The preferred pattern is:
 
 If you only open one diagram first, use this order:
 
-1. `context-spine-overview-2026-03-11.html`
-   - best first read for overall system shape
-2. `context-spine-human-review-2026-03-11.html`
+1. `context-spine-field-guide-2026-03-19.html`
+   - best first read for overall model, operating loop, and human plus agent usage
+2. `context-spine-overview-2026-03-11.html`
+   - best second read for overall system shape
+3. `context-spine-human-review-2026-03-11.html`
    - best read for human/operator value and design stance
-3. `context-spine-doctor-2026-03-15.html`
+4. `context-spine-doctor-2026-03-15.html`
    - best read for hygiene and drift control
-4. `context-spine-native-memory-direction-2026-03-16.html`
+5. `context-spine-native-memory-direction-2026-03-16.html`
    - best read when deciding what Context Spine should become if it evolves toward native Codex memory
-5. `context-spine-agent-native-contract-2026-03-17.html`
+6. `context-spine-agent-native-contract-2026-03-17.html`
    - best read when deciding what the agent should treat as primary memory and what humans should get back
-6. `context-spine-runtime-contract-2026-03-16.html`
+7. `context-spine-runtime-contract-2026-03-16.html`
    - best read when you need to understand the new runtime manifest, skill verification, and run-state model
-7. `context-spine-upgrade-path-2026-03-15.html`
+8. `context-spine-upgrade-path-2026-03-15.html`
    - best read when updating an older install
-8. `context-spine-pi-extension-points-2026-03-15.html`
+9. `context-spine-pi-extension-points-2026-03-15.html`
    - best read when deciding what belongs in `.pi/`
-9. `context-spine-skill-stack-2026-03-15.html`
+10. `context-spine-skill-stack-2026-03-15.html`
    - best read when deciding how the maintenance, promotion, and rollout skills fit together
-10. `context-spine-agent-working-set-2026-03-15.html`
+11. `context-spine-agent-working-set-2026-03-15.html`
    - best read when deciding how an agent should open the repo without guessing
-11. `context-spine-elon-doctrine-2026-03-15.html`
+12. `context-spine-elon-doctrine-2026-03-15.html`
    - best read when deciding whether a change is actually valuable or just more complexity
 
 ## Current Catalog
 
 | File | Primary audience | Open when you need to understand | Core question it answers | Status |
 | --- | --- | --- | --- | --- |
+| `context-spine-field-guide-2026-03-19.html` | human operator, agent user, maintainer | the whole operating model | "What is Context Spine, how should I think about it, and how do I use it well with coding agents?" | current |
 | `context-spine-overview-2026-03-11.html` | new reader, maintainer | the whole model | "What is Context Spine and how is it shaped?" | current |
 | `context-spine-human-review-2026-03-11.html` | human operator, reviewer | why this exists and why it matters | "Why is this worth using in a real project?" | current |
 | `context-spine-doctor-2026-03-15.html` | maintainer, lead | repo hygiene and drift control | "How do we know the memory spine still maps to project truth?" | current |

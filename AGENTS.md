@@ -89,6 +89,9 @@ For complex systems, plans, audits, or retrieved context that is easier to under
 - create or update a self-contained explainer under `.agent/diagrams/`
 - pair it with a durable note or evidence source
 - treat the explainer as a reading surface, not just presentation polish
+- when explainers accumulate over time, curate them under `meta/visual-corpus/`
+  as normalized captures plus generated index, compare, or trend views instead
+  of letting them stay disjointed one-shot pages
 
 If a user prefers to read context visually, the explainer path should be part of the normal workflow.
 
@@ -127,10 +130,13 @@ When memory freshness matters:
 ## Retention Discipline
 
 - keep architecture, boundaries, baseline notes, ADRs, and runbooks durable
+- keep normalized visual-corpus manifests and catalogs durable when they become
+  part of the reading path
 - treat sessions and observations as rolling working memory, not permanent literature
 - treat events as sparse machine-facing provenance for meaningful work boundaries, not a tail of everything the agent did
 - roll stable conclusions into durable notes or evidence packs
-- keep generated retrieval artifacts local and regenerable
+- keep generated retrieval artifacts and generated corpus pages local and
+  regenerable
 
 ## Extensibility Rules
 

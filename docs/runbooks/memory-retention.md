@@ -30,6 +30,7 @@ In `tracked` mode, keep these committed as the long-lived shared understanding o
 - `docs/runbooks/`
 - `meta/context-spine/spine-notes-*.md`
 - curated `meta/context-spine/evidence-packs/`
+- selected `meta/visual-corpus/captures/` and `meta/visual-corpus/catalogs/`
 - selected `.agent/diagrams/`
 
 This is where architecture, boundaries, contracts, invariants, and operating shape belong.
@@ -58,6 +59,7 @@ Treat these as local and regenerable:
 - `meta/context-spine/.qmd/`
 - `meta/context-spine/hot-memory-index.md`
 - `meta/context-spine/memory-scorecard.md`
+- `meta/visual-corpus/generated/`
 
 They support retrieval and maintenance, but they are not durable project memory.
 

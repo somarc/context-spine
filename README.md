@@ -200,7 +200,7 @@ Visual explainers are first-class here, not decoration.
 For humans, this is usually the right layer.
 For agents, the explainers are a complement to the deeper operating surfaces, not a replacement for them.
 
-If you want the current design stance in one artifact, open [context-spine-agent-native-contract-2026-03-17.html](./.agent/diagrams/context-spine-agent-native-contract-2026-03-17.html).
+If you want the best single visual first read, open [context-spine-field-guide-2026-03-19.html](./.agent/diagrams/context-spine-field-guide-2026-03-19.html).
 
 ## Read Next
 

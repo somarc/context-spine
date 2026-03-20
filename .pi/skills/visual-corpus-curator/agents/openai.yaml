@@ -1,0 +1,4 @@
+interface:
+  display_name: "Visual Corpus Curator"
+  short_description: "Curate capture atlases"
+  default_prompt: "Use $visual-corpus-curator to turn this evolving document set into immutable captures, an index, and comparable visual views."

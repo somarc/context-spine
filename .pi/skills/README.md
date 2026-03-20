@@ -35,6 +35,7 @@ Current bundled skills:
 - `elon-doctrine`
 - `memory-promotion`
 - `multi-repo-rollout`
+- `visual-corpus-curator`
 
 `context-spine/` remains the bundled source-of-truth skill for promoting this workflow into Codex.
 

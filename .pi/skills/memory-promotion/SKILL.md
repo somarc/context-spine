@@ -31,6 +31,7 @@ This skill answers:
    - promote into `docs/adr/`
    - promote into `docs/runbooks/`
    - promote into `meta/context-spine/evidence-packs/`
+   - promote into `meta/visual-corpus/captures/` and `meta/visual-corpus/catalogs/` when the truth should become an immutable, comparable visual corpus
    - promote into `.agent/diagrams/`
    - promote into a skill reference or skill contract when the repair is about how the spine should think
 1. Prefer the smallest durable surface that preserves the truth without duplication.
@@ -44,6 +45,8 @@ This skill answers:
   - runbook
 - trusted result from a bounded investigation
   - evidence pack
+- repeated dated or milestone-based visual history with stable comparison rules
+  - visual corpus manifests and catalogs
 - complex system shape or workflow that reads better visually
   - diagram
 - contradicted durable truth
@@ -80,3 +83,4 @@ Return:
 - `../../../../docs/templates/durable-note-template.md`
 - `../../../../docs/templates/session-summary-template.md`
 - `../context-spine/references/flow-and-cognition.md`
+- `../visual-corpus-curator/SKILL.md`

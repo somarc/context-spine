@@ -8,7 +8,7 @@ tags:
   - memory
 domain: repo-bootstrap
 type: spine-note
-as_of: 2026-03-17
+as_of: 2026-03-20
 source_of_truth:
   - /Users/mhess/aem/aem-code/context-spine/README.md
   - /Users/mhess/aem/aem-code/context-spine/AGENTS.md
@@ -28,6 +28,12 @@ source_of_truth:
   - /Users/mhess/aem/aem-code/context-spine/docs/adr/0006-native-codex-memory-direction.md
   - /Users/mhess/aem/aem-code/context-spine/docs/adr/0007-native-memory-apis-without-runtime-orchestration.md
   - /Users/mhess/aem/aem-code/context-spine/docs/runbooks/memory-state.md
+  - /Users/mhess/aem/aem-code/context-spine/docs/runbooks/visual-explainers.md
+  - /Users/mhess/aem/aem-code/context-spine/docs/runbooks/memory-retention.md
+  - /Users/mhess/aem/aem-code/context-spine/meta/context-spine/SKILLS.md
+  - /Users/mhess/aem/aem-code/context-spine/.pi/skills/context-spine/SKILL.md
+  - /Users/mhess/aem/aem-code/context-spine/.pi/skills/memory-promotion/SKILL.md
+  - /Users/mhess/aem/aem-code/context-spine/.pi/skills/visual-corpus-curator/SKILL.md
 ---
 
 # Context Spine Baseline
@@ -66,6 +72,9 @@ As of 2026-03-17, this repository is the reusable boilerplate for bootstrapping 
 - The native-memory direction is now bounded more concretely: capture, query, promote, invalidate, and reconcile are allowed core API families, but runtime orchestration, agent dispatch, scheduling, and hidden prompt-owned project truth are not.
 - The human-facing contract is now explicit: visual explanation, evidence trails, and source-of-truth references matter more than exposing retrieval internals.
 - Beyond the README layer, the deeper docs are primarily agent-facing operating substrate; humans should usually prefer the visual explainer layer unless they want raw evidence or mechanics.
+- Visual surfaces now split cleanly between standalone explainers under
+  `.agent/diagrams/` and normalized, date-addressable corpora under
+  `meta/visual-corpus/` when compare and trend views matter.
 - Session, observation, and evidence helpers now emit machine-readable records under `meta/context-spine/records/` alongside the existing markdown surfaces.
 - `context:state` now emits a machine-readable JSON summary plus a generated HTML explainer so the current memory layers can be consumed by Codex and read quickly by humans.
 - The state surface now also summarizes recent run history so verification and maintenance commands become visible memory, not just terminal output.
@@ -101,6 +110,9 @@ As of 2026-03-17, this repository is the reusable boilerplate for bootstrapping 
 - Keep native memory APIs scoped to memory services; if a future proposal needs a control plane, scheduler, worker bus, or runtime-owned prompt store, it belongs in an external adapter or runtime instead.
 - Prefer direct evidence over retrieval when the relevant repo surfaces are already local and bounded; use retrieval primarily for discovery, sweep, and human lookup.
 - Keep `context:state` as a thin generated summary of existing memory, not as a replacement for the baseline, ADRs, runbooks, or curated explainers.
+- Keep one-off visual explainers and date-based visual corpora distinct:
+  `.agent/diagrams/` is the standalone reading surface, while
+  `meta/visual-corpus/` holds normalized capture manifests and catalogs.
 - Prefer enriching managed run capture over adding more manual notes when the missing truth is really command, test, git, or diff provenance.
 - Keep the event stream sparse and high-signal; if it starts looking like shell history, remove or simplify it.
 - Do not let maintenance surfaces claim strength from retrieval ritual alone; strength has to include the actual restart and proof path.
@@ -123,3 +135,9 @@ As of 2026-03-17, this repository is the reusable boilerplate for bootstrapping 
 - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/verify.py
 - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/init-qmd.sh
 - /Users/mhess/aem/aem-code/context-spine/docs/runbooks/session-start.md
+- /Users/mhess/aem/aem-code/context-spine/docs/runbooks/visual-explainers.md
+- /Users/mhess/aem/aem-code/context-spine/docs/runbooks/memory-retention.md
+- /Users/mhess/aem/aem-code/context-spine/meta/context-spine/SKILLS.md
+- /Users/mhess/aem/aem-code/context-spine/.pi/skills/context-spine/SKILL.md
+- /Users/mhess/aem/aem-code/context-spine/.pi/skills/memory-promotion/SKILL.md
+- /Users/mhess/aem/aem-code/context-spine/.pi/skills/visual-corpus-curator/SKILL.md

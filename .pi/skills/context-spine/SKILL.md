@@ -95,6 +95,9 @@ Optimize for flow as well: hydrate from the deepest relevant sources, move only 
 - Use this mode when recent work changed project shape, invalidated assumptions, or exposed a gap between durable memory and live evidence.
 - Capture what should be promoted, what should stay rolling, and what should be marked superseded.
 - Pair with `memory-promotion` when the durable destination is unclear.
+- Pair with `visual-corpus-curator` when the human-facing output needs
+  immutable dated captures, compare views, or trend views instead of a
+  one-off diagram.
 
 ### Codex skill maintenance
 
