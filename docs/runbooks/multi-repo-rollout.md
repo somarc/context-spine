@@ -2,11 +2,11 @@
 
 ## Goal
 
-Assess or safely advance Context Spine across a small set of local repositories without turning rollout into a heavy deployment system.
+Assess or safely advance Context Spine across a small set of local repositories or workspace roots without turning rollout into a heavy deployment system.
 
 Use this when you have a handful of active repos and want one answer to:
 
-- which repos are current
+- which repos or workspace roots are current
 - which repos are drifting
 - which repos need upgrade-safe scaffolding
 - which repos need human merge review
@@ -24,6 +24,8 @@ Direct script equivalent:
 ```bash
 python3 ./scripts/context-spine/rollout.py --repos /path/to/repo-a /path/to/repo-b
 ```
+
+If one of those paths is a workspace root in `project_space.mode=workspace`, rollout expands it into the parent workspace plus its child repos, including light-touch `linked-child` repos discovered through `.context-spine.json`.
 
 ## Safe Additive Rollout
 
@@ -51,18 +53,22 @@ npm run context:rollout -- --repos /path/to/repo-a /path/to/repo-b --json-out ./
 
 ## Reading The Report
 
-For each repo, look at:
+For each target, look at:
 
+- `scope`
+  - `repo-root`, `workspace-root`, or `child-repo`
+- `project mode`
+  - `repo`, `workspace`, or `linked-child`
 - `doctor`
   - pass / warn / fail counts
 - `upgrade mode`
-  - `missing`, `partial`, or `existing`
+  - `missing`, `partial`, `existing`, or `linked-child`
 - `safe additive gaps`
   - missing low-risk scaffolding
 - `merge-review gaps`
   - files that should not be overwritten silently
 - `recommendation`
-  - the next action for that repo
+  - the next action for that target
 
 ## Recommended Order
 
@@ -72,7 +78,8 @@ Work in this order:
 2. repos with missing or partial installs
 3. repos with merge-review drift
 4. repos with only safe additive gaps
-5. repos already current
+5. linked-child repos whose parent spine is already healthy
+6. repos already current
 
 ## Boundaries
 

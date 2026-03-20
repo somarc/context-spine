@@ -14,6 +14,7 @@ from generated_artifact import (
 )
 from memory_events import events_root, iter_event_paths, latest_events
 from memory_records import iter_record_paths, latest_record, records_root
+from project_space import detect_project_space, summarize_project_space
 from run_state import finish_run, start_run
 
 
@@ -243,6 +244,8 @@ def build_state(
     html_path: Path | None = None,
     exclude_run_id: str = "",
 ) -> dict:
+    project_space = detect_project_space(repo_root, load_config(repo_root))
+    project_space_summary = summarize_project_space(project_space)
     machine_records = {
         category: record_category_state(memory_root, repo_root, category)
         for category in MACHINE_RECORD_CATEGORIES
@@ -272,6 +275,14 @@ def build_state(
             },
             "project": {
                 "baseline": latest_baseline(memory_root, repo_root),
+                "project_mode": project_space_summary["mode"],
+                "scope_label": project_space_summary["scope_label"],
+                "root_git": project_space_summary["root_git"],
+                "child_repo_count": project_space_summary["child_repo_count"],
+                "child_existing_count": project_space_summary["child_existing_count"],
+                "child_linked_count": project_space_summary["child_linked_count"],
+                "child_partial_count": project_space_summary["child_partial_count"],
+                "child_missing_count": project_space_summary["child_missing_count"],
                 **project_counts(repo_root),
             },
             "machine": {

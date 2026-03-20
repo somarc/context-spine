@@ -4,6 +4,8 @@ import shlex
 from copy import deepcopy
 from pathlib import Path
 
+from project_space import detect_project_space, summarize_project_space
+
 
 DEFAULT_CONFIG = {
     "project": "context-spine",
@@ -31,6 +33,13 @@ DEFAULT_CONFIG = {
         "retry_sleep_sec": 1,
     },
     "gitignore_mode": "tracked",
+    "project_space": {
+        "mode": "repo",
+        "child_repos": [],
+        "scan_roots": ["."],
+        "scan_depth": 2,
+        "ignore_dirs": [],
+    },
 }
 
 
@@ -78,6 +87,8 @@ def shell_variables(repo_root: Path | None = None) -> dict[str, str]:
     collections = config.get("collections", {})
     qmd = config.get("qmd", {})
     queries = qmd.get("queries", {})
+    project_space = detect_project_space(root, config)
+    project_space_summary = summarize_project_space(project_space)
 
     return {
         "CONFIG_CONTEXT_SPINE_PROJECT": str(config.get("project", "")),
@@ -97,6 +108,16 @@ def shell_variables(repo_root: Path | None = None) -> dict[str, str]:
         "CONFIG_CONTEXT_SPINE_QMD_RETRIES": str(qmd.get("retries", 4)),
         "CONFIG_CONTEXT_SPINE_QMD_RETRY_SLEEP_SEC": str(qmd.get("retry_sleep_sec", 1)),
         "CONFIG_CONTEXT_SPINE_GITIGNORE_MODE": str(config.get("gitignore_mode", "")),
+        "CONFIG_CONTEXT_SPINE_PROJECT_SPACE_MODE": str(project_space_summary.get("mode", "repo")),
+        "CONFIG_CONTEXT_SPINE_PROJECT_SPACE_ROOT_GIT": "1" if project_space_summary.get("root_git") else "0",
+        "CONFIG_CONTEXT_SPINE_PROJECT_SPACE_CHILD_REPO_COUNT": str(project_space_summary.get("child_repo_count", 0)),
+        "CONFIG_CONTEXT_SPINE_PROJECT_SPACE_CHILD_EXISTING_COUNT": str(project_space_summary.get("child_existing_count", 0)),
+        "CONFIG_CONTEXT_SPINE_PROJECT_SPACE_CHILD_LINKED_COUNT": str(project_space_summary.get("child_linked_count", 0)),
+        "CONFIG_CONTEXT_SPINE_PROJECT_SPACE_CHILD_PARTIAL_COUNT": str(project_space_summary.get("child_partial_count", 0)),
+        "CONFIG_CONTEXT_SPINE_PROJECT_SPACE_CHILD_MISSING_COUNT": str(project_space_summary.get("child_missing_count", 0)),
+        "CONFIG_CONTEXT_SPINE_PROJECT_SPACE_SCOPE_LABEL": str(project_space_summary.get("scope_label", "")),
+        "CONFIG_CONTEXT_SPINE_PROJECT_SPACE_ANCESTOR_WORKSPACE_COUNT": str(project_space_summary.get("ancestor_workspace_count", 0)),
+        "CONFIG_CONTEXT_SPINE_PROJECT_SPACE_NEAREST_WORKSPACE_ROOT": str(project_space_summary.get("nearest_workspace_root", "")),
     }
 
 

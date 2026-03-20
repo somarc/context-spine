@@ -5,7 +5,7 @@ owner: codex
 
 # Context Spine Memory
 
-This directory is the repo-local memory layer.
+This directory is the local Context Spine memory layer for the current repo or workspace root.
 
 It exists for short-horizon continuity and evidence capture close to the codebase.
 
@@ -20,7 +20,15 @@ Use three lifecycles here:
 - rolling: sessions and observations
 - generated/local: hot-memory indexes, scorecards, and `.qmd/`
 
-The repo-local runtime contract lives in `context-spine.json`.
+The local runtime contract lives in `context-spine.json`.
+
+`project_space.mode` controls whether this root behaves as:
+
+- `repo` for a single git repo spine
+- `workspace` for a parent workspace spine that coordinates child git repos
+
+If a project uses `linked-child`, it usually does not have this subtree at all.
+Instead it keeps a root-level `.context-spine.json` vertebra file that points to the parent workspace spine.
 
 ## Layout
 

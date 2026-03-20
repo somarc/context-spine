@@ -17,6 +17,7 @@ source_of_truth:
   - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/setup.sh
   - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/refresh.sh
   - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/context_config.py
+  - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/project_space.py
   - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/init-qmd.sh
   - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/runtime-manifest.json
   - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/runtime_manifest.py
@@ -24,10 +25,12 @@ source_of_truth:
   - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/generated_artifact.py
   - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/memory_records.py
   - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/memory-state.py
+  - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/upgrade.py
   - /Users/mhess/aem/aem-code/context-spine/docs/adr/0005-context-spine-design-compass.md
   - /Users/mhess/aem/aem-code/context-spine/docs/adr/0006-native-codex-memory-direction.md
   - /Users/mhess/aem/aem-code/context-spine/docs/adr/0007-native-memory-apis-without-runtime-orchestration.md
   - /Users/mhess/aem/aem-code/context-spine/docs/runbooks/memory-state.md
+  - /Users/mhess/aem/aem-code/context-spine/docs/runbooks/project-space-modes.md
   - /Users/mhess/aem/aem-code/context-spine/docs/runbooks/visual-explainers.md
   - /Users/mhess/aem/aem-code/context-spine/docs/runbooks/memory-retention.md
   - /Users/mhess/aem/aem-code/context-spine/meta/context-spine/SKILLS.md
@@ -40,13 +43,13 @@ source_of_truth:
 
 ## Summary
 
-As of 2026-03-17, this repository is the reusable boilerplate for bootstrapping repo-local memory, retrieval-backed discovery, evidence capture, explicit repo-local config, and verification surfaces in agent-assisted software projects.
+As of 2026-03-20, this repository is the reusable boilerplate for bootstrapping Context Spine across either a single repo or a non-git parent workspace, with retrieval-backed discovery, evidence capture, explicit local config, and verification surfaces in agent-assisted software projects.
 
 ## Current State
 
 - Repo-local memory lives under `meta/context-spine/`.
 - Bootstrap and session helpers live under `scripts/context-spine/`.
-- `meta/context-spine/context-spine.json` is now the explicit contract for project name, memory root, baseline preference, QMD collections, query defaults, and gitignore mode.
+- `meta/context-spine/context-spine.json` is now the explicit contract for project name, memory root, baseline preference, QMD collections, query defaults, gitignore mode, and project-space topology.
 - Preferred local entrypoints are `npm run context:setup`, `npm run context:bootstrap`, `npm run context:session`, `npm run context:refresh`, `npm run context:doctor`, and `npm run context:verify`.
 - `context:setup` and `context:refresh` now default to lexical retrieval only; `context:embed` is the explicit vector-hydration path.
 - Low-level retrieval primitives remain available as `npm run context:init`, `npm run context:update`, and `npm run context:embed` for cases where the repo needs direct control instead of the lean path.
@@ -55,6 +58,14 @@ As of 2026-03-17, this repository is the reusable boilerplate for bootstrapping 
 - The primary agent working set is baseline note, latest session, hot memory, and the named `source_of_truth` files; retrieval backends such as QMD remain supported surfaces, but they are not the core memory contract.
 - Long-horizon deep notes may live outside the repo in a linked durable note system; QMD is the preferred retrieval fabric across repo truth and that external layer.
 - The bootstrap flow should detect `fresh`, `recovery`, and `active` modes so normal sessions stay compact while first setup and stale recovery stay explicit.
+- The runtime now supports both `repo` mode and `workspace` mode, so a non-git parent folder can own a top-level spine and coordinate child git repos.
+- In workspace mode, the parent spine owns cross-repo truth and the parent hot-memory working set hydrates from child repo spines instead of treating the parent as an invalid repo.
+- The topology model now also has a light-touch `linked-child` option, so a child repo can carry only a `.context-spine.json` vertebra contract instead of a full adjacent install.
+- `context:upgrade` can now author that light-touch vertebra contract directly through `--adopt-mode linked-child --workspace-root ...`, so linked-child adoption is an explicit workflow instead of manual file editing.
+- The intended memory model is hierarchical: higher folders should be more meta-aware of the whole subtree, while lower folders should own more localized truth and working memory.
+- The `aem-code -> OAK -> child repo` shape is now the clearest concrete example of that hierarchy: top-level workspace intelligence, project-space intelligence, then repo-local vertebrae.
+- Linked-child adoption now auto-discovers the nearest ancestor workspace spine, so the common nested-repo path does not require restating `--workspace-root`.
+- Runtime surfaces now expose natural hierarchy labels directly: `meta spine`, `project spine`, `repo spine`, and `repo vertebra`.
 - Repo-local Codex skill sources live under `.pi/skills/`, including the core spine suite and companion review skills.
 - The core spine suite now treats active-delivery recovery, invalidation, hydration, flow state, and metacognitive checks as first-class operating concerns.
 - Existing project installs should have a dedicated upgrade path instead of assuming every change is a fresh drop-in.
@@ -86,7 +97,8 @@ As of 2026-03-17, this repository is the reusable boilerplate for bootstrapping 
 
 ## Decisions
 
-- Keep memory repo-local in this boilerplate instead of assuming a parent workspace.
+- Keep Context Spine local to the project root, but allow that root to be either a single repo or a non-git parent workspace that coordinates child repos.
+- Keep full adjacent installs optional rather than mandatory; a project may instead declare itself as a `linked-child` and defer shared Context Spine truth to the parent workspace spine.
 - Treat `qmd` as the default supported retrieval surface, but keep the agent working path usable when `qmd` is absent, partially hydrated, or not yet initialized.
 - Keep lexical retrieval in the safe default path and treat vector hydration as explicit acceleration rather than a hidden prerequisite.
 - Treat external durable notes as a first-class companion layer, not as an awkward afterthought; Obsidian CLI is optional help for that layer, not a core dependency.
@@ -94,6 +106,12 @@ As of 2026-03-17, this repository is the reusable boilerplate for bootstrapping 
 - Ship a canonical baseline durable note so agents have one high-signal artifact to open immediately.
 - Prefer `npm run context:*` wrappers so bootstrap commands still work when executable bits are lost outside a normal git checkout.
 - Make repo policy explicit in `context-spine.json` so bootstrap, doctor, score, upgrade, and gitignore surfaces stop inferring project shape independently.
+- Make project-space mode explicit in `context-spine.json` so bootstrap, doctor, upgrade, and rollout can distinguish a repo root from a coordinating workspace root without relying on `.git` alone.
+- Treat `.context-spine.json` as the explicit vertebra contract for light-touch child repos so rollout and doctor can classify them as intentional topology, not as broken installs.
+- Keep linked-child adoption explicit through `context:upgrade` so the light-touch path stays inspectable, deliberate, and documented.
+- Treat the filesystem hierarchy itself as the memory hierarchy: broader intelligence at higher layers, more concrete truth at lower layers.
+- Prefer hierarchy discovery over repeated manual wiring; when a child repo already lives under a valid workspace spine, the runtime should discover that and use it.
+- Let user-facing surfaces speak in natural scope labels first and internal topology labels second.
 - Keep principal-engineer oversight as an additive review skill under `.pi/skills/` instead of making it a hard dependency of the core loop.
 - Keep Context Spine itself as the thinnest possible operating layer for current truth; if a memory feature drifts into ceremony, simplify or remove it.
 - Collapse first-use ceremony into one setup command and one refresh command so the default path is easier to adopt and easier to remember.
@@ -128,15 +146,18 @@ As of 2026-03-17, this repository is the reusable boilerplate for bootstrapping 
 - /Users/mhess/aem/aem-code/context-spine/README.md
 - /Users/mhess/aem/aem-code/context-spine/AGENTS.md
 - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/bootstrap.sh
+- /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/project_space.py
 - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/setup.sh
 - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/refresh.sh
 - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/doctor.py
 - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/mem-score.py
+- /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/upgrade.py
 - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/verify.py
 - /Users/mhess/aem/aem-code/context-spine/scripts/context-spine/init-qmd.sh
 - /Users/mhess/aem/aem-code/context-spine/docs/runbooks/session-start.md
 - /Users/mhess/aem/aem-code/context-spine/docs/runbooks/visual-explainers.md
 - /Users/mhess/aem/aem-code/context-spine/docs/runbooks/memory-retention.md
+- /Users/mhess/aem/aem-code/context-spine/docs/runbooks/project-space-modes.md
 - /Users/mhess/aem/aem-code/context-spine/meta/context-spine/SKILLS.md
 - /Users/mhess/aem/aem-code/context-spine/.pi/skills/context-spine/SKILL.md
 - /Users/mhess/aem/aem-code/context-spine/.pi/skills/memory-promotion/SKILL.md

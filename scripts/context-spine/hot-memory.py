@@ -7,6 +7,7 @@ from pathlib import Path
 
 from context_config import load_config, resolve_repo_path
 from generated_artifact import GeneratedArtifactSpec, markdown_heading_validator, publish_generated_artifacts
+from project_space import ChildRepo, detect_project_space, summarize_project_space
 from run_state import finish_run, start_run
 
 
@@ -117,7 +118,41 @@ def add_item(items: list[WorkingSetItem], seen: set[Path], item: WorkingSetItem)
     items.append(item)
 
 
-def build_working_set(memory_root: Path, repo_root: Path, days: int) -> list[WorkingSetItem]:
+def child_spine_items(children: list[ChildRepo]) -> list[WorkingSetItem]:
+    items: list[WorkingSetItem] = []
+    for child in children:
+        candidate = child.hot_memory or child.latest_session or child.baseline_note or (child.vertebra.path if child.vertebra else None)
+        if candidate is None:
+            continue
+        if candidate == child.hot_memory:
+            reason = "Workspace parent should reopen repo-local working sets through child spine hot memory."
+        elif candidate == child.latest_session:
+            reason = "Workspace parent should surface the latest repo-local session when child hot memory is absent."
+        elif candidate == child.baseline_note:
+            reason = "Workspace parent should keep each child repo baseline reachable as repo-local truth."
+        else:
+            reason = "Workspace parent should keep each light-touch child repo's vertebra contract reachable."
+        items.append(
+            WorkingSetItem(
+                title=f"{child.relative_path} · {candidate.name}",
+                path=candidate,
+                reason=reason,
+                section="Project Vertebrae",
+                timestamp=safe_mtime(candidate),
+            )
+        )
+    items.sort(key=lambda item: item.timestamp or dt.datetime.min, reverse=True)
+    return items[:8]
+
+
+def build_working_set(
+    memory_root: Path,
+    repo_root: Path,
+    days: int,
+    *,
+    project_mode: str,
+    children: list[ChildRepo],
+) -> list[WorkingSetItem]:
     cutoff = dt.datetime.now() - dt.timedelta(days=days)
     items: list[WorkingSetItem] = []
     seen: set[Path] = set()
@@ -150,6 +185,10 @@ def build_working_set(memory_root: Path, repo_root: Path, days: int) -> list[Wor
                 timestamp=safe_mtime(latest_session),
             ),
         )
+
+    if project_mode == "workspace":
+        for item in child_spine_items(children):
+            add_item(items, seen, item)
 
     if baseline_note is not None:
         for path in parse_source_of_truth(baseline_note, repo_root)[:8]:
@@ -268,12 +307,15 @@ def main() -> int:
     args = parser.parse_args()
 
     repo_root_default = Path(__file__).resolve().parents[2]
-    config = load_config(repo_root_default)
-    configured_root = resolve_repo_path(repo_root_default, str(config.get("memory_root", default_memory_root())))
-    collection_name = args.collection or str(config.get("collections", {}).get("meta", "context-spine-meta"))
+    repo_root_for_config = infer_repo_root(Path(args.root).expanduser().resolve()) if args.root else repo_root_default
+    config = load_config(repo_root_for_config)
+    configured_root = resolve_repo_path(repo_root_for_config, str(config.get("memory_root", default_memory_root())))
     memory_root = (Path(args.root).expanduser() if args.root else configured_root).resolve()
+    collection_name = args.collection or str(config.get("collections", {}).get("meta", "context-spine-meta"))
     collection_root = infer_collection_root(memory_root)
     repo_root = infer_repo_root(memory_root)
+    project_space = detect_project_space(repo_root, config)
+    project_space_summary = summarize_project_space(project_space)
     run_handle = start_run(
         repo_root,
         memory_root,
@@ -281,9 +323,16 @@ def main() -> int:
         args=vars(args),
     )
 
-    items = build_working_set(memory_root, repo_root, args.days)
+    items = build_working_set(
+        memory_root,
+        repo_root,
+        args.days,
+        project_mode=project_space.mode,
+        children=project_space.child_repos,
+    )
     sections = [
         "Start Here",
+        "Project Vertebrae",
         "Source Of Truth",
         "Canonical Docs",
         "Recent Memory",
@@ -296,11 +345,15 @@ def main() -> int:
         "",
         f"Generated: {dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
         "Mode: working set, not raw recency",
+        f"Project space: {project_space.mode}",
+        f"Scope: {project_space_summary['scope_label']}",
         f"Recent-memory window: last {args.days} days",
         "",
         "This file is meant to answer: what should an agent or maintainer open first right now?",
         "",
     ]
+    if project_space_summary["nearest_workspace_root"]:
+        lines.extend([f"Nearest parent workspace: {project_space_summary['nearest_workspace_root']}", ""])
 
     if not items:
         lines.append("- No working-set items found.")

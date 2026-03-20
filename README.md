@@ -17,9 +17,9 @@
 
 Most repos can run. Few can explain themselves.
 
-`Context Spine` is a small memory substrate you add to a project so a person or agent can reopen the repo and quickly answer:
+`Context Spine` is a small memory substrate you add to a project so a person or agent can reopen the repo or workspace and quickly answer:
 
-- what this repo is
+- what this repo or workspace is
 - what matters now
 - what changed
 - what was actually verified
@@ -27,7 +27,7 @@ Most repos can run. Few can explain themselves.
 
 If you keep paying a "what were we doing?" tax every time a project goes cold, this is for that problem.
 
-It is not a product scaffold and it is not a control plane. It is a file-backed memory layer that makes the repo legible again.
+It is not a product scaffold and it is not a control plane. It is a file-backed memory layer that makes a repo or a non-git parent workspace legible again.
 
 > Human wink: yes, there are a lot of docs in here. Most of the docs beyond the READMEs are really for agents, not for meatspace readers. If you are human, take the visual lane: open the explainers in `.agent/diagrams/`.
 
@@ -40,7 +40,7 @@ It is not a product scaffold and it is not a control plane. It is a file-backed 
 
 ## What You Get
 
-- one baseline note that explains the repo in plain language
+- one baseline note that explains the repo or workspace in plain language
 - one rolling session trail for current work
 - one hot-memory index that says what to open first
 - one place to connect decisions back to evidence
@@ -73,6 +73,119 @@ If you are an agent:
 | `docs/adr/`, `docs/runbooks/`, `.agent/diagrams/` | Durable decisions, repeatable operations, and visual system shape |
 
 That reading path is the product. The scripts and retrieval surfaces exist to keep it current.
+
+## Project Space Modes
+
+Context Spine should support three clear shapes:
+
+- `embedded-repo`
+  A repo owns a full local spine under `meta/context-spine/` plus the runtime scripts.
+- `workspace-root`
+  A parent workspace owns a full top-level spine under `meta/context-spine/` and coordinates child repos.
+- `linked-child`
+  A project keeps only a light-touch vertebra file, `.context-spine.json`, that points back to the parent workspace spine.
+
+Those are the internal topology modes. The natural reading labels are:
+
+- `meta spine`
+  the broadest workspace intelligence over the whole subtree
+- `project spine`
+  a nested workspace intelligence layer for one major project space
+- `repo spine`
+  a repo that owns its own local Context Spine truth
+- `repo vertebra`
+  a light-touch child repo that points upward instead of carrying a full local spine
+
+Use `workspace-root` when you need the parent spine to own cross-repo truth:
+
+- active objective
+- topology and canonical child repo list
+- shared ADR index
+- visual corpus
+- replay timeline
+- cross-repo working set
+
+Keep code evidence, sessions, baselines, runbooks, and generated local memory in an `embedded-repo` child spine only when that repo truly needs local durable memory.
+
+Set the parent workspace mode in `meta/context-spine/context-spine.json`:
+
+```json
+{
+  "project_space": {
+    "mode": "workspace",
+    "child_repos": [],
+    "scan_roots": ["."],
+    "scan_depth": 2
+  }
+}
+```
+
+If the parent folder has no `.git`, that is valid in `workspace-root` mode.
+
+Use `linked-child` when you want the touch on an existing project to stay minimal:
+
+```json
+{
+  "version": 1,
+  "mode": "linked-child",
+  "workspace_root": "..",
+  "project_id": "oak-chain-docs",
+  "project_name": "Oak Chain Docs",
+  "truth_policy": "external"
+}
+```
+
+That file should live at the project root as `.context-spine.json`.
+
+If you want Context Spine to write that contract for you instead of hand-authoring it:
+
+```bash
+python3 ./scripts/context-spine/upgrade.py \
+  --target /path/to/child-repo \
+  --adopt-mode linked-child
+```
+
+If the child repo already lives under a workspace spine, the command auto-discovers the nearest parent workspace. Pass `--workspace-root /path/to/workspace-root` only when you need to override that.
+
+The command writes only the light-touch vertebra contract. It does not scaffold a full local spine into the child repo.
+
+Do not treat `linked-child` as a broken install. It is an intentional light-touch contract: the parent workspace spine owns shared memory, while the child repo stays mostly untouched.
+
+## Hierarchical Example
+
+Context Spine gets more natural when you treat the folder hierarchy itself as a hierarchy of scoped intelligence.
+
+Using the current local shape as an example:
+
+```text
+aem-code/                     # top-level workspace spine
+  meta/context-spine/
+  OAK/                        # project-level workspace spine
+    meta/context-spine/
+    oak-chain-docs/           # repo-level vertebra or embedded repo spine
+      .context-spine.json
+    oak-block-collection/     # another child repo
+      .context-spine.json
+```
+
+Read it like this:
+
+- `aem-code/`
+  The `meta spine`. It knows the overall landscape, major active efforts, shared topology, and the relationship between project spaces.
+- `aem-code/OAK/`
+  The `project spine`. It knows OAK-specific objectives, working set, decisions, and the topology of the versioned subprojects that make up OAK.
+- `aem-code/OAK/<repo>/`
+  Either a `repo spine` or a `repo vertebra`. Each child repo either owns repo-local truth directly or carries a light-touch vertebra contract that points back to the parent project spine.
+
+The important rule is that intelligence should broaden as you move up and become more concrete as you move down.
+
+- lower layers own fine-grained code evidence and local working memory
+- middle layers own project coordination and shared truth across related repos
+- top layers own the most meta view of the whole project space
+
+That is what makes the memory surface feel organic instead of bolted on. The hierarchy already exists in the filesystem; Context Spine is making that hierarchy legible.
+
+If you want the deeper comparison, read [project-space-modes.md](./docs/runbooks/project-space-modes.md).
 
 ## Try It In 5 Minutes
 
@@ -136,16 +249,26 @@ QMD is supported and useful here, but it is not the identity of the system. Cont
 | `npm run context:state` | Generate machine summary plus visual memory state |
 | `npm run context:promote` | Record a durable promotion into project truth |
 | `npm run context:invalidate` | Record that prior memory is now stale or superseded |
-| `npm run context:upgrade:pull-and-rollout -- --target /path/to/repo` | Update this Context Spine checkout from git, then run upgrade or rollout against target repos |
+| `npm run context:upgrade:pull-and-rollout -- --target /path/to/repo` | Update this Context Spine checkout from git, then run upgrade or rollout against a repo or workspace root |
 
 Advanced retrieval primitives remain available as `context:init`, `context:update`, and `context:embed` when you need direct control.
 
 ## Add It To An Existing Repo
 
-1. Copy or vendor `meta/context-spine/`, `scripts/context-spine/`, and `AGENTS.md`.
-2. Run `npm run context:setup`.
-3. Create one baseline note and start using session notes for meaningful work.
-4. Use bootstrap as the default way to reopen the repo.
+1. Choose the project-space shape first:
+   full embedded repo, parent workspace root, or linked child.
+2. For a full embedded repo, copy or vendor `meta/context-spine/`, `scripts/context-spine/`, and `AGENTS.md`.
+3. Run `npm run context:setup`.
+4. Create one baseline note and start using session notes for meaningful work.
+5. Use bootstrap as the default way to reopen the repo.
+
+For the lightest possible touch on an existing child repo, prefer:
+
+```bash
+python3 ./scripts/context-spine/upgrade.py \
+  --target /path/to/child-repo \
+  --adopt-mode linked-child
+```
 
 Use [docs/runbooks/project-drop-in.md](./docs/runbooks/project-drop-in.md) for a fresh install and [docs/runbooks/upgrade-existing-project.md](./docs/runbooks/upgrade-existing-project.md) if the repo already has an older Context Spine.
 
@@ -209,6 +332,7 @@ Start here:
 - [docs/runbooks/how-to-use-context-spine.md](./docs/runbooks/how-to-use-context-spine.md)
 - [docs/runbooks/external-durable-notes.md](./docs/runbooks/external-durable-notes.md)
 - [docs/runbooks/project-drop-in.md](./docs/runbooks/project-drop-in.md)
+- [docs/runbooks/project-space-modes.md](./docs/runbooks/project-space-modes.md)
 - [docs/runbooks/prerequisites.md](./docs/runbooks/prerequisites.md)
 - [docs/runbooks/visual-explainers.md](./docs/runbooks/visual-explainers.md)
 
