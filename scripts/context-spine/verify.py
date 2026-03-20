@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import argparse
 import datetime as dt
+import os
+import signal
 import shutil
 import subprocess
 from pathlib import Path
@@ -18,6 +20,27 @@ def default_memory_root(repo_root: Path) -> Path:
     return repo_root / "meta" / "context-spine"
 
 
+def has_test_suite(repo_root: Path) -> bool:
+    tests_dir = repo_root / "tests"
+    return tests_dir.is_dir() and any(tests_dir.glob("test_*.py"))
+
+
+def configured_skills_root(repo_root: Path, config: dict | None = None) -> Path | None:
+    loaded = config or load_config(repo_root)
+    collections = loaded.get("collections", {})
+    raw_path = str(collections.get("skills_root", "")).strip()
+    if not raw_path:
+        return None
+    return resolve_repo_path(repo_root, raw_path)
+
+
+def has_installable_skill_source(repo_root: Path, config: dict | None = None) -> bool:
+    skills_root = configured_skills_root(repo_root, config)
+    if skills_root is None or not skills_root.is_dir():
+        return False
+    return any(path.is_dir() and (path / "SKILL.md").exists() for path in skills_root.iterdir())
+
+
 def tail_lines(text: str, limit: int = 12) -> list[str]:
     lines = [line.rstrip() for line in text.splitlines() if line.strip()]
     if not lines:
@@ -33,24 +56,32 @@ def summarize_output(stdout: str, stderr: str, returncode: int) -> str:
     return f"Command exited with code {returncode}."
 
 
-def verify_steps(repo_root: Path) -> list[dict]:
-    steps = [
-        {
-            "name": "tests",
-            "command": ["python3", "-m", "unittest", "discover", "-s", "tests", "-p", "test_*.py"],
-            "cwd": repo_root,
-        },
+def verify_steps(repo_root: Path, config: dict | None = None) -> list[dict]:
+    loaded = config or load_config(repo_root)
+    steps = []
+    if has_test_suite(repo_root):
+        steps.append(
+            {
+                "name": "tests",
+                "command": ["python3", "-m", "unittest", "discover", "-s", "tests", "-p", "test_*.py"],
+                "cwd": repo_root,
+            }
+        )
+    steps.append(
         {
             "name": "bootstrap",
             "command": ["bash", "./scripts/context-spine/bootstrap.sh"],
             "cwd": repo_root,
-        },
-        {
-            "name": "skill_validate",
-            "command": ["bash", "./scripts/context-spine/install-codex-skill.sh", "--validate-only"],
-            "cwd": repo_root,
-        },
-    ]
+        }
+    )
+    if has_installable_skill_source(repo_root, loaded):
+        steps.append(
+            {
+                "name": "skill_validate",
+                "command": ["bash", "./scripts/context-spine/install-codex-skill.sh", "--validate-only"],
+                "cwd": repo_root,
+            }
+        )
     if shutil.which("qmd"):
         steps.extend(
             [
@@ -64,6 +95,7 @@ def verify_steps(repo_root: Path) -> list[dict]:
                     "command": ["bash", "./scripts/context-spine/qmd-refresh.sh", "--embed"],
                     "cwd": repo_root,
                     "optional_on_failure": True,
+                    "timeout_seconds": 30,
                 },
             ]
         )
@@ -86,30 +118,60 @@ def verify_steps(repo_root: Path) -> list[dict]:
 
 def run_step(step: dict) -> dict:
     started = dt.datetime.now(dt.UTC)
-    result = subprocess.run(
+    timeout_seconds = step.get("timeout_seconds")
+    process = subprocess.Popen(
         step["command"],
         cwd=str(step["cwd"]),
-        capture_output=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         text=True,
-        check=False,
+        start_new_session=True,
     )
-    finished = dt.datetime.now(dt.UTC)
-    status = "success"
-    if result.returncode != 0:
+    try:
+        stdout, stderr = process.communicate(timeout=timeout_seconds)
+        stdout_tail = tail_lines(stdout)
+        stderr_tail = tail_lines(stderr)
+        summary = summarize_output(stdout, stderr, process.returncode)
+        status = "success"
+        if process.returncode != 0:
+            status = "warn" if step.get("optional_on_failure") else "fail"
+    except subprocess.TimeoutExpired as exc:
+        os.killpg(process.pid, signal.SIGTERM)
+        try:
+            stdout, stderr = process.communicate(timeout=5)
+        except subprocess.TimeoutExpired:
+            os.killpg(process.pid, signal.SIGKILL)
+            stdout, stderr = process.communicate()
+        finished = dt.datetime.now(dt.UTC)
         status = "warn" if step.get("optional_on_failure") else "fail"
+        return {
+            "name": step["name"],
+            "command": step["command"],
+            "cwd": str(step["cwd"]),
+            "status": status,
+            "optional_on_failure": bool(step.get("optional_on_failure")),
+            "returncode": -1,
+            "started_at": started.replace(microsecond=0).isoformat(),
+            "finished_at": finished.replace(microsecond=0).isoformat(),
+            "duration_seconds": round((finished - started).total_seconds(), 3),
+            "summary": f"Timed out after {timeout_seconds} second(s).",
+            "stdout_tail": tail_lines((exc.stdout or "") + (stdout or "")),
+            "stderr_tail": tail_lines((exc.stderr or "") + (stderr or "")),
+        }
+    finished = dt.datetime.now(dt.UTC)
     return {
         "name": step["name"],
         "command": step["command"],
         "cwd": str(step["cwd"]),
         "status": status,
         "optional_on_failure": bool(step.get("optional_on_failure")),
-        "returncode": result.returncode,
+        "returncode": process.returncode,
         "started_at": started.replace(microsecond=0).isoformat(),
         "finished_at": finished.replace(microsecond=0).isoformat(),
         "duration_seconds": round((finished - started).total_seconds(), 3),
-        "summary": summarize_output(result.stdout, result.stderr, result.returncode),
-        "stdout_tail": tail_lines(result.stdout),
-        "stderr_tail": tail_lines(result.stderr),
+        "summary": summary,
+        "stdout_tail": stdout_tail,
+        "stderr_tail": stderr_tail,
     }
 
 
@@ -163,7 +225,7 @@ def main() -> int:
         args=vars(args),
     )
 
-    steps = [run_step(step) for step in verify_steps(repo_root)]
+    steps = [run_step(step) for step in verify_steps(repo_root, config)]
     failed = [step["name"] for step in steps if step["status"] == "fail"]
     warned = [step["name"] for step in steps if step["status"] == "warn"]
     if failed:
@@ -177,7 +239,7 @@ def main() -> int:
         )
     else:
         status = "success"
-        summary = "Verification passed across tests, bootstrap, lexical retrieval, doctor, score, and skill validation."
+        summary = "Verification passed across the configured core path."
 
     finish_run(
         run_handle,

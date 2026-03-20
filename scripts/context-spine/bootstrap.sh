@@ -323,11 +323,12 @@ fi
 echo
 echo "===== AGENT EXTENSIONS ====="
 skill_count="0"
+skills_root="${CONTEXT_SPINE_SKILLS_ROOT:-$CONFIG_CONTEXT_SPINE_SKILLS_ROOT}"
 pi_status="not found"
 ollama_status="not found"
 tmux_status="not found"
-if [[ -d "$ROOT/.pi/skills" ]]; then
-  skill_count="$(find "$ROOT/.pi/skills" -maxdepth 1 -mindepth 1 -type d | wc -l | tr -d ' ')"
+if [[ -n "$skills_root" && -d "$skills_root" ]]; then
+  skill_count="$(find "$skills_root" -maxdepth 1 -mindepth 1 -type d | wc -l | tr -d ' ')"
 fi
 if command -v pi >/dev/null 2>&1; then
   pi_status="available"

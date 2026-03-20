@@ -95,11 +95,20 @@ Context Spine should remain valid even if a team uses:
 
 ## How To Add These Surfaces
 
-Use this when you want external durable notes to augment the core spine instead of compete with it.
+Use this when you want external durable notes to augment the core spine instead
+of compete with it.
 
 ### 1. Pick One External Durable-Note Home
 
-Choose one place for long-horizon notes outside the repo:
+Choose one place for long-horizon notes outside the repo.
+
+The default Context Spine contract is now a project-scoped vault at:
+
+- `~/vaults/<project>-context-spine`
+
+Override `collections.vault_root` in `meta/context-spine/context-spine.json`
+when a project needs a different home. Set `collections.vault_root` to `null`
+only when you intentionally want no external durable-note layer.
 
 - an Obsidian vault
 - a plain markdown knowledge repo
@@ -130,10 +139,14 @@ This is the shared operating truth another engineer should be able to trust dire
 
 If you use QMD, add the external note root as another collection.
 
+The default setup path already provisions the project-scoped vault and wires it
+into repo-local QMD collections. Use the manual path only when you are binding a
+different external root or repairing retrieval by hand.
+
 Manual example:
 
 ```bash
-qmd collection add /path/to/external-vault --name project-vault --mask "**/*.md"
+qmd collection add /path/to/external-vault --name <project>-vault --mask "**/*.md"
 ```
 
 If you want the repo-local config to carry that path, set the vault fields in `meta/context-spine/context-spine.json` and then rerun:
@@ -195,7 +208,9 @@ Obsidian CLI is a good optional companion if you want:
 - scripted vault searches
 - capture flows that pair repo work with external note updates
 
-But the core contract does not depend on it.
+Context Spine provisions the vault on disk and keeps the contract tool-agnostic.
+Obsidian CLI is the preferred operator surface when it is available, but the
+vault remains valid plain-markdown storage even without it.
 
 The safe rule is:
 

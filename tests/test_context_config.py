@@ -71,6 +71,10 @@ class ContextConfigTest(unittest.TestCase):
             context_config.DEFAULT_CONFIG["collections"]["skills"],
         )
         self.assertEqual(
+            variables["CONFIG_CONTEXT_SPINE_SKILLS_ROOT"],
+            str((Path("/tmp/context-spine-test-root") / ".pi" / "skills").resolve()),
+        )
+        self.assertEqual(
             variables["CONFIG_CONTEXT_SPINE_QMD_QUERY_SKILLS"],
             context_config.DEFAULT_CONFIG["qmd"]["queries"]["skills"],
         )
@@ -78,6 +82,103 @@ class ContextConfigTest(unittest.TestCase):
         self.assertEqual(variables["CONFIG_CONTEXT_SPINE_PROJECT_SPACE_SCOPE_LABEL"], "repo spine")
         self.assertEqual(variables["CONFIG_CONTEXT_SPINE_PROJECT_SPACE_CHILD_REPO_COUNT"], "0")
         self.assertEqual(variables["CONFIG_CONTEXT_SPINE_PROJECT_SPACE_CHILD_LINKED_COUNT"], "0")
+
+    def test_shell_variables_resolve_custom_skills_root(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo_root = Path(tmpdir)
+            config_path = repo_root / "meta" / "context-spine" / "context-spine.json"
+            config_path.parent.mkdir(parents=True, exist_ok=True)
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "collections": {
+                            "skills_root": ".agents/skills",
+                        },
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            variables = context_config.shell_variables(repo_root)
+
+            self.assertEqual(
+                variables["CONFIG_CONTEXT_SPINE_SKILLS_ROOT"],
+                str((repo_root / ".agents" / "skills").resolve()),
+            )
+
+    def test_load_config_derives_project_scoped_vault_defaults(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo_root = Path(tmpdir)
+            config_path = repo_root / "meta" / "context-spine" / "context-spine.json"
+            config_path.parent.mkdir(parents=True, exist_ok=True)
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "project": "demo-repo",
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            config = context_config.load_config(repo_root)
+
+            self.assertEqual(config["collections"]["vault"], "demo-repo-vault")
+            self.assertEqual(Path(config["collections"]["vault_root"]).name, "demo-repo-context-spine")
+            self.assertEqual(config["qmd"]["collections"], "context-spine-meta,project-docs,project-skills,demo-repo-vault")
+
+    def test_default_vault_root_avoids_double_context_spine_suffix(self):
+        self.assertEqual(Path(context_config.default_vault_root("context-spine")).name, "context-spine")
+
+    def test_shell_variables_allow_explicit_vault_disable(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo_root = Path(tmpdir)
+            config_path = repo_root / "meta" / "context-spine" / "context-spine.json"
+            config_path.parent.mkdir(parents=True, exist_ok=True)
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "project": "demo-repo",
+                        "collections": {
+                            "vault_root": None,
+                        },
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            variables = context_config.shell_variables(repo_root)
+
+            self.assertEqual(variables["CONFIG_CONTEXT_SPINE_VAULT_ROOT"], "")
+            self.assertEqual(variables["CONFIG_CONTEXT_SPINE_VAULT_COLLECTION"], "demo-repo-vault")
+            self.assertEqual(variables["CONFIG_CONTEXT_SPINE_QMD_COLLECTIONS"], "context-spine-meta,project-docs,project-skills")
+
+    def test_shell_variables_expand_explicit_vault_root(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo_root = Path(tmpdir)
+            config_path = repo_root / "meta" / "context-spine" / "context-spine.json"
+            config_path.parent.mkdir(parents=True, exist_ok=True)
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "project": "demo-repo",
+                        "collections": {
+                            "vault_root": "~/vaults/demo-repo-context-spine",
+                        },
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            variables = context_config.shell_variables(repo_root)
+
+            self.assertEqual(
+                variables["CONFIG_CONTEXT_SPINE_VAULT_ROOT"],
+                str((Path.home() / "vaults" / "demo-repo-context-spine").resolve()),
+            )
 
     def test_shell_variables_detect_workspace_topology(self):
         with tempfile.TemporaryDirectory() as tmpdir:

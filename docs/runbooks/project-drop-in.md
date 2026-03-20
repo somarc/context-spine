@@ -46,7 +46,8 @@ For `embedded-repo` or `workspace-root`, copy or vendor these paths into the tar
 - `scripts/context-spine/`
 - `scripts/delegation/`
 - optional `.pi/`
-- optional `.pi/skills/` if you want the repo to ship project-owned Codex skill sources too
+- optional local skill source, defaulting to `.pi/skills/`, if you want the repo
+  to ship project-owned Codex skill sources too
 
 If the target repo already has a `docs/` directory, add these authority surfaces too:
 
@@ -59,6 +60,10 @@ Then set the repo-local contract in `meta/context-spine/context-spine.json` befo
 - project name
 - preferred baseline file
 - QMD collection names
+- external durable-note path when the default `~/vaults/<project>-context-spine`
+  location is not the right home
+- optional `collections.skills_root` if the repo intentionally keeps local
+  skill sources somewhere other than `.pi/skills/`
 - gitignore mode
 - project-space mode and child repo topology when the target is a parent workspace
 
@@ -72,6 +77,12 @@ If the target repo includes `package.json`, the lean path is:
 4. open the baseline note and hot-memory index
 
 If the target repo does not use `npm`, run `bash ./scripts/context-spine/setup.sh` instead.
+
+By default, first setup also provisions a project-scoped external vault at
+`~/vaults/<project>-context-spine` and adds it to the repo-local QMD plane.
+Override `collections.vault_root` if the project needs a different durable-note
+home. Set `collections.vault_root` to `null` only when you intentionally want
+no external durable-note layer.
 
 For a parent workspace root, set:
 
@@ -132,7 +143,7 @@ Optional manual equivalent:
 ```bash
 qmd collection add /path/to/project/meta --name context-spine-meta --mask "**/*.md"
 qmd collection add /path/to/project/docs --name project-docs --mask "**/*.md"
-qmd collection add /path/to/external-vault --name project-vault --mask "**/*.md"
+qmd collection add /path/to/external-vault --name <project>-vault --mask "**/*.md"
 ```
 
 Use `npm run context:refresh` whenever durable notes or docs are added and you want lexical retrieval refreshed.
@@ -140,6 +151,8 @@ Use `npm run context:embed` when you want to attempt vector hydration explicitly
 Use `bash ./scripts/context-spine/qmd-refresh.sh --embed` only when you want the low-level direct script.
 
 If the config names differ from the boilerplate defaults, keep `context-spine.json` authoritative and let the scripts read from it instead of hardcoding local variants.
+That includes `collections.skills_root` when a repo keeps local skill sources
+outside the default `.pi/skills/` path.
 
 If the repo ships the bundled skill source, install it into Codex with:
 
@@ -159,7 +172,11 @@ Recommended note types:
 - audits
 - runbooks
 
-Obsidian is a strong companion for this external layer, and Obsidian CLI is a useful optional adapter if you want command-line workflows around those notes. It is not required for a valid Context Spine install.
+Context Spine now treats a project-scoped external vault as a first-class part
+of first setup. Obsidian is a strong companion for that external layer, and
+Obsidian CLI is the preferred optional adapter if you want command-line
+workflows around those notes. The core contract is still plain markdown plus a
+stable path, so the vault remains durable even when Obsidian CLI is absent.
 
 After the drop-in, classify memory immediately:
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import re
 import shlex
 from copy import deepcopy
 from pathlib import Path
@@ -17,11 +18,12 @@ DEFAULT_CONFIG = {
         "meta": "context-spine-meta",
         "docs": "project-docs",
         "skills": "project-skills",
-        "vault": "project-vault",
+        "skills_root": ".pi/skills",
+        "vault": "",
         "vault_root": "",
     },
     "qmd": {
-        "collections": "context-spine-meta,project-docs,project-skills",
+        "collections": "",
         "append_to_session": True,
         "queries": {
             "bootstrap": "spine notes baseline bootstrap memory",
@@ -61,6 +63,64 @@ def deep_merge(base: dict, override: dict) -> dict:
     return merged
 
 
+def slugify_identifier(value: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", value.strip().lower()).strip("-")
+    return slug or "project"
+
+
+def default_vault_slug(project_name: str) -> str:
+    project_slug = slugify_identifier(project_name)
+    if project_slug == "context-spine" or project_slug.endswith("-context-spine"):
+        return project_slug
+    return f"{project_slug}-context-spine"
+
+
+def default_vault_collection(project_name: str) -> str:
+    return f"{slugify_identifier(project_name)}-vault"
+
+
+def default_vault_root(project_name: str) -> str:
+    return str((Path.home() / "vaults" / default_vault_slug(project_name)).resolve())
+
+
+def is_explicitly_disabled(value: object) -> bool:
+    return value is None or value is False
+
+
+def derive_qmd_collections(config: dict) -> str:
+    collections = config.get("collections", {})
+    names = [
+        str(collections.get("meta", "")).strip(),
+        str(collections.get("docs", "")).strip(),
+        str(collections.get("skills", "")).strip(),
+    ]
+    vault_name = str(collections.get("vault", "")).strip()
+    vault_root = collections.get("vault_root", "")
+    if vault_name and not is_explicitly_disabled(vault_root) and str(vault_root).strip():
+        names.append(vault_name)
+    return ",".join(name for name in names if name)
+
+
+def apply_derived_defaults(config: dict) -> dict:
+    project_name = str(config.get("project", "")).strip() or DEFAULT_CONFIG["project"]
+    collections = config.setdefault("collections", {})
+    qmd = config.setdefault("qmd", {})
+
+    if not str(collections.get("vault", "")).strip():
+        collections["vault"] = default_vault_collection(project_name)
+
+    raw_vault_root = collections.get("vault_root", "")
+    if is_explicitly_disabled(raw_vault_root):
+        collections["vault_root"] = ""
+    elif not str(raw_vault_root).strip():
+        collections["vault_root"] = default_vault_root(project_name)
+
+    if not str(qmd.get("collections", "")).strip():
+        qmd["collections"] = derive_qmd_collections(config)
+
+    return config
+
+
 def load_config(repo_root: Path | None = None) -> dict:
     root = repo_root or default_repo_root()
     config = deepcopy(DEFAULT_CONFIG)
@@ -70,7 +130,7 @@ def load_config(repo_root: Path | None = None) -> dict:
         if not isinstance(override, dict):
             raise ValueError(f"Context Spine config must be a JSON object: {config_path}")
         config = deep_merge(config, override)
-    return config
+    return apply_derived_defaults(config)
 
 
 def resolve_repo_path(repo_root: Path, value: str) -> Path:
@@ -85,6 +145,8 @@ def shell_variables(repo_root: Path | None = None) -> dict[str, str]:
     config = load_config(root)
     memory_root = resolve_repo_path(root, str(config["memory_root"]))
     collections = config.get("collections", {})
+    skills_root = str(collections.get("skills_root", "")).strip()
+    vault_root = collections.get("vault_root", "")
     qmd = config.get("qmd", {})
     queries = qmd.get("queries", {})
     project_space = detect_project_space(root, config)
@@ -97,8 +159,13 @@ def shell_variables(repo_root: Path | None = None) -> dict[str, str]:
         "CONFIG_CONTEXT_SPINE_COLLECTION": str(collections.get("meta", "")),
         "CONFIG_CONTEXT_SPINE_DOCS_COLLECTION": str(collections.get("docs", "")),
         "CONFIG_CONTEXT_SPINE_SKILLS_COLLECTION": str(collections.get("skills", "")),
+        "CONFIG_CONTEXT_SPINE_SKILLS_ROOT": str(resolve_repo_path(root, skills_root)) if skills_root else "",
         "CONFIG_CONTEXT_SPINE_VAULT_COLLECTION": str(collections.get("vault", "")),
-        "CONFIG_CONTEXT_SPINE_VAULT_ROOT": str(collections.get("vault_root", "")),
+        "CONFIG_CONTEXT_SPINE_VAULT_ROOT": (
+            str(resolve_repo_path(root, str(vault_root).strip()))
+            if not is_explicitly_disabled(vault_root) and str(vault_root).strip()
+            else ""
+        ),
         "CONFIG_CONTEXT_SPINE_QMD_COLLECTIONS": str(qmd.get("collections", "")),
         "CONFIG_CONTEXT_SPINE_QMD_APPEND": "1" if qmd.get("append_to_session", True) else "0",
         "CONFIG_CONTEXT_SPINE_QMD_QUERY_BOOTSTRAP": str(queries.get("bootstrap", "")),
