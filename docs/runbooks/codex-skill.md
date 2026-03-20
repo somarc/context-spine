@@ -22,6 +22,8 @@ This runbook is optional and only matters if your team wants the bundled workflo
   - audit hygiene, flow, and alignment drift in repo-local memory
 - `memory-promotion`
   - decide what rolling work, invalidations, and reasoning repairs should become durable memory
+- `visual-corpus-curator`
+  - turn repeated visual reporting into immutable captures, catalogs, compare pages, and trend views
 - `multi-repo-rollout`
   - assess or safely evolve Context Spine across several local repos
 - `elon-doctrine`
@@ -61,5 +63,6 @@ After installation:
    - `$principal-engineer-review`
    - `$context-spine-maintenance`
    - `$memory-promotion`
+   - `$visual-corpus-curator`
    - `$multi-repo-rollout`
    - `$elon-doctrine`

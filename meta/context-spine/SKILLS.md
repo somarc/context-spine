@@ -16,6 +16,10 @@ automatic subtree behavior belongs in `meta/context-spine/AGENTS.md`.
 - `memory-promotion`
   Use when the question is where stable knowledge should land: baseline note,
   ADR, runbook, evidence pack, or observation.
+- `visual-corpus-curator`
+  Use when the question is how recurring visual evidence should become
+  immutable captures, catalogs, compare views, or trend views instead of a
+  single explainer page.
 - `principal-engineer-review`
   Use when the issue is system shape, coupling, boundary drift, or whether the
   memory layer is staying useful.
@@ -65,6 +69,8 @@ Run these from the repo root.
 - If the question is "is the memory layer healthy?" use
   `context-spine-maintenance`.
 - If the question is "what should become durable?" use `memory-promotion`.
+- If the question is "how should this visual history become date-addressable
+  and comparable?" use `visual-corpus-curator`.
 - If the question is "should this memory pattern exist at all?" use
   `elon-doctrine`.
 - If the question is "is the system shape still sound?" use
