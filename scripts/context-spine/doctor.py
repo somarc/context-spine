@@ -16,6 +16,13 @@ from generated_artifact import (
     publish_generated_artifacts,
     validate_json_artifact,
 )
+from project_space import (
+    VERTEBRA_FILENAME,
+    detect_project_space,
+    nearest_workspace_root,
+    read_vertebra_link,
+    summarize_project_space,
+)
 from run_state import finish_run, start_run
 from runtime_manifest import default_manifest_path, load_runtime_manifest
 
@@ -265,7 +272,51 @@ def roadmap_like_docs(paths: Iterable[Path]) -> list[Path]:
     return matches
 
 
-def check_config(repo_root: Path, memory_root: Path, config: dict, config_path: Path, config_error: str) -> CheckResult:
+def check_config(
+    repo_root: Path,
+    memory_root: Path,
+    config: dict,
+    config_path: Path,
+    config_error: str,
+    *,
+    project_mode: str,
+) -> CheckResult:
+    if project_mode == "linked-child":
+        vertebra = read_vertebra_link(repo_root)
+        if vertebra is None:
+            return CheckResult(
+                slug="config",
+                title="Context Spine contract",
+                status=FAIL,
+                summary=f"No `{VERTEBRA_FILENAME}` vertebra file was found.",
+                actions=["Add a linked-child vertebra file or install a full repo-local Context Spine."],
+            )
+        details = [
+            f"Vertebra file: {vertebra.path}",
+            f"Project name: {vertebra.project_name or repo_root.name}",
+            f"Truth policy: {vertebra.truth_policy}",
+        ]
+        if vertebra.project_id:
+            details.append(f"Project ID: {vertebra.project_id}")
+        if vertebra.workspace_root is not None:
+            details.append(f"Workspace root: {vertebra.workspace_root}")
+        if vertebra.error:
+            return CheckResult(
+                slug="config",
+                title="Context Spine contract",
+                status=FAIL,
+                summary=f"The linked-child vertebra contract in `{VERTEBRA_FILENAME}` is invalid.",
+                details=details + [vertebra.error],
+                actions=["Fix the vertebra file so the linked child can resolve its parent workspace spine explicitly."],
+            )
+        return CheckResult(
+            slug="config",
+            title="Context Spine contract",
+            status=PASS,
+            summary=f"Linked-child vertebra contract is present in `{VERTEBRA_FILENAME}`.",
+            details=details,
+        )
+
     if config_error:
         return CheckResult(
             slug="config",
@@ -287,6 +338,12 @@ def check_config(repo_root: Path, memory_root: Path, config: dict, config_path: 
     actions: list[str] = []
 
     if not config_path.exists():
+        parent_workspace = nearest_workspace_root(repo_root)
+        if parent_workspace is not None:
+            details.append(f"Nearest workspace spine: {parent_workspace}")
+            actions.append(
+                "If this repo should stay light-touch inside that workspace, run `context:upgrade -- --target . --adopt-mode linked-child` from the repo root."
+            )
         return CheckResult(
             slug="config",
             title="Context Spine config",
@@ -295,7 +352,8 @@ def check_config(repo_root: Path, memory_root: Path, config: dict, config_path: 
             details=details,
             actions=[
                 "Add `meta/context-spine/context-spine.json` so bootstrap, doctor, scoring, and upgrade use the same explicit repo contract."
-            ],
+            ]
+            + actions,
         )
 
     status = PASS
@@ -373,6 +431,145 @@ def check_runtime_manifest(repo_root: Path) -> CheckResult:
         title="Runtime manifest",
         status=PASS,
         summary="Versioned runtime manifest is present and its declared runtime files resolve.",
+        details=details,
+    )
+
+
+def check_project_space(repo_root: Path, config: dict) -> CheckResult:
+    project_space = detect_project_space(repo_root, config)
+    summary = summarize_project_space(project_space)
+    details = [
+        f"Project mode: {summary['mode']}",
+        f"Scope: {summary['scope_label']}",
+        f"Root git: {'yes' if summary['root_git'] else 'no'}",
+        f"Child git repos: {summary['child_repo_count']}",
+    ]
+    if summary["nearest_workspace_root"]:
+        details.append(f"Nearest parent workspace: {summary['nearest_workspace_root']}")
+    actions: list[str] = []
+    status = PASS
+    message = "Project space topology is explicit enough for normal Context Spine use."
+
+    if project_space.mode == "linked-child":
+        linked_parent = project_space.vertebra.workspace_root if project_space.vertebra else None
+        details.append(f"Linked workspace ready: {'yes' if summary['linked_workspace_ready'] else 'no'}")
+        if linked_parent is not None:
+            details.append(f"Linked workspace root: {linked_parent}")
+        if project_space.vertebra and project_space.vertebra.error:
+            status = FAIL
+            message = "Linked-child topology is declared, but the vertebra contract is invalid."
+            actions.append("Fix the linked-child vertebra file so the parent workspace root resolves cleanly.")
+        elif not summary["linked_workspace_ready"]:
+            status = WARN
+            message = "Linked-child topology is present, but the parent workspace spine is not ready yet."
+            actions.append(
+                "Create or repair the parent workspace spine under `meta/context-spine/`, or fix the linked child `workspace_root` reference."
+            )
+        else:
+            message = "Linked-child topology resolves to a parent workspace spine."
+    elif project_space.mode == "workspace":
+        details.append(
+            "Child spine states: "
+            f"existing={summary['child_existing_count']} "
+            f"linked={summary['child_linked_count']} "
+            f"partial={summary['child_partial_count']} "
+            f"missing={summary['child_missing_count']}"
+        )
+        if not summary["root_git"]:
+            details.append("Workspace root has no `.git`, which is valid in workspace mode.")
+        if summary["child_repo_count"] == 0:
+            status = WARN
+            message = "Workspace mode is enabled, but no child git repos were detected."
+            actions.append(
+                "Set `project_space.child_repos` or widen `project_space.scan_roots`/`scan_depth` so the parent spine can coordinate its child repos."
+            )
+        if summary["child_partial_count"] or summary["child_missing_count"]:
+            status = WARN if status == PASS else status
+            message = "Workspace topology is present, but some child repos do not have complete repo-local spines."
+            actions.append(
+                "Either install full repo-local Context Spine in those child repos or add a light-touch linked-child vertebra file instead of leaving them undefined."
+            )
+        for child in project_space.child_repos[:8]:
+            details.append(f"{child.relative_path}: {child.install_state}")
+        if summary["child_repo_count"] > 8:
+            details.append(f"...and {summary['child_repo_count'] - 8} more child repos")
+    elif not summary["root_git"] and summary["child_repo_count"] > 0:
+        status = WARN
+        message = "Child git repos were detected under a non-git root, but project mode is still `repo`."
+        actions.append(
+            "Set `project_space.mode` to `workspace` if this parent spine is meant to coordinate child repositories."
+        )
+
+    return CheckResult(
+        slug="project-space",
+        title="Project space topology",
+        status=status,
+        summary=message,
+        details=details,
+        actions=actions,
+    )
+
+
+def check_linked_workspace_surface(project_space) -> CheckResult:
+    vertebra = project_space.vertebra
+    if vertebra is None:
+        return CheckResult(
+            slug="linked-workspace",
+            title="Linked workspace surface",
+            status=FAIL,
+            summary=f"No `{VERTEBRA_FILENAME}` contract was found for linked-child mode.",
+            actions=["Add the linked-child vertebra contract or switch the project-space mode back to `repo` or `workspace`."],
+        )
+
+    linked_root = vertebra.workspace_root
+    details = [f"Vertebra file: {vertebra.path}"]
+    if linked_root is not None:
+        details.append(f"Workspace root: {linked_root}")
+
+    if vertebra.error:
+        return CheckResult(
+            slug="linked-workspace",
+            title="Linked workspace surface",
+            status=FAIL,
+            summary="The linked-child vertebra contract could not be resolved.",
+            details=details + [vertebra.error],
+            actions=["Fix the vertebra contract so the parent workspace root and truth policy are explicit."],
+        )
+
+    if linked_root is None or not linked_root.exists():
+        return CheckResult(
+            slug="linked-workspace",
+            title="Linked workspace surface",
+            status=WARN,
+            summary="The linked child points at a workspace root that does not exist locally.",
+            details=details,
+            actions=["Fix `workspace_root` in the vertebra file or restore the parent workspace checkout."],
+        )
+
+    parent_memory_root = linked_root / "meta" / "context-spine"
+    details.append(f"Parent memory root: {parent_memory_root}")
+    if not parent_memory_root.is_dir():
+        return CheckResult(
+            slug="linked-workspace",
+            title="Linked workspace surface",
+            status=WARN,
+            summary="The linked workspace root exists, but it does not have a Context Spine memory root yet.",
+            details=details,
+            actions=["Initialize the parent workspace spine before relying on linked-child mode."],
+        )
+
+    hot_memory = parent_memory_root / "hot-memory-index.md"
+    baseline = find_baseline(parent_memory_root)
+    if hot_memory.exists():
+        details.append(f"Parent hot memory: {hot_memory}")
+    if baseline is not None:
+        details.append(f"Parent baseline: {baseline}")
+
+    return CheckResult(
+        slug="linked-workspace",
+        title="Linked workspace surface",
+        status=PASS,
+        summary="The linked child resolves to a parent workspace spine with inspectable memory surfaces.",
         details=details,
     )
 
@@ -802,16 +999,32 @@ def main() -> int:
         args=vars(args),
     )
 
+    project_space = detect_project_space(repo_root, config)
     results = [
-        check_config(repo_root, memory_root, config, config_path, config_error),
-        check_runtime_manifest(repo_root),
-        check_baseline(repo_root, memory_root, preferred_baseline),
-        check_session(repo_root, memory_root),
-        check_retrieval(memory_root),
-        *check_generated(memory_root),
-        check_docs(repo_root),
-        check_visuals(repo_root),
+        check_config(
+            repo_root,
+            memory_root,
+            config,
+            config_path,
+            config_error,
+            project_mode=project_space.mode,
+        ),
+        check_project_space(repo_root, config),
     ]
+    if project_space.mode == "linked-child":
+        results.append(check_linked_workspace_surface(project_space))
+    else:
+        results.extend(
+            [
+                check_runtime_manifest(repo_root),
+                check_baseline(repo_root, memory_root, preferred_baseline),
+                check_session(repo_root, memory_root),
+                check_retrieval(memory_root),
+                *check_generated(memory_root),
+                check_docs(repo_root),
+                check_visuals(repo_root),
+            ]
+        )
 
     report = render_markdown(
         repo_root,

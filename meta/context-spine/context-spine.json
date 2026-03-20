@@ -23,5 +23,14 @@
     "retries": 4,
     "retry_sleep_sec": 1
   },
-  "gitignore_mode": "tracked"
+  "gitignore_mode": "tracked",
+  "project_space": {
+    "mode": "repo",
+    "child_repos": [],
+    "scan_roots": [
+      "."
+    ],
+    "scan_depth": 2,
+    "ignore_dirs": []
+  }
 }

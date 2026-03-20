@@ -74,6 +74,42 @@ class ContextConfigTest(unittest.TestCase):
             variables["CONFIG_CONTEXT_SPINE_QMD_QUERY_SKILLS"],
             context_config.DEFAULT_CONFIG["qmd"]["queries"]["skills"],
         )
+        self.assertEqual(variables["CONFIG_CONTEXT_SPINE_PROJECT_SPACE_MODE"], "repo")
+        self.assertEqual(variables["CONFIG_CONTEXT_SPINE_PROJECT_SPACE_SCOPE_LABEL"], "repo spine")
+        self.assertEqual(variables["CONFIG_CONTEXT_SPINE_PROJECT_SPACE_CHILD_REPO_COUNT"], "0")
+        self.assertEqual(variables["CONFIG_CONTEXT_SPINE_PROJECT_SPACE_CHILD_LINKED_COUNT"], "0")
+
+    def test_shell_variables_detect_workspace_topology(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo_root = Path(tmpdir)
+            config_path = repo_root / "meta" / "context-spine" / "context-spine.json"
+            config_path.parent.mkdir(parents=True, exist_ok=True)
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "project": "oak-workspace",
+                        "project_space": {
+                            "mode": "workspace",
+                        },
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            child_repo = repo_root / "oak-child"
+            (child_repo / ".git").mkdir(parents=True, exist_ok=True)
+            (child_repo / "meta" / "context-spine").mkdir(parents=True, exist_ok=True)
+            (child_repo / "meta" / "context-spine" / "spine-notes-oak-child.md").write_text("# Baseline\n", encoding="utf-8")
+            (child_repo / "scripts" / "context-spine").mkdir(parents=True, exist_ok=True)
+
+            variables = context_config.shell_variables(repo_root)
+
+            self.assertEqual(variables["CONFIG_CONTEXT_SPINE_PROJECT_SPACE_MODE"], "workspace")
+            self.assertEqual(variables["CONFIG_CONTEXT_SPINE_PROJECT_SPACE_SCOPE_LABEL"], "meta spine")
+            self.assertEqual(variables["CONFIG_CONTEXT_SPINE_PROJECT_SPACE_ROOT_GIT"], "0")
+            self.assertEqual(variables["CONFIG_CONTEXT_SPINE_PROJECT_SPACE_CHILD_REPO_COUNT"], "1")
+            self.assertEqual(variables["CONFIG_CONTEXT_SPINE_PROJECT_SPACE_CHILD_EXISTING_COUNT"], "1")
 
 
 if __name__ == "__main__":

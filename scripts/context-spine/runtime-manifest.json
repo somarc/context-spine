@@ -1,5 +1,5 @@
 {
-  "runtime_version": "2026.03.19.1",
+  "runtime_version": "2026.03.20.4",
   "compatibility": {
     "python": "3.10",
     "node": "20.0.0"
@@ -8,6 +8,7 @@
     "scripts/context-spine/runtime-manifest.json",
     "scripts/context-spine/runtime_manifest.py",
     "scripts/context-spine/run_state.py",
+    "scripts/context-spine/project_space.py",
     "scripts/context-spine/query_core.py",
     "scripts/context-spine/memory_reconciliation.py",
     "scripts/context-spine/generated_artifact.py"
@@ -23,6 +24,7 @@
     "docs/runbooks/memory-state.md",
     "docs/runbooks/native-memory-apis.md",
     "docs/runbooks/multi-repo-rollout.md",
+    "docs/runbooks/project-space-modes.md",
     "docs/runbooks/pi-extension-points.md",
     "docs/runbooks/project-drop-in.md",
     "docs/runbooks/upgrade-existing-project.md",

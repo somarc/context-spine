@@ -97,6 +97,44 @@ print_session_preview() {
   fi
 }
 
+print_project_space_summary() {
+  python3 - "$ROOT" <<'PY'
+import sys
+from pathlib import Path
+
+root = Path(sys.argv[1]).resolve()
+sys.path.insert(0, str(root / "scripts" / "context-spine"))
+
+from context_config import load_config
+from project_space import detect_project_space, summarize_project_space
+
+config = load_config(root)
+project_space = detect_project_space(root, config)
+summary = summarize_project_space(project_space)
+
+print("===== PROJECT SPACE =====")
+print(f"Mode: {summary['mode']}")
+print(f"Scope: {summary['scope_label']}")
+print(f"Root git: {'yes' if summary['root_git'] else 'no'}")
+if summary["nearest_workspace_root"]:
+    print(f"Nearest parent workspace: {summary['nearest_workspace_root']}")
+print(f"Child git repos: {summary['child_repo_count']}")
+if summary["child_repo_count"]:
+    print(
+        "Child spine states: "
+        f"existing={summary['child_existing_count']} "
+        f"linked={summary['child_linked_count']} "
+        f"partial={summary['child_partial_count']} "
+        f"missing={summary['child_missing_count']}"
+    )
+    for child in project_space.child_repos[:8]:
+        print(f"- {child.relative_path} ({child.install_state})")
+    if summary["child_repo_count"] > 8:
+        print(f"- ...and {summary['child_repo_count'] - 8} more child repos")
+print()
+PY
+}
+
 ensure_repo_local_qmd_entries() {
   local output=""
   if output="$(bash "$ROOT/scripts/context-spine/init-qmd.sh" 2>&1)"; then
@@ -181,6 +219,8 @@ echo "Memory root: $MEM_ROOT"
 echo "Collection: $COLLECTION"
 echo "Mode: $BOOTSTRAP_MODE"
 echo
+
+print_project_space_summary
 
 echo "===== PREREQUISITES ====="
 if command -v git >/dev/null 2>&1; then

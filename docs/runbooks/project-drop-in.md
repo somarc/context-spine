@@ -4,13 +4,42 @@
 
 Attach Context Spine to an existing project without waiting for a large reorganization.
 
+The target can be:
+
+- an embedded repo root
+- a parent workspace root that coordinates child repos
+- a light-touch linked child that keeps only a vertebra file
+
 The target outcome is simple: a person joining the repo should be able to find the current baseline, the latest session, and the trusted operating docs without guessing.
 
 If the target repo already has Context Spine surfaces, do not treat it like a first install. Use [upgrade-existing-project.md](./upgrade-existing-project.md) so you can add newer hygiene features without overwriting project-owned customizations.
 
+## Choose The Shape First
+
+Before copying files, decide whether this project should be:
+
+- `embedded-repo`
+  - full local Context Spine install
+- `workspace-root`
+  - full parent spine coordinating children
+- `linked-child`
+  - only `.context-spine.json`, with the parent workspace spine owning shared truth
+
+If you want the smallest possible touch on an existing repo, choose `linked-child` and stop after creating the vertebra file.
+
+Preferred command:
+
+```bash
+python3 ./scripts/context-spine/upgrade.py \
+  --target /path/to/child-repo \
+  --adopt-mode linked-child
+```
+
+See [project-space-modes.md](./project-space-modes.md) for the full comparison.
+
 ## Minimum Installation
 
-Copy or vendor these paths into the target repository:
+For `embedded-repo` or `workspace-root`, copy or vendor these paths into the target repository:
 
 - `AGENTS.md`
 - `meta/context-spine/`
@@ -31,6 +60,7 @@ Then set the repo-local contract in `meta/context-spine/context-spine.json` befo
 - preferred baseline file
 - QMD collection names
 - gitignore mode
+- project-space mode and child repo topology when the target is a parent workspace
 
 ## Fast Path
 
@@ -42,6 +72,36 @@ If the target repo includes `package.json`, the lean path is:
 4. open the baseline note and hot-memory index
 
 If the target repo does not use `npm`, run `bash ./scripts/context-spine/setup.sh` instead.
+
+For a parent workspace root, set:
+
+```json
+{
+  "project_space": {
+    "mode": "workspace",
+    "child_repos": [],
+    "scan_roots": ["."],
+    "scan_depth": 2
+  }
+}
+```
+
+The parent workspace spine should own cross-repo truth, while each child repo can either keep its own repo-local spine or use a light-touch linked-child vertebra file.
+
+For a light-touch linked child, create `.context-spine.json` at the project root:
+
+```json
+{
+  "version": 1,
+  "mode": "linked-child",
+  "workspace_root": "..",
+  "project_id": "oak-chain-docs",
+  "project_name": "Oak Chain Docs",
+  "truth_policy": "external"
+}
+```
+
+That is enough to let the parent workspace spine classify and coordinate the child repo without vendoring the full runtime into the child.
 
 ## Git Tracking Mode
 
