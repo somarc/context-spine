@@ -7,12 +7,9 @@
   "collections": {
     "meta": "context-spine-meta",
     "docs": "project-docs",
-    "skills": "project-skills",
-    "vault": "project-vault",
-    "vault_root": ""
+    "skills": "project-skills"
   },
   "qmd": {
-    "collections": "context-spine-meta,project-docs,project-skills",
     "append_to_session": true,
     "queries": {
       "bootstrap": "spine notes baseline bootstrap memory",

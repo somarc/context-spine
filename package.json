@@ -6,6 +6,7 @@
   "scripts": {
     "context:setup": "bash ./scripts/context-spine/setup.sh",
     "context:init": "bash ./scripts/context-spine/init-qmd.sh",
+    "context:vault:init": "bash ./scripts/context-spine/init-vault.sh",
     "context:bootstrap": "bash ./scripts/context-spine/bootstrap.sh",
     "context:refresh": "bash ./scripts/context-spine/refresh.sh",
     "context:config": "python3 ./scripts/context-spine/context-config.py --format json",

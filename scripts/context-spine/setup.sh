@@ -10,9 +10,10 @@ usage() {
 Usage: setup.sh [--skip-bootstrap] [--with-embed] [--no-embed]
 
 Fast first-time path for Context Spine:
-  1. wire repo-local QMD collections
-  2. refresh lexical retrieval
-  3. open the working set via bootstrap
+  1. provision the project-scoped external vault
+  2. wire repo-local QMD collections
+  3. refresh lexical retrieval
+  4. open the working set via bootstrap
 
 Use `--with-embed` only when you want to attempt vector hydration explicitly.
 EOF
@@ -46,6 +47,9 @@ done
 
 echo "===== CONTEXT SETUP ====="
 echo "Root: $ROOT"
+
+echo "Durable notes: provisioning the project-scoped external vault"
+bash "$ROOT/scripts/context-spine/init-vault.sh"
 
 if command -v qmd >/dev/null 2>&1; then
   echo "Retrieval: configuring repo-local QMD collections and refreshing lexical search"

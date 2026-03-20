@@ -1,5 +1,5 @@
 {
-  "runtime_version": "2026.03.20.4",
+  "runtime_version": "2026.03.20.5",
   "compatibility": {
     "python": "3.10",
     "node": "20.0.0"
@@ -20,6 +20,7 @@
     "docs/runbooks/codex-skill.md",
     "docs/runbooks/doctor.md",
     "docs/runbooks/elon-doctrine.md",
+    "docs/runbooks/external-durable-notes.md",
     "docs/runbooks/how-to-use-context-spine.md",
     "docs/runbooks/memory-state.md",
     "docs/runbooks/native-memory-apis.md",
@@ -37,6 +38,7 @@
     "scripts/context-spine/doctor.py",
     "scripts/context-spine/hot-memory.py",
     "scripts/context-spine/install-codex-skill.sh",
+    "scripts/context-spine/init-vault.sh",
     "scripts/context-spine/mem-log.py",
     "scripts/context-spine/memory_events.py",
     "scripts/context-spine/memory_reconciliation.py",

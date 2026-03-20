@@ -9,7 +9,8 @@ This runbook is optional and only matters if your team wants the bundled workflo
 
 ## Source Of Truth
 
-- repo source: `.pi/skills/`
+- repo source: `.pi/skills/` by default, or the repo-local
+  `collections.skills_root` configured in `meta/context-spine/context-spine.json`
 - installed target: `${CODEX_HOME:-$HOME/.codex}/skills/`
 
 ## Bundled Skills
@@ -45,6 +46,8 @@ bash ./scripts/context-spine/install-codex-skill.sh
 ## When To Run It
 
 - after changing any file under `.pi/skills/`
+- after changing the configured local skill source path if the repo intentionally
+  uses something other than `.pi/skills/`
 - after cloning the repo onto a new machine
 - before relying on a bundled skill in Codex
 - when the spine feels dry, blocked, bloated, or overly inferential under delivery pressure

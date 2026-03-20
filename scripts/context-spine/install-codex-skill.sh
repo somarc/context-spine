@@ -2,8 +2,11 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+if CONFIG_OUTPUT="$(python3 "$ROOT/scripts/context-spine/context-config.py" --repo-root "$ROOT" --format shell 2>/dev/null)"; then
+  eval "$CONFIG_OUTPUT"
+fi
 SOURCE_DIR="${CONTEXT_SPINE_SKILL_SOURCE:-}"
-SKILLS_ROOT="${CONTEXT_SPINE_SKILLS_SOURCE:-$ROOT/.pi/skills}"
+SKILLS_ROOT="${CONTEXT_SPINE_SKILLS_SOURCE:-${CONTEXT_SPINE_SKILLS_ROOT:-${CONFIG_CONTEXT_SPINE_SKILLS_ROOT:-$ROOT/.pi/skills}}}"
 CODEX_HOME_DIR="${CODEX_HOME:-$HOME/.codex}"
 TARGET_ROOT="${CONTEXT_SPINE_SKILLS_TARGET:-$CODEX_HOME_DIR/skills}"
 TARGET_DIR_OVERRIDE="${CONTEXT_SPINE_SKILL_TARGET:-}"
